@@ -1,0 +1,141 @@
+.logo {
+    width: 150px;
+    height: 150px;
+}
+
+.logo-title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.Dylchat-title {
+    margin-top: 20px;
+    font-size: xx-large;
+    text-align: left;
+    color: #888888;
+}  
+  
+.imageflottante {
+    float: left;
+    width: 80px;
+    height: 70px;
+    margin-left: 4%; /* Censé être 5% mais que l'image est pas en PNG et dépasse un peu */
+  }
+
+/* Se connecter | S'inscrire */
+.login-container {
+    color: #041C32;
+    display:flex;
+    gap: 2%;
+    padding-bottom: 3em;
+}
+.login {
+    text-align: left;
+    font-size: x-large;
+    font-weight: 550;
+}
+.login.left {
+    margin-left: 5%;
+}
+.login.active {
+    color: #041C32;
+}
+.login.inactive {
+    color: #888888;
+}
+.login.inactive:hover {
+    cursor: pointer;
+    color: #064663;
+}
+
+/* Formulaires de login */
+.log-form {
+    text-align: left;
+    margin-left: 5%;
+    top : 30%;
+  }
+  .log-form.visible {
+    display: block;
+  }
+  .log-form.hidden {
+    display: none;
+  }
+  
+  
+  /* Inputs du formulaire */
+  .input-container{
+    max-width: 25em;
+    position:relative;
+    margin-bottom: 2em;
+  }
+  .input-container label{
+    position:absolute;
+    top:0px;
+    left:0px;
+    font-size:18px;
+    font-weight: 600;
+    color:#041C32;	
+    pointer-events:none;
+    transition: all 0.5s ease-in-out;
+  }
+  .input-container input{ 
+    border:0;
+    border-bottom:1px solid #555;  
+    background:transparent;
+    width:100%;
+    padding:8px 0 5px 0;
+    font-size:18px;
+    color:#041C32;
+  }
+  .input-container input:focus{ 
+   border:none;	
+   outline:none;
+   border-bottom:1px solid #e74c3c;	
+  }
+
+  .input-container input:focus ~ label,
+  .input-container input:valid ~ label{
+    top:-12px;
+    font-size:16px;
+  }
+
+  /* Bouton Connexion / S'inscrire */
+  .bouton-connexion {
+    width: 10em;
+  }
+  .btn-connect {
+    appearance: button;
+    backface-visibility: hidden;
+    background-color:#041C32;
+    /* border-radius: 6px; */
+    border-width: 0;
+    box-shadow: rgba(50, 50, 93, .1) 0 0 0 1px inset,rgba(50, 50, 93, .1) 0 2px 5px 0,rgba(0, 0, 0, .07) 0 1px 1px 0;
+    box-sizing: border-box;
+    color: #fff;
+    cursor: pointer;
+    font-family: -apple-system,system-ui,"Segoe UI",Roboto,"Helvetica Neue",Ubuntu,sans-serif;
+    font-size: 100%;
+    font-weight: 400;
+    height: 44px;
+    line-height: 1.15;
+    margin: 12px 0 0;
+    outline: none;
+    overflow: hidden;
+    padding: 0 25px;
+    position: relative;
+    text-align: center;
+    text-transform: none;
+    transform: translateZ(0);
+    transition: all .2s,box-shadow .08s ease-in;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    width: 100%;
+  }
+  .btn-connect:disabled {
+    cursor: default;
+  }
+  .btn-connect:focus {
+    box-shadow: rgba(50, 50, 93, .1) 0 0 0 1px inset, rgba(50, 50, 93, .2) 0 6px 15px 0, rgba(0, 0, 0, .1) 0 2px 2px 0, rgba(50, 151, 211, .3) 0 0 0 4px;
+  }
+  
