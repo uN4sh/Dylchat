@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>node test</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <h1>Messagerie instantanée</h1>
+
+    <h2>Ici sont écrit les différents messages que vous envoyez et recevez : </h2>
+
+    <div id="inputPseudo">
+        <label for="pseudoInput">Choisissez votre pseudo : </label>
+        <input type="text" id="pseudoInput" name="pseudoInput" required minlength="1" maxlength="200" size="10">
+        <button class="button" onclick="chosePseudo()" value="Entrez votre message">choisir</button>
+    </div>
+
+    <div id="divInput">
+        <label for="messageInput">Entrez votre message : (Maximum 200 charactères)</label>
+        <input type="text" id="messageInput" name="messageInput" required minlength="1" maxlength="200" size="10">
+        <button class="button" onclick="sendMessage()" value="Entrez votre message">Envoyer</button>
+    </div>
+
+    <div id="messageBox"></div>
+
+    <script src="client.js" defer></script>
+</body>
+
+</html>
