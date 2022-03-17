@@ -125,8 +125,9 @@ html {
   
 
   /* Dylan   */
+  
   #accueil {  
-    /*border: 2px solid black;*/
+    
     line-height:20px;
     width:70%;
     position: absolute;
@@ -154,16 +155,13 @@ html {
     cursor: pointer;
   }
   
+  /*
   .grid-container {
     display:grid;
-    /* grid-area: "logo nom nom nom nom nom status bouton"
-                "barre barre barre barre barre barre barre barre"
-                "chat chat chat chat chat chat chat chat"
-                "input input input input input input input input"; */
   }
   
   .item-grid-container {
-    /*border: 1px solid black;*/
+    
   }
   
   #group-container {
@@ -288,3 +286,5 @@ html {
     height: 100%;
     padding: 15%;
   }
+  */
+  

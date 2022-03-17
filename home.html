@@ -10,6 +10,8 @@
 
   <!-- Import the webpage's stylesheet -->
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="chatboxes.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
 
   <!-- Import the webpage's javascript file -->
   <script src="script.js" defer></script>
@@ -45,34 +47,64 @@
       </div>
 
 
-      <!-- Chat groupe -->
-      <div id="chat" class="hidden">
-        <div class="grid-container" id="group-container">
-          <div class="item-grid-container flex-container" id="header-group">
-            <div class="item-flex-container" id="photo-chat-group">
-              <img class="photo-header" src="./icons/group-photo.png" alt=" ">
-            </div>
-            <div class="item-flex-container" id="name-chat-group">
-              <p>Groupe</p>
-            </div>
-            <div class="item-flex-container" id="statut-chat-group">
-              <p>
-              <div class="led-status"></div>Status</p>
-            </div>
-            <div class="item-flex-container" id="option-chat-group">
-              <button id="option-header-button"><img id="option-header-icon" src="./icons/options-group.png" /></button>
-            </div>
-          </div>
-          <div class="item-grid-container" id="chat-group">chat</div>
-          <div class="item-grid-container" id="message-bar-group">
-            <form method="post" action="script.js">
-              <p><input class="input-chat-bar" type="text" name="message-group"
-                  placeholder="Envoyer un message ..."><button class="button-chat-bar" formemethod="post"
-                  formaction="index.html" type="submit">Envoyer</button></p>
-            </form>
-          </div>
+          
+
+      <!-- Nouvelles chatboxes -->
+      <section id="chat" class="chat hidden">
+        <div class="header-chat">
+          <i class="icon fa fa-user-o" aria-hidden="true"></i>
+          <p class="name">Dylan</p>
+          <i class="icon clickable fa fa-ellipsis-h right" aria-hidden="true"></i>
         </div>
-      </div>
+
+        <div id="messages-chat" class="messages-chat">
+
+          <!-- <div class="message">
+            <div class="photo" style="background-image: url(https://i.imgur.com/acykxOt.jpg);">
+              <div class="online"></div>
+            </div>
+            <p class="text"> Salut ! </p>
+          </div> -->
+
+          <div class="message">
+            <p class="username"> Dylan </p>
+          </div>
+          <div class="message text-only">
+            <p class="text"> Hello! </p>
+          </div>
+
+          <div class="message text-only">
+            <p class="text"> Ça va bien toi toi ? </p>
+          </div>
+          <div class="message">
+            <p class="time"> 14h58</p>
+          </div>
+          <div class="space"></div>
+          
+          
+          <div class="message">
+            <p class="username"> Elyn </p>
+          </div>
+          <div class="message text-only">
+            <div class="response">
+              <p class="text"> ??? </p>
+            </div>
+          </div>
+          <div class="message">
+            <p class="time"> 15h04</p> 
+          </div>
+        
+        </div>
+
+        <div class="footer-chat">
+          <input id="chat-box" type="text" class="write-message" placeholder="Écris ici ton message" /></input>
+          <i id="send" class="icon send fa fa-paper-plane-o clickable" aria-hidden="true"></i>
+        </div>
+        
+      </section>
+
+
+
       <footer id="footer">Dylchat – Where everything starts</footer>
     </main>
   </div>
