@@ -113,16 +113,6 @@ html {
   }
   
   
-  /*Partie CSS pour homepage*/
-  
-  #chatbox{
-    position: bottom;
-  }
-  
-  .bouton {
-    border-radius: 50px;
-  }
-  
   footer {
     position:absolute;
     bottom:0;
@@ -133,3 +123,168 @@ html {
   }
   
   
+
+  /* Dylan   */
+  #accueil {  
+    /*border: 2px solid black;*/
+    line-height:20px;
+    width:70%;
+    position: absolute;
+    top:40%;
+  }
+  
+  #chat {
+    
+  }
+  
+  .hidden {
+    display: none
+  }
+
+  .text-menu {
+    color:#888888;
+  }
+  
+  .text-link-blue {
+    color:#2D9BF0;
+  }
+  
+  .text-link-blue:hover {
+    color:#0071c7;
+    cursor: pointer;
+  }
+  
+  .grid-container {
+    display:grid;
+    /* grid-area: "logo nom nom nom nom nom status bouton"
+                "barre barre barre barre barre barre barre barre"
+                "chat chat chat chat chat chat chat chat"
+                "input input input input input input input input"; */
+  }
+  
+  .item-grid-container {
+    /*border: 1px solid black;*/
+  }
+  
+  #group-container {
+    height: 100%;
+    grid-template-rows: 0.5fr 3fr 0.5fr;
+    grid-template-areas: "header"
+                          "main-body"
+                          "bot";
+  }
+  
+  #header-group {
+    grid-area: header;
+  }
+  
+  .flex-container {
+    display: flex;
+  }
+  
+  .item-flex-container {
+    border-bottom: 4px solid #E6E6E6;
+  }
+  
+  #photo-chat-group {
+    flex:150px;
+    margin-left: 15px;
+  }
+  
+  #name-chat-group {
+    flex:60%;
+    text-align: left;
+    padding-left: 10px;
+    padding-top: 15px;
+    font-size: 24px;
+    font-family: 'Noto Sans Hebrew', 'Noto Sans', 'Noto Sans JP', 'Noto Sans KR', Arial, Arial, sans-serif;
+    color: rgb(26, 26, 26);
+  }
+  
+  #statut-chat-group {
+    flex:40%;
+    font-size: normal;
+    font-style: italic;
+    text-align: right;
+    font-weight: lighter;
+    color: #888888;
+    border-collapse: separate;
+    display: flex;
+    justify-content: flex-end;
+    align-items:center;
+    position: relative;
+  }
+  
+  .led-status {
+    width: 20px;
+    height: 10px;
+    position: relative;
+    border-collapse: collapse;
+    padding-top: 20px;
+    background-color: #8FD14F;
+    border-radius: 100%;
+    border-width: 0px;
+    margin-right: 10px;
+  }
+  
+  #option-chat-group {
+    flex:30px;
+    margin-right: 30px;
+    margin-top: 0px;
+  }
+  
+  #option-header-button {
+    position: relative;
+    height: 100%;
+    width: 30px;
+    border-width: 0px;
+    background-color: white;
+  }
+  
+  #option-header-icon {
+    height: 30px;
+    margin-left: 5px;
+  }
+  
+  #chat-group {
+    grid-area: main-body;
+  }
+  
+  #message-bar-group {
+    grid-area: bot;
+    align-self: center;
+  }
+  
+  input:placeholder-shown {
+    font-style:italic;
+  }
+  
+  .button-chat-bar {
+    color: white;
+    background-color:#2D9BF0;
+    border-color: #2D9BF0;
+    border-radius: 6px;
+    border-width: 0px;
+    font-weight: bold;
+    text-align: center;
+    margin: 8px;
+    height: 30px;
+  }
+  
+  .button-chat-bar:hover {
+    background-color:#0071c7;
+  }
+  
+  .input-chat-bar {
+    width: 75%;
+    height: 30px;
+    border-radius: 6px;
+    border: 1px solid #222;
+  }
+   
+  .photo-header {
+    border-radius: 100%;
+    width: 100%;
+    height: 100%;
+    padding: 15%;
+  }

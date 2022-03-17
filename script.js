@@ -67,10 +67,20 @@ var selectContact = function (e) {
     contact.classList.remove("selected");
   }
   e.currentTarget.classList.add("selected");
-  // ToDo : affichage de la discussion sur la partie droite
+
+  // Affichage de la discussion sur la partie droite en cachant l'accueil
+  let activeAccueil = document.querySelector("#accueil");
+  activeAccueil.classList.add("hidden");
+  let footer = document.querySelector("#footer");
+  footer.classList.add("hidden");
+  let chatHome = document.querySelector("#chat");
+  chatHome.classList.remove("hidden");
+
 };
 // Ajout des évènements au clic sur contact
 for (let i = 0; i < contact_list.length; i++) {
   let contact = document.querySelector("#contact-" + i);
   contact.addEventListener("click", selectContact, true);
 }
+
+// ToDo: ajouter un bouton retour pour réafficher l'accueil

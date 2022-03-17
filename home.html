@@ -35,8 +35,45 @@
 
     <main class="partie-droite">
 
+      <!-- Accueil -->
+      <div id="accueil">
+        <p class="text-menu">Clique sur une conversation pour commencer.</p>
+        <break />
+        <p class="text-menu">Tu peux aussi <span class="text-link-blue">ajouter un contact</span> ou <span
+            class="text-link-blue">démarrer une discussion</span>.</p>
 
-      <footer>Dylchat – Where everything starts</footer>
+      </div>
+
+
+      <!-- Chat groupe -->
+      <div id="chat" class="hidden">
+        <div class="grid-container" id="group-container">
+          <div class="item-grid-container flex-container" id="header-group">
+            <div class="item-flex-container" id="photo-chat-group">
+              <img class="photo-header" src="./icons/group-photo.png" alt=" ">
+            </div>
+            <div class="item-flex-container" id="name-chat-group">
+              <p>Groupe</p>
+            </div>
+            <div class="item-flex-container" id="statut-chat-group">
+              <p>
+              <div class="led-status"></div>Status</p>
+            </div>
+            <div class="item-flex-container" id="option-chat-group">
+              <button id="option-header-button"><img id="option-header-icon" src="./icons/options-group.png" /></button>
+            </div>
+          </div>
+          <div class="item-grid-container" id="chat-group">chat</div>
+          <div class="item-grid-container" id="message-bar-group">
+            <form method="post" action="script.js">
+              <p><input class="input-chat-bar" type="text" name="message-group"
+                  placeholder="Envoyer un message ..."><button class="button-chat-bar" formemethod="post"
+                  formaction="index.html" type="submit">Envoyer</button></p>
+            </form>
+          </div>
+        </div>
+      </div>
+      <footer id="footer">Dylchat – Where everything starts</footer>
     </main>
   </div>
 </body>
