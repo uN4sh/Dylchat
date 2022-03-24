@@ -32,20 +32,30 @@ var listClient = [];
 console.log("\nServer is open !\n")
 
 wss.on("connection", ws => {
-    console.log("New client connected!!");
-    // let clientId = getRandomID();
-    // if (clientId = -1) {
-    //     ws.send("ECHEC, veuillez retenter une connexion...");
-    //     ws.close();
-    // }
-    // let infoClient = { id: clientId, connection: ws };
-    // listClient.push(infoClient);
-    listClient.push(ws);
+    let clientId = getRandomID();
+    if (clientId == -1) {
+        ws.send("ECHEC, veuillez retenter une connexion...");
+        ws.close();
+    }
+    else {
+        console.log(`New client with ID : #${clientId}`);
+        let infoClient = { id: clientId, connection: ws };
+        listClient.push(infoClient);
+    }
 
     ws.on("message", data => {
-        console.log(data.toString());
-        for (let i = 0; i < listClient.length; i++) {
-            listClient[i].send(data.toString());
+        let message = JSON.parse(data.toString());
+        let id = -1;
+        for (let i = 0; i < listClient.length; i++) { // Cherche l'id de l'emetteur du message
+            if (listClient[i].connection == ws) {
+                id = listClient[i].id;
+            }
+        }
+        message.author += '#' + id;
+        console.log(message);
+        message = JSON.stringify(message);
+        for (let i = 0; i < listClient.length; i++) { // Envoie du message à tous les clients connectés
+            listClient[i].connection.send(message);
         }
     });
 
@@ -60,20 +70,21 @@ wss.on("connection", ws => {
 });
 
 // Génère un ID à 4 chiffres unique
+// TODO : Créer l'ID sous forme de 4 digits
 // TODO : Limiter le nombre de client dans la room pour éviter une boucle infinie dans cette fonction
-// function getRandomID() {
-//     let bonId = true;
-//     let nbTentative = 10;
-//     let id = -1;
-//     do {
-//         id = Math.floor(Math.random() * 1e4);
-//         for (let i = 0; i < listClient.length; i++) {
-//             if (listClient[i].id == id) {
-//                 bonId = false;
-//             }
-//         }
-//         nbTentative--;
-//     } while (!bonId && nbTentative > 0);
+function getRandomID() {
+    let bonId = true;
+    let nbTentative = 10;
+    let id = -1;
+    do {
+        id = Math.floor(Math.random() * 1e4);
+        for (let i = 0; i < listClient.length; i++) {
+            if (listClient[i].id == id) {
+                bonId = false;
+            }
+        }
+        nbTentative--;
+    } while (!bonId && nbTentative > 0);
 
-//     return id;
-// }
+    return id;
+}
