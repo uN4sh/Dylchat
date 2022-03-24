@@ -1,0 +1,7 @@
+# Ignore node modules, and files created by the npm commands
+node_modules/
+package.json
+package-lock.json
+
+# VSCode forlder
+.DS_Store

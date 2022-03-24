@@ -4,7 +4,18 @@ const path = require("path");
 const express = require("express");
 const app = express();
 
-const htmlPath = path.join(__dirname, "public");
+const htmlPath = path.join(__dirname, "./source/home");
+
+// function getTime() {
+//     let date = new Date();
+//     let milisec = Date.now();
+//     let seconds = milisec / 1000;
+//     let minutes = seconds / 60;
+//     minutes -= date.getTimezoneOffset();
+//     let hours = minutes / 60;
+//     let result = Math.floor(hours % 24) + ":" + Math.floor(minutes % 60);
+//     return result;
+// }
 
 app.use(express.static(htmlPath));
 
@@ -22,6 +33,13 @@ console.log("\nServer is open !\n")
 
 wss.on("connection", ws => {
     console.log("New client connected!!");
+    // let clientId = getRandomID();
+    // if (clientId = -1) {
+    //     ws.send("ECHEC, veuillez retenter une connexion...");
+    //     ws.close();
+    // }
+    // let infoClient = { id: clientId, connection: ws };
+    // listClient.push(infoClient);
     listClient.push(ws);
 
     ws.on("message", data => {
@@ -40,3 +58,22 @@ wss.on("connection", ws => {
         }
     });
 });
+
+// Génère un ID à 4 chiffres unique
+// TODO : Limiter le nombre de client dans la room pour éviter une boucle infinie dans cette fonction
+// function getRandomID() {
+//     let bonId = true;
+//     let nbTentative = 10;
+//     let id = -1;
+//     do {
+//         id = Math.floor(Math.random() * 1e4);
+//         for (let i = 0; i < listClient.length; i++) {
+//             if (listClient[i].id == id) {
+//                 bonId = false;
+//             }
+//         }
+//         nbTentative--;
+//     } while (!bonId && nbTentative > 0);
+
+//     return id;
+// }
