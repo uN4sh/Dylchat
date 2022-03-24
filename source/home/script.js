@@ -16,6 +16,7 @@ class Message {
 
 
 var myPseudo = "Random";
+var ID = -1;
 
 
 var contact_list = new Array();
@@ -32,13 +33,29 @@ messagesArray.push(new Message("Dylan", "Salut !", new Date()));
 const ws = new WebSocket("ws://localhost:8080");
 
 
+var messageNumber = 0;
+
+// Que faire lorsque la connexion est établie
+ws.addEventListener("open", () => {
+  console.log("We are connected");
+});
+
+
 // Que faire quand le client reçoit un message du serveur
 ws.addEventListener("message", data => {
-  let msg = JSON.parse(data.data);
-  console.log(msg);
-  let message = new Message(msg.author, msg.content, msg.time);
-  messagesArray.push(message);
-  renderMessages();
+  if (messageNumber == 0) { // Le tout premier message est celui du serveur qui communique l'ID du client
+    console.log(data.data);
+    ID = parseInt(data.data);
+    alert(`Your ID is ${ID}`);
+  }
+  else {
+    let msg = JSON.parse(data.data);
+    console.log(msg);
+    let message = new Message(msg.author, msg.content, msg.time);
+    messagesArray.push(message);
+    renderMessages();
+  }
+  messageNumber++;
 });
 
 
@@ -162,7 +179,8 @@ function renderMessages() {
       newMsgDiv.appendChild(text);
     }
 
-    if (author == myPseudo) {
+    let messageId = parseInt(author.split('#')[1]);
+    if (messageId == ID) {
       let newMsgDiv = document.createElement("div");
       newMsgDiv.classList.add("message");
       newMsgDiv.classList.add("text-only");

@@ -41,6 +41,7 @@ wss.on("connection", ws => {
         console.log(`New client with ID : #${clientId}`);
         let infoClient = { id: clientId, connection: ws };
         listClient.push(infoClient);
+        ws.send(clientId);
     }
 
     ws.on("message", data => {
@@ -60,9 +61,9 @@ wss.on("connection", ws => {
     });
 
     ws.on("close", () => {
-        console.log("Client has disconnected!");
         for (let i = 0; i < listClient.length; i++) {
-            if (listClient[i] == ws) {
+            if (listClient[i].connection == ws) {
+                console.log(`Client #${listClient[i].id} has disconnected!`);
                 listClient.splice(i, 1);
             }
         }
