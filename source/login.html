@@ -9,11 +9,11 @@
   <title>Dylchat</title>
 
   <!-- Import the webpage's stylesheet -->
-  <link rel="stylesheet" href="../style.css" />
-  <link rel="stylesheet" href="loginPage.css" />
+  <link rel="stylesheet" href="../stylesheets/mainstyle.css" />
+  <link rel="stylesheet" href="../stylesheets/loginPage.css" />
 
   <!-- Import the webpage's javascript file -->
-  <script src="loginPage.js" defer></script>
+  <script src="../scripts/loginPage.js" defer></script>
 </head>
 
 <body>
@@ -43,7 +43,7 @@
 
       <!-- Formulaire de connexion -->
       <div class="log-form visible">
-        <form action="/user" method="post">
+        <form action="/login" method="post">
           <div class="input-container">
             <input type="text" id="usernameLogin" name="usernameLogin" required="" />
             <label>Identifiant</label>
@@ -55,11 +55,12 @@
           <div class="bouton-connexion">
             <button class="btn-connect" role="button">Connexion</button>
           </div>
+        </form>
       </div>
 
       <!-- Formulaire d'inscription -->
       <div class="log-form hidden">
-        <form action="/user" method="post">
+        <form action="/register" method="post">
           <div class="input-container">
             <input type="text" id="usernameSignup" name="usernameSignup" />
             <label>Identifiant</label>
@@ -75,6 +76,7 @@
           <div class="bouton-connexion">
             <button class="btn-connect" role="button">S'inscrire</button>
           </div>
+        </form>
       </div>
 
       <!-- Footer -->

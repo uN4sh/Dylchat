@@ -2,14 +2,14 @@
 
 # Suivi de projet
 
-- Pas de salles de discussions car chiffrement non implémentable pour un grupe
+- Pas de salles de discussions car chiffrement non implémentable pour un groupe
 
 ## Phase 1
 
 ### Interface
 
 - [x] Inscription / Connexion
-- [x] Page d'accueil 
+- [x] Page d'accueil
 - [ ] **Partie gauche**
   - [x] Affichage des contacts
   - [ ] Scrollbar sur les salles
@@ -27,13 +27,25 @@
 
 ### Côté serveur
 
-- [x] Websockets: échanger des messages en temps réel 
+- [x] Websockets: échanger des messages en temps réel
 - [x] Implémenter correctement le mécanisme de pseudo/ID
 - [x] Fusionner les travaux, afficher les messages dans les bulles de l'interface (utiliser la fonction `renderMessage()`)
-- [x] Host le serveur sur VPS (http://dylchat.elyn.cf)
+- [x] Host le serveur sur VPS (<http://dylchat.elyn.cf>)
 
 ## Phase 2
 
-- [ ] Ajouter une base de données pour supporter l'inscription et l'authentification 
+- [ ] Ajouter une base de données pour supporter l'inscription et l'authentification
 - [ ] Faire le routage "page login" --> "page chat" (recupérer le pseudo de la page 'login' pour continuer sur la page 'chat')
 - [ ] Réfléchir à l'implémentation de la base de données (stockage des messages)
+
+# Fonctionnement
+
+## Base de données
+
+- Installer Mongo et lancer le service
+- À la racine du projet :
+  - `npm init -y`
+  - `npm install cors mongoose express jsonwebtoken dotenv bcryptjs`
+  - `npm install nodemon -D`
+- Taper `npm run dev` pour lancer le serveur (`index.js`)
+- Le script s'actualise automatiquement avec `nodemon` à chaque modification de fichier
