@@ -1,9 +1,11 @@
 require("dotenv").config();
 require("./config/database").connect();
 const express = require("express");
+const cookieParser = require("cookie-parser");
 
 const app = express();
 
+app.use(cookieParser());
 app.use(express.json());       // to support JSON-encoded bodies
 app.use(express.urlencoded()); // to support URL-encoded bodies
 
@@ -15,122 +17,30 @@ app.use("/styles",  express.static(__dirname + '/source/stylesheets'));
 app.use("/scripts", express.static(__dirname + '/source/javascripts'));
 app.use("/images",  express.static(__dirname + '/source/images'));
 
-app.get("/", function(req, res) {
-    res.sendFile(__dirname + "/source/login.html");
-});
 
 
 
 // AUTHENTICATION //
 
-const bcrypt = require('bcryptjs');
-const jwt = require("jsonwebtoken");
+const { register, login, getUsers, getUsername } = require("./Auth/auth");
 
-// importing user context
-const User = require("./model/user");
+app.get("/", (req, res) => res.sendFile(__dirname + "/source/login.html")); // Accède à la page de login
 
-// Register
-app.post("/register", async (req, res) => {
-    try {
-        // Get user input
-        console.log(req.body);
-        const { usernameSignup, emailSignup, passwordSignup } = req.body;
-
-        // Validate user input
-        if (!(emailSignup && passwordSignup && usernameSignup)) {
-            res.status(400).send("All input is required");
-            return;
-        }
-
-        // check if user already exist
-        // Validate if user exist in our database
-        const oldUser = await User.findOne({ username:usernameSignup });
-
-        if (oldUser) {
-            return res.status(409).send("User Already Exist. Please Login");
-        }
-
-        //Encrypt user password
-        encryptedUserPassword = await bcrypt.hash(passwordSignup, 10);
-
-        // Create user in our database
-        const user = await User.create({
-            username: usernameSignup.toLowerCase(),
-            email: emailSignup.toLowerCase(), // sanitize
-            password: encryptedUserPassword,
-        });
-    
-        // Create token
-        const token = jwt.sign(
-            { user_id: user._id, usernameSignup },
-            process.env.TOKEN_KEY,
-            {
-            expiresIn: "5h",
-            }
-        );
-        // save user token
-        user.token = token;
-    
-        // return new user
-        res.status(201).json(user);
-    } catch (err) {
-        console.log(err);
-    }
-});
-
-// Login
-app.post("/login", async (req, res) => {
-    try {
-        // Get user input
-        console.log(req.body);
-        const { usernameLogin, passwordLogin } = req.body;
-
-        // Validate user input
-        if (!(usernameLogin && passwordLogin)) {
-            res.status(400).send("All input is required");
-        }
-        
-        // Validate if user exist in our database
-        const user = await User.findOne({ username:usernameLogin.toLowerCase() });
-
-        if (user && (await bcrypt.compare(passwordLogin, user.password))) {
-            // Create token
-            const token = jwt.sign(
-                { user_id: user._id, usernameLogin },
-                process.env.TOKEN_KEY,
-                {
-                expiresIn: "5h",
-                }
-            );
-
-            // save user token
-            user.token = token;
-
-            // user
-            // return res.status(200).json(user);
-            // ToDo: conditionner l'accès avec middleware/auth
-            // ToDo: post vers /home avec le token en param
-            return res.status(200).redirect("/home");
-            // return res.status(200).sendFile(__dirname + "/source/home.html");
-        }
-        return res.status(400).send("Invalid Credentials");
-    } catch (err) {
-        console.log(err);
-    }
-});
-
-// ToDo: conditionner l'accès avec middleware/auth
-// ToDo: post vers /home avec le token en param
-app.get("/home", function(req, res) {
-    res.sendFile(__dirname + "/source/home.html");
-});
-
+app.post("/register", register); // Exécute la routine register
+app.post("/login", login); // Exécute la routine login 
+app.get("/getUsers", getUsers); // Affiche tous les users de la DB 
+app.get("/getUsername", getUsername); // Affiche l'username et l'email de l'utilisateur connecté
 
 const auth = require("./middleware/auth");
+// Accède à la page home (si la fonction auth le valide selon le token) 
+app.get("/home", auth, (req, res) => res.status(200).sendFile(__dirname + "/source/home.html"));
 
-app.post("/welcome", auth, (req, res) => {
-  res.status(200).send("Welcome to FreeCodeCamp 🙌");
-});
+// Supprime le token de l'utilisateur
+app.get("/logout", (req, res) => {
+    res.cookie("jwt", "", { maxAge: "1" })
+    res.status(200).redirect("/")
+})
+
 
 
 

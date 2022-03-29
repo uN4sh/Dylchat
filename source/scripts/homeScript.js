@@ -14,9 +14,30 @@ class Message {
   }
 }
 
+async function getUsername() {
+  try {
+    const res = await fetch('/getUsername', {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' }
+    })
+    const data = await res.json()
+    if(res.status === 400 || res.status === 401){
+      return display.textContent = `${data.message}. ${data.error ? data.error : ''}`
+    }
+    return data.username;
+  } catch (err) {
+      console.log(err.message)
+  }
+}
 
+
+let username = getUsername();
 var myPseudo = "Random";
 var ID = -1;
+
+username.then(function(result) {
+  myPseudo = result;
+})
 
 
 var contact_list = new Array();

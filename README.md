@@ -34,18 +34,40 @@
 
 ## Phase 2
 
-- [ ] Ajouter une base de données pour supporter l'inscription et l'authentification
-- [ ] Faire le routage "page login" --> "page chat" (recupérer le pseudo de la page 'login' pour continuer sur la page 'chat')
+### Authentification et cookie
+
+- [x] Ajouter une base de données pour supporter l'inscription et l'authentification
+- [x] Générer un token JWT (cookie) pour rendre la connexion persistante
+- [x] Créer une API pour les requêtes client vers DB (avec son cookie en paramètre de requète)
+- [x] Routage `/login` --> `/home` (recupérer le pseudo de l'utilisateur connecté)
+- [ ] Faire en sorte que le `GET /` d'une personne connectée mène au `/home`
+- [ ] Ajouter les actions en cas de connexion invalide, inscription invalide, accès non autorisé (`/home` sans token par exemple)
+- [ ]
+
+### Stockage des messages
+
 - [ ] Réfléchir à l'implémentation de la base de données (stockage des messages)
+  - Requète pour récupérer les 50 derniers messages pour les display
+  - Si l'utilisateur remonte son chat, la scrollbar se bloque le temps de fetch les 50 prochains messages
 
-# Fonctionnement
+# Lancement du serveur
 
-## Base de données
 
-- Installer Mongo et lancer le service
+
+- Installer Mongo : 
+  - Linux : `sudo apt get install mongo`
+  - Vérifier que tout fonctionne bien : `mongo`, `show dbs` 
 - À la racine du projet :
   - `npm init -y`
-  - `npm install cors mongoose express jsonwebtoken dotenv bcryptjs`
+  - `npm install cors mongoose express jsonwebtoken dotenv bcryptjs cookie-parser`
   - `npm install nodemon -D`
+  - Modifier les scripts du fichier `package.json` comme suit :
+    ```json
+    "scripts": {
+      "start": "node index.js",
+      "dev": "nodemon index.js",
+      "test": "echo \"Error: no test specified\" && exit 1"
+    }```
 - Taper `npm run dev` pour lancer le serveur (`index.js`)
 - Le script s'actualise automatiquement avec `nodemon` à chaque modification de fichier
+- Les messages "*Listening on `http://localhost:8000`*" et "*Successfully connected to database*" confirment le bon lancement du serveur
