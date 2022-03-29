@@ -42,21 +42,28 @@
 - [x] Routage `/login` --> `/home` (recupérer le pseudo de l'utilisateur connecté)
 - [ ] Faire en sorte que le `GET /` d'une personne connectée mène au `/home`
 - [ ] Ajouter les actions en cas de connexion invalide, inscription invalide, accès non autorisé (`/home` sans token par exemple)
-- [ ]
+
+### Base de données MongoDB
+
+- [x] Users (username, email, password, token)
+- [ ] Contacts (user.username, user.username)
+- [ ] Messages
 
 ### Stockage des messages
 
+- [ ] Première implémentation avec une DB pour la room publique unique
 - [ ] Réfléchir à l'implémentation de la base de données (stockage des messages)
   - Requète pour récupérer les 50 derniers messages pour les display
   - Si l'utilisateur remonte son chat, la scrollbar se bloque le temps de fetch les 50 prochains messages
 
 # Lancement du serveur
 
-
-
-- Installer Mongo : 
-  - Linux : `sudo apt get install mongo`
-  - Vérifier que tout fonctionne bien : `mongo`, `show dbs` 
+- Installer Mongo (Linux Ubuntu) : 
+  ```shell
+  sudo apt get install mongo
+  # Vérifier que tout fonctionne 
+  mongo
+  > show dbs
 - À la racine du projet :
   - `npm init -y`
   - `npm install cors mongoose express jsonwebtoken dotenv bcryptjs cookie-parser`
@@ -67,7 +74,7 @@
       "start": "node index.js",
       "dev": "nodemon index.js",
       "test": "echo \"Error: no test specified\" && exit 1"
-    }```
+    }
 - Taper `npm run dev` pour lancer le serveur (`index.js`)
 - Le script s'actualise automatiquement avec `nodemon` à chaque modification de fichier
 - Les messages "*Listening on `http://localhost:8000`*" et "*Successfully connected to database*" confirment le bon lancement du serveur
