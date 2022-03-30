@@ -38,6 +38,7 @@
 
 - [x] Ajouter une base de données pour supporter l'inscription et l'authentification
 - [x] Générer un token JWT (cookie) pour rendre la connexion persistante
+- [ ] Actualiser le Token au bout de 5h / déconnecter l'utilisateur si Token invalide
 - [x] Créer une API pour les requêtes client vers DB (avec son cookie en paramètre de requète)
 - [x] Routage `/login` --> `/home` (recupérer le pseudo de l'utilisateur connecté)
 - [ ] Faire en sorte que le `GET /` d'une personne connectée mène au `/home`
