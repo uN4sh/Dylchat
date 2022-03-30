@@ -20,10 +20,10 @@ exports.register = async (req, res, next) => {
 
         // check if user already exist
         // Validate if user exist in our database
-        const oldUser = await User.findOne({ username:usernameSignup });
+        const oldUser = await User.findOne({ usernamelowercase:usernameSignup.toLowerCase() });
 
         if (oldUser) {
-            return res.status(409).send("User Already Exist. Please Login");
+            return res.status(409).send("Username Already Exist. Please Login");
         }
 
         //Encrypt user password
@@ -31,7 +31,8 @@ exports.register = async (req, res, next) => {
 
         // Create user in our database
         const user = await User.create({
-            username: usernameSignup.toLowerCase(),
+            usernamelowercase: usernameSignup.toLowerCase(),
+            username: usernameSignup,
             email: emailSignup.toLowerCase(), // sanitize
             password: encryptedUserPassword,
         });
@@ -47,7 +48,7 @@ exports.register = async (req, res, next) => {
         // save user token
         user.token = token;
         // ToDo: update le token dans la DB (confirmer que c'est bien comme ça)
-        await User.updateOne({username:usernameSignup}, {$set: {token:token}});
+        await User.updateOne({usernamelowercase:usernameSignup.toLowerCase()}, {$set: {token:token}});
 
         res.cookie("jwt", token, {
             httpOnly: true,
@@ -74,7 +75,7 @@ exports.login = async (req, res, next) => {
         }
         
         // Validate if user exist in our database
-        const user = await User.findOne({ username:usernameLogin.toLowerCase() });
+        const user = await User.findOne({ usernamelowercase:usernameLogin.toLowerCase() });
 
         if (user && (await bcrypt.compare(passwordLogin, user.password))) {  
             // Create token
@@ -88,9 +89,10 @@ exports.login = async (req, res, next) => {
 
             // save user token
             user.token = token;
+            console.log("New token to save: %s", token);
             // ToDo: update le token dans la DB (confirmer que c'est bien comme ça)
-            await User.updateOne({username:usernameLogin}, {$set: {token:token}});
-
+            const queryres = await User.updateOne({usernamelowercase:usernameLogin.toLowerCase()}, {$set: {token:token}});
+            console.log(queryres);
 
             res.cookie("jwt", token, {
                 httpOnly: true,
@@ -185,9 +187,12 @@ exports.getUsername = async (req, res, next) => {
     if (!req.cookies.jwt) 
         return res.status(403).json({ message: "Not successful", error: "Vous devez être connecté pour consulter votre pseudo." });
     try {
+        console.log("Cookie de l'utilisateur: %s", req.cookies.jwt);
         const user = await User.findOne({ token:req.cookies.jwt });
+        if (!user) 
+          return res.status(409).json({error: "User not found. Please logout and re-login.", username: "Undefined"});
         return res.status(200).json({ username: user.username, email: user.email });
-    } catch (error) {
+    } catch (err) {
         res.status(401).json({ message: "Not successful", error: err.message })
     }
     //   .then((user) => {
