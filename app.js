@@ -66,41 +66,44 @@ console.log("\nServer is open !\n")
 const MessagesModel = require("./model/Messages");
 
 wss.on("connection", ws => {
-    let clientId = getRandomID();
-    if (clientId == -1) {
-        ws.send("ECHEC, veuillez retenter une connexion...");
-        ws.close();
-    } else {
-        console.log(`New client with ID : #${clientId}`);
-        let infoClient = { id: clientId, connection: ws };
-        listClient.push(infoClient);
-        ws.send(clientId);
-    }
+    // let clientId = getRandomID();
+    // if (clientId == -1) {
+    //     ws.send("ECHEC, veuillez retenter une connexion...");
+    //     ws.close();
+    // } else {
+    //     console.log(`New client with ID : #${clientId}`);
+    //     let infoClient = { id: clientId, connection: ws };
+    //     listClient.push(infoClient);
+    //     ws.send(clientId);
+    // }
+    console.log("New client connected !!");
+    listClient.push(ws);
 
     sendAllStoredMessages(ws);
 
     ws.on("message", data => {
         storeMessage(data.toString(), ws);
         let message = JSON.parse(data.toString());
-        let id = -1;
-        for (let i = 0; i < listClient.length; i++) { // Cherche l'id de l'emetteur du message
-            if (listClient[i].connection == ws) {
-                id = listClient[i].id;
-                break;
-            }
-        }
-        message.author += '#' + id;
+        // let id = -1;
+        // for (let i = 0; i < listClient.length; i++) { // Cherche l'id de l'emetteur du message
+        //     if (listClient[i].connection == ws) {
+        //         id = listClient[i].id;
+        //         break;
+        //     }
+        // }
+        // message.author += '#' + id;
         console.log(message);
         message = JSON.stringify(message);
         for (let i = 0; i < listClient.length; i++) { // Envoie du message à tous les clients connectés
-            listClient[i].connection.send(message);
+            listClient[i].send(message);
         }
     });
 
     ws.on("close", () => {
         for (let i = 0; i < listClient.length; i++) {
-            if (listClient[i].connection == ws) {
-                console.log(`Client #${listClient[i].id} has disconnected!`);
+            if (listClient[i] == ws) {
+                // console.log(`Client #${listClient[i].id} has disconnected!`);
+                console.log("Client is disconnected!");
                 listClient.splice(i, 1);
             }
         }
@@ -126,14 +129,14 @@ function sendAllStoredMessages(ws) {
 // Store the message into the JSON file
 function storeMessage(message, ws) {
     message = JSON.parse(message);
-    let id = -1;
-    for (let i = 0; i < listClient.length; i++) {
-        if (listClient[i].connection == ws) {
-            id = listClient[i].id;
-            break;
-        }
-    }
-    message.author += `#${id}`;
+    // let id = -1;
+    // for (let i = 0; i < listClient.length; i++) {
+    //     if (listClient[i].connection == ws) {
+    //         id = listClient[i].id;
+    //         break;
+    //     }
+    // }
+    // message.author += `#${id}`;
     let newMessage = new MessagesModel(message);
     newMessage.save();
 
@@ -147,22 +150,22 @@ function storeMessage(message, ws) {
 // Génère un ID à 4 chiffres unique
 // TODO : Créer l'ID sous forme de 4 digits
 // TODO : Limiter le nombre de client dans la room pour éviter une boucle infinie dans cette fonction
-function getRandomID() {
-    let bonId = true;
-    let nbTentative = 10;
-    let id = -1;
-    do {
-        id = Math.floor(Math.random() * 1e4);
-        for (let i = 0; i < listClient.length; i++) {
-            if (listClient[i].id == id) {
-                bonId = false;
-            }
-        }
-        nbTentative--;
-    } while (!bonId && nbTentative > 0);
+// function getRandomID() {
+//     let bonId = true;
+//     let nbTentative = 10;
+//     let id = -1;
+//     do {
+//         id = Math.floor(Math.random() * 1e4);
+//         for (let i = 0; i < listClient.length; i++) {
+//             if (listClient[i].id == id) {
+//                 bonId = false;
+//             }
+//         }
+//         nbTentative--;
+//     } while (!bonId && nbTentative > 0);
 
-    return id;
-}
+//     return id;
+// }
 
 
 module.exports = app;

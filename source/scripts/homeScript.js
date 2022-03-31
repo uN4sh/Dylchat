@@ -33,7 +33,7 @@ async function getUsername() {
 
 let username = getUsername();
 var myPseudo = "Random";
-var ID = -1;
+// var ID = -1;
 
 username.then(function(result) {
     myPseudo = result;
@@ -47,7 +47,7 @@ contact_list.push(new Contact("Projet AWS", "Elyn : On abandonne ?", "Vendredi")
 contact_list.push(new Contact("Test d'overflow", "Vérification de la scrollbar", "Scroll"));
 
 var messagesArray = Array();
-messagesArray.push(new Message("Dylan", "Salut !", new Date()));
+// messagesArray.push(new Message("Dylan", "Salut !", new Date()));
 
 
 // TODO : faire en sorte que cet URL s'adapte à l'adresse du serveur
@@ -64,18 +64,18 @@ ws.addEventListener("open", () => {
 
 // Que faire quand le client reçoit un message du serveur
 ws.addEventListener("message", data => {
-    if (messageNumber == 0) { // Le tout premier message est celui du serveur qui communique l'ID du client
-        console.log(data.data);
-        ID = parseInt(data.data);
-        alert(`Your ID is ${ID}`);
-    } else {
-        let msg = JSON.parse(data.data);
-        console.log(msg);
-        let message = new Message(msg.author, msg.content, msg.time);
-        messagesArray.push(message);
-        renderMessages();
-    }
-    messageNumber++;
+    // if (messageNumber == 0) { // Le tout premier message est celui du serveur qui communique l'ID du client
+    //     console.log(data.data);
+    //     ID = parseInt(data.data);
+    //     alert(`Your ID is ${ID}`);
+    // } else {
+    let msg = JSON.parse(data.data);
+    console.log(msg);
+    let message = new Message(msg.author, msg.content, msg.time);
+    messagesArray.push(message);
+    renderMessages();
+    // }
+    // messageNumber++;
 });
 
 
@@ -186,7 +186,7 @@ function renderMessages() {
     messagesChat.innerHTML = "";
     for (let i = 0; i < messagesArray.length; i++) {
         var author = messagesArray[i].author;
-        let messageId = parseInt(author.split('#')[1]);
+        // let messageId = parseInt(author.split('#')[1]);
         // Check si premier message pour ajouter le nom
         if (i == 0 || (i > 0 && messagesArray[i - 1].author != author)) {
             let newMsgDiv = document.createElement("div");
@@ -194,13 +194,13 @@ function renderMessages() {
             messagesChat.appendChild(newMsgDiv);
             let text = document.createElement("p");
             text.classList.add("username");
-            if (messageId == ID) {
+            if (myPseudo == author) {
                 text.classList.add("response-username");
             }
             text.appendChild(document.createTextNode(author));
             newMsgDiv.appendChild(text);
         }
-        if (messageId == ID) {
+        if (myPseudo == author) {
             let newMsgDiv = document.createElement("div");
             newMsgDiv.classList.add("message");
             newMsgDiv.classList.add("text-only");
@@ -231,7 +231,7 @@ function renderMessages() {
             messagesChat.appendChild(newMsgDiv);
             let time = document.createElement("p");
             time.classList.add("time");
-            if (messageId == ID) {
+            if (myPseudo == author) {
                 time.classList.add("response-time");
             }
             // let formatted_time = messagesArray[i].time.toLocaleTimeString().substring(0, 5);
