@@ -12,16 +12,16 @@
 - [x] Page d'accueil
 - [ ] **Partie gauche**
   - [x] Affichage des contacts
-  - [ ] Scrollbar sur les salles
+  - [x] Scrollbar sur les salles
   - [ ] Link salles de discussions aux discussions en DB
   - [ ] Bouton options profil (changement de pseudo, mot de passe et déconnexion + voir ma clé privée)
 - [ ] **Partie droite**
   - [x] Taille des bulles en fonction du message, avec une largeur max (frame) 
   - [x] Heure qui s’affiche sous le dernier message d'une personne
   - [ ] Heure qui s'affiche il y 10 minutes passés entre deux messages d'une même personne (en test)
-  - [ ] Scrollbar
+  - [x] Scrollbar
   - [ ] Date qui s’affiche quelque part (fixe en haut ou à chaque message en timestamp ou à chaque nouveau jour)
-  - [ ] Les messages envoyés doivent être affichés sur la droite de l'écran (CSS à régler)
+  - [x] Les messages envoyés doivent être affichés sur la droite de l'écran (CSS à régler)
   - [ ] Bouton retour à l’écran d’accueil (?)
   - [ ] Bouton option en haut à droite du contact (?)
 
@@ -39,6 +39,7 @@
 - [x] Ajouter une base de données pour supporter l'inscription et l'authentification
 - [x] Générer un token JWT (cookie) pour rendre la connexion persistante
 - [ ] Actualiser le Token au bout de 5h / déconnecter l'utilisateur si Token invalide
+- [ ] Ajouter un check pour déconnecter l'utilisateur si le cookie n'existe plus (en cas de connexion ailleurs)
 - [x] Créer une API pour les requêtes client vers DB (avec son cookie en paramètre de requète)
 - [x] Routage `/login` --> `/home` (recupérer le pseudo de l'utilisateur connecté)
 - [ ] Faire en sorte que le `GET /` d'une personne connectée mène au `/home`
@@ -52,7 +53,7 @@
 
 ### Stockage des messages
 
-- [ ] Première implémentation avec une DB pour la room publique unique
+- [x] Première implémentation avec une DB pour la room publique unique
 - [ ] Réfléchir à l'implémentation de la base de données (stockage des messages)
   - Requète pour récupérer les 50 derniers messages pour les display
   - Si l'utilisateur remonte son chat, la scrollbar se bloque le temps de fetch les 50 prochains messages
