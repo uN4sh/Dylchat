@@ -58,6 +58,18 @@ video {
     color: white;
 }
 
+.header-gauche {
+  display: flex;
+  align-items: center;
+}
+
+.header-gauche .rightplus {
+  /* float: right; */
+  margin-right: 10% !important;
+  margin-left: auto;
+}
+
+
 .title {
     margin-left: 10%;
     text-align: left;
