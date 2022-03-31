@@ -1,161 +1,157 @@
 /* default to border-box */
+
 html {
     box-sizing: border-box;
     font-size: 16px;
-    
-  }
-  
-  *,
-  *:before,
-  *:after {
+}
+
+*,
+*:before,
+*:after {
     box-sizing: inherit;
-  }
-  
-  /* adjust typography defaults */
-  body {
+}
+
+
+/* adjust typography defaults */
+
+body {
     margin: 1rem;
     font-family: sans-serif;
     line-height: 1.5;
     text-align: center;
     background-color: #5270CD;
-  }
-  /* images and videos max out at full width */
-  img,
-  video {
+}
+
+
+/* images and videos max out at full width */
+
+img,
+video {
     height: auto;
     max-width: 100%;
-  }
-  
-  
-  #shadowbox {
+}
+
+#shadowbox {
     display: grid;
     grid-template-columns: 30% 70%;
     min-width: 35em;
-    
     width: 90%;
     height: 90%;
     overflow: hidden;
-    
     background-color: black;
     position: fixed;
     top: 5%;
     left: 5%;
-    
     box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;
-    
     color: black;
-  }
+}
 
-  .home-title {
+.home-title {
     text-align: left;
     margin-bottom: 0em;
-  }
+}
 
-
-  .partie-gauche {  
+.partie-gauche {
     display: flex;
     flex-direction: column;
     background-color: #041C32;
-    color : white;
-  }
+    color: white;
+}
 
-  .title {
+.title {
     margin-left: 10%;
-    text-align:left;
-  }
-  
-  .contact-list {
+    text-align: left;
+}
+
+.contact-list {
     display: flex;
     flex-direction: column;
     overflow: scroll;
-    
-    max-height: 50%; /* ToDo: trouver une solution pour que la taille de la liste ne dépasse pas */
-  
+    max-height: 50%;
+    /* ToDo: trouver une solution pour que la taille de la liste ne dépasse pas */
     /* border: 1px solid #FFFFFF; */
-    text-align:left;
-  }
-  
-  .contact:hover {
+    text-align: left;
+    overflow-x: hidden;
+}
+
+.contact:hover {
     cursor: pointer;
     background: #04293A;
-  }
-  
-  .contact.selected {
+}
+
+.contact.selected {
     background: #064663;
-  }
-  
-  .grid-80-20 {
+}
+
+.grid-80-20 {
     display: grid;
     grid-template-columns: 70% 30%;
     margin-bottom: -2.5em;
-  }
-  
-  .contact-title {
+}
+
+.contact-title {
     margin-left: 15px;
     font-size: 1.2em;
-  }
-  
-  .message-hour {
+}
+
+.message-hour {
     margin-right: 1em;
-    text-align:right;
+    text-align: right;
     margin-top: 1.5em;
     color: #888888;
     font-size: 0.9em;
-  }
-  
-  .last-message {
+}
+
+.last-message {
     margin-left: 15px;
     color: #888888;
-  }
-  
-  .partie-droite{
+}
+
+.partie-droite {
     background-color: white;
-  }
-  
-  
-  footer {
-    position:absolute;
-    bottom:0;
-    width:70%;
+}
+
+footer {
+    position: absolute;
+    bottom: 0;
+    width: 70%;
     text-align: center;
     color: #888888;
-    padding-top:50px;
-  }
-  
-  
+    padding-top: 50px;
+}
 
-  /* Dylan   */
-  
-  #accueil {  
-    
-    line-height:20px;
-    width:70%;
+
+/* Dylan   */
+
+#accueil {
+    line-height: 20px;
+    width: 70%;
     position: absolute;
-    top:40%;
-  }
-  
-  #chat {
-    
-  }
-  
-  .hidden {
-    display: none
-  }
+    top: 40%;
+}
 
-  .text-menu {
-    color:#888888;
-  }
-  
-  .text-link-blue {
-    color:#2D9BF0;
-  }
-  
-  .text-link-blue:hover {
-    color:#0071c7;
+
+/* #chat {} */
+
+.hidden {
+    display: none
+}
+
+.text-menu {
+    color: #888888;
+}
+
+.text-link-blue {
+    color: #2D9BF0;
+}
+
+.text-link-blue:hover {
+    color: #0071c7;
     cursor: pointer;
-  }
-  
-  /*
+}
+
+
+/*
   .grid-container {
     display:grid;
   }
@@ -287,4 +283,3 @@ html {
     padding: 15%;
   }
   */
-  

@@ -86,7 +86,7 @@ function getTime() {
     let minutes = seconds / 60;
     minutes -= date.getTimezoneOffset(); // Permet de ne pas appliquer le fuseau horaire du client
     let hours = minutes / 60;
-    let result = Math.floor(hours % 24) + ":" + Math.floor(minutes % 60);
+    let result = ("0" + Math.floor(hours % 24)).slice(-2) + ":" + ("0" + Math.floor(minutes % 60)).slice(-2);
     return result;
 }
 

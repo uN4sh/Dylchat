@@ -6,16 +6,16 @@ const cookieParser = require("cookie-parser");
 const app = express();
 
 app.use(cookieParser());
-app.use(express.json());       // to support JSON-encoded bodies
+app.use(express.json()); // to support JSON-encoded bodies
 app.use(express.urlencoded()); // to support URL-encoded bodies
 
 const path = require("path");
 const htmlPath = path.join(__dirname, "/source");
 app.use(express.static(htmlPath));
 
-app.use("/styles",  express.static(__dirname + '/source/stylesheets'));
+app.use("/styles", express.static(__dirname + '/source/stylesheets'));
 app.use("/scripts", express.static(__dirname + '/source/javascripts'));
-app.use("/images",  express.static(__dirname + '/source/images'));
+app.use("/images", express.static(__dirname + '/source/images'));
 
 
 
@@ -68,20 +68,23 @@ wss.on("connection", ws => {
     if (clientId == -1) {
         ws.send("ECHEC, veuillez retenter une connexion...");
         ws.close();
-    }
-    else {
+    } else {
         console.log(`New client with ID : #${clientId}`);
         let infoClient = { id: clientId, connection: ws };
         listClient.push(infoClient);
         ws.send(clientId);
     }
 
+    sendAllStoredMessages(ws);
+
     ws.on("message", data => {
+        storeMessage(data.toString(), ws);
         let message = JSON.parse(data.toString());
         let id = -1;
         for (let i = 0; i < listClient.length; i++) { // Cherche l'id de l'emetteur du message
             if (listClient[i].connection == ws) {
                 id = listClient[i].id;
+                break;
             }
         }
         message.author += '#' + id;
@@ -102,6 +105,43 @@ wss.on("connection", ws => {
     });
 });
 
+// Send to the client all the stored messages
+function sendAllStoredMessages(ws) {
+    MessagesModel.find({}, (err, tuples) => {
+        for (let i = 0; i < tuples.length; i++) {
+            // console.log(`${tuples[i].author} > ${tuples[i].content} (${tuples[i].time})`);
+            ws.send(JSON.stringify(tuples[i]));
+        }
+    });
+
+    // let rawdata = fs.readFileSync('Messages.json');
+    // let listMessages = JSON.parse(rawdata);
+    // for (let i = 0; i < listMessages.Messages.length; i++) {
+    //     ws.send(JSON.stringify(listMessages.Messages[i]));
+    // }
+}
+
+// Store the message into the JSON file
+function storeMessage(message, ws) {
+    message = JSON.parse(message);
+    let id = -1;
+    for (let i = 0; i < listClient.length; i++) {
+        if (listClient[i].connection == ws) {
+            id = listClient[i].id;
+            break;
+        }
+    }
+    message.author += `#${id}`;
+    let newMessage = new MessagesModel(message);
+    newMessage.save();
+
+    // let rawdata = fs.readFileSync('Messages.json');
+    // let listMessages = JSON.parse(rawdata);
+
+    // listMessages.Messages.push(message);
+    // fs.writeFileSync("Messages.json", JSON.stringify(listMessages, null, 2));
+}
+
 // Génère un ID à 4 chiffres unique
 // TODO : Créer l'ID sous forme de 4 digits
 // TODO : Limiter le nombre de client dans la room pour éviter une boucle infinie dans cette fonction
@@ -121,7 +161,6 @@ function getRandomID() {
 
     return id;
 }
-
 
 
 module.exports = app;
