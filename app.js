@@ -63,6 +63,8 @@ const wss = new WebSocket.Server({ port: 8080 });
 var listClient = [];
 console.log("\nServer is open !\n")
 
+const MessagesModel = require("./model/Messages");
+
 wss.on("connection", ws => {
     let clientId = getRandomID();
     if (clientId == -1) {

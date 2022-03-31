@@ -89,10 +89,9 @@ exports.login = async (req, res, next) => {
 
             // save user token
             user.token = token;
-            console.log("New token to save: %s", token);
+            
             // ToDo: update le token dans la DB (confirmer que c'est bien comme ça)
-            const queryres = await User.updateOne({usernamelowercase:usernameLogin.toLowerCase()}, {$set: {token:token}});
-            console.log(queryres);
+            await User.updateOne({usernamelowercase:usernameLogin.toLowerCase()}, {$set: {token:token}});
 
             res.cookie("jwt", token, {
                 httpOnly: true,
@@ -187,7 +186,7 @@ exports.getUsername = async (req, res, next) => {
     if (!req.cookies.jwt) 
         return res.status(403).json({ message: "Not successful", error: "Vous devez être connecté pour consulter votre pseudo." });
     try {
-        console.log("Cookie de l'utilisateur: %s", req.cookies.jwt);
+        
         const user = await User.findOne({ token:req.cookies.jwt });
         if (!user) 
           return res.status(409).json({error: "User not found. Please logout and re-login.", username: "Undefined"});
