@@ -47,13 +47,18 @@
 
 ### Base de données MongoDB
 
-- [x] Users (username, email, password, token)
-- [ ] Contacts (user.username, user.username)
-- [ ] Messages
+- [x] Users (usernamelowercase, username, email, password, token)
+- [ ] Contacts (user.username, user.username, idchat)
+  - [ ] Un user peut créer un nouveau chat en entrant un pseudo 
+  - [ ] Une row se crée dans la table avec un nouveau ID de chat
+  - [ ] Quand un user se connecte, une routine `renderContacts()` affiche tous les contacts qui ont un chat
+  - [ ] Quand un user clique sur un chat, la routine `renderMessage()` fetch les 50 derniers messages du chat en question et les affiche 
+- [ ] Messages (idchat, author, content, time)
 
 ### Stockage des messages
 
 - [x] Première implémentation avec une DB pour la room publique unique
+- [ ] Créer par défaut le Contact (null, null, 1) pour le chat public ouvert à tous
 - [ ] Réfléchir à l'implémentation de la base de données (stockage des messages)
   - Requète pour récupérer les 50 derniers messages pour les display
   - Si l'utilisateur remonte son chat, la scrollbar se bloque le temps de fetch les 50 prochains messages
