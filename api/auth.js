@@ -47,12 +47,19 @@ exports.register = async (req, res, next) => {
         );
         // save user token
         user.token = token;
-        // ToDo: update le token dans la DB (confirmer que c'est bien comme ça)
         await User.updateOne({usernamelowercase:usernameSignup.toLowerCase()}, {$set: {token:token}});
 
         res.cookie("jwt", token, {
             httpOnly: true,
             expiresIn: "5h", // 3hrs in ms
+        });
+
+        // Create global conversation
+        await Conversation.create({
+          username1: user.username,
+          username2: "Discussions",
+          lastMessage: null, 
+          messageHour: null 
         });
         
         // return new user
@@ -89,8 +96,6 @@ exports.login = async (req, res, next) => {
 
             // save user token
             user.token = token;
-            
-            // ToDo: update le token dans la DB (confirmer que c'est bien comme ça)
             await User.updateOne({usernamelowercase:usernameLogin.toLowerCase()}, {$set: {token:token}});
 
             res.cookie("jwt", token, {
@@ -194,18 +199,4 @@ exports.getUsername = async (req, res, next) => {
     } catch (err) {
         res.status(401).json({ message: "Not successful", error: err.message })
     }
-    //   .then((user) => {
-    //     const userFunction = users.map((user) => {
-    //       const container = {};
-    //       container.username = user.username;
-    //       container.email = user.email;
-    //       container.id = user._id;
-  
-    //       return container;
-        // });
-        // res.status(200).json({ user: userFunction });
-    //   })
-    //   .catch((err) =>
-    //     res.status(401).json({ message: "Not successful", error: err.message })
-    //   );
   };

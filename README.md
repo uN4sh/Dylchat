@@ -2,8 +2,6 @@
 
 # Suivi de projet
 
-- Pas de salles de discussions car chiffrement non implémentable pour un groupe
-
 ## Phase 1
 
 ### Interface
@@ -11,12 +9,13 @@
 - [x] Inscription / Connexion
 - [x] Page d'accueil
 - [ ] **Partie gauche**
-  - [x] Affichage des contacts
+  - [x] Affichage des conversations
   - [x] Scrollbar sur les salles
   - [ ] Link salles de discussions aux discussions en DB
   - [ ] Bouton options profil (changement de pseudo, mot de passe et déconnexion + voir ma clé privée)
+  - [ ] Bouton `+` pour ajouter un contact (affiche une input puis `POST` sur `/newConversation`)
 - [ ] **Partie droite**
-  - [x] Taille des bulles en fonction du message, avec une largeur max (frame) 
+  - [x] Taille des bulles en fonction du message, avec une largeur max (frame)
   - [x] Heure qui s’affiche sous le dernier message d'une personne
   - [ ] Heure qui s'affiche il y 10 minutes passés entre deux messages d'une même personne (en test)
   - [x] Scrollbar
@@ -48,24 +47,27 @@
 ### Base de données MongoDB
 
 - [x] Users (usernamelowercase, username, email, password, token)
-- [ ] Contacts (user.username, user.username, idchat)
-  - [ ] Un user peut créer un nouveau chat en entrant un pseudo 
-  - [ ] Une row se crée dans la table avec un nouveau ID de chat
-  - [ ] Quand un user se connecte, une routine `renderContacts()` affiche tous les contacts qui ont un chat
-  - [ ] Quand un user clique sur un chat, la routine `renderMessage()` fetch les 50 derniers messages du chat en question et les affiche 
+- [ ] Conversations (user.username, user.username, idchat)
+  - [ ] Un user peut créer un nouveau chat en entrant un pseudo
+  - [x] Une row se crée dans la table avec un nouveau ID de chat
+  - [x] Quand un user se connecte, une routine `renderConversations()` affiche tous les conversations qui ont un chat
+  - [ ] Gérer tous les cas d'erreurs (utilisateur introuvable, conversation déjà existante, etc.)
+  - [ ] Quand un user clique sur un chat:
+    - [x] Le pseudo de l'utilisateur s'affiche en haut du chat
+    - [ ] la routine `renderMessage()` fetch les 50 derniers messages du chat en question et les affiche
 - [ ] Messages (idchat, author, content, time)
 
 ### Stockage des messages
 
 - [x] Première implémentation avec une DB pour la room publique unique
-- [ ] Créer par défaut le Contact (null, null, 1) pour le chat public ouvert à tous
+- [x] Créer par défaut la `Conversation` (null, null) pour le canal `Discussions` (ouvert à tous)
 - [ ] Réfléchir à l'implémentation de la base de données (stockage des messages)
   - Requète pour récupérer les 50 derniers messages pour les display
   - Si l'utilisateur remonte son chat, la scrollbar se bloque le temps de fetch les 50 prochains messages
 
 # Lancement du serveur
 
-- Installer Mongo (Linux Ubuntu) : 
+- Installer Mongo (Linux Ubuntu) :
   ```shell
   sudo apt get install mongo
   # Vérifier que tout fonctionne 

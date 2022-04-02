@@ -18,29 +18,27 @@ app.use("/scripts", express.static(__dirname + '/source/javascripts'));
 app.use("/images", express.static(__dirname + '/source/images'));
 
 
-
-
-// AUTHENTICATION //
-
-const { register, login, getUsers, getUsername } = require("./Auth/auth");
-
+// Routage //
 app.get("/", (req, res) => res.sendFile(__dirname + "/source/login.html")); // Accède à la page de login
 
+app.get("/logout", (req, res) => {
+    res.cookie("jwt", "", { maxAge: "1" }) // Supprime le token de l'utilisateur
+    res.status(200).redirect("/")
+})
+
+const { register, login, getUsers, getUsername } = require("./api/auth");
 app.post("/register", register); // Exécute la routine register
 app.post("/login", login); // Exécute la routine login 
 app.get("/getUsers", getUsers); // Affiche tous les users de la DB 
 app.get("/getUsername", getUsername); // Affiche l'username et l'email de l'utilisateur connecté
 
-const auth = require("./middleware/auth");
+const { getConversations, newConversation } = require("./api/conversations");
+app.post("/newConversation", newConversation);
+app.get("/getConversations", getConversations);
+
 // Accède à la page home (si la fonction auth le valide selon le token) 
+const auth = require("./middleware/auth");
 app.get("/home", auth, (req, res) => res.status(200).sendFile(__dirname + "/source/home.html"));
-
-// Supprime le token de l'utilisateur
-app.get("/logout", (req, res) => {
-    res.cookie("jwt", "", { maxAge: "1" })
-    res.status(200).redirect("/")
-})
-
 
 
 
@@ -65,6 +63,7 @@ console.log("\nServer is open !\n")
 
 const MessagesModel = require("./model/Messages");
 const User = require("./model/user");
+const Conversation = require("./model/conversation");
 
 wss.on("connection", async (ws, req) => {
     // let clientId = getRandomID();
@@ -77,6 +76,17 @@ wss.on("connection", async (ws, req) => {
     //     listClient.push(infoClient);
     //     ws.send(clientId);
     // }
+
+    // Check si le canal Discussions existe et le créer si non 
+    const discussions = await Conversation.findOne({username1:null});
+    if (!discussions) {
+        await Conversation.create({
+            username1: null,
+            username2: null,
+            lastMessage: null, 
+            messageHour: null 
+        });
+    }
     
     const jwttoken = req.headers.cookie.split("jwt=")[1];
     const user = await User.findOne({ jwttoken });
@@ -106,15 +116,13 @@ wss.on("connection", async (ws, req) => {
         clientList.forEach(function(metadata, clientws) {
             clientws.send(message);
         })
+
+        // ToDo: fetch last message pour la table Conversation
     });
 
     ws.on("close", () => {
-        clientList.forEach(function(metadata, clientws) {
-            if (clientws == ws)  {
-                console.log("%s has disconnected", metadata.username);
-                clientList.delete(clientws);
-            }
-        })
+        console.log("%s has disconnected", clientList.get(ws).username);
+        clientList.delete(ws);
     });
 });
 

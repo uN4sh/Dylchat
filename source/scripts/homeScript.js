@@ -48,7 +48,6 @@ contact_list.push(new Contact("Test d'overflow", "Vérification de la scrollbar"
 
 var messagesArray = Array();
 
-// TODO : faire en sorte que cet URL s'adapte à l'adresse du serveur (en test)
 const ws = new WebSocket("ws://" + location.host.split(':')[0] + ":8080");
 
 
@@ -88,41 +87,91 @@ function getTime() {
     return result;
 }
 
+const newConvForm = document.getElementById("newConvForm");
+document.querySelector("#add-contact").addEventListener("click", function(){
+    newConvForm.submit();
+});
 
-function renderContacts() {
+
+async function getConversations() {
+    try {
+        const res = await fetch('/getConversations', {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        const data = await res.json()
+        if (res.status === 400 || res.status === 401) {
+            console.log(`${data.message}. ${data.error ? data.error : ''}`)
+        }
+        return data;
+    } catch (err) {
+        console.log(err.message)
+    }
+}
+
+let conversationsPromise = getConversations();
+let conversations;
+
+conversationsPromise.then(function(result) {
+    conversations = result.conversation;
+    renderConversations();
+})
+
+
+function renderConversations() {
     let div = document.getElementById("contact-list");
     div.innerHTML = "";
-    for (let i = 0; i < contact_list.length; i++) {
+    
+    for (let i = 0; i < conversations.length; i++) {
         let contact = document.createElement("div");
         contact.classList.add("contact");
         contact.id = "contact-" + i;
+        // ToDo: transformer conversations en une map (Id, conversation)
+        conversations[i].idcontact = i;
         div.appendChild(contact);
-
+        
         let grid80 = document.createElement("div");
         grid80.classList.add("grid-80-20");
         contact.appendChild(grid80);
-
+    
+    
         let contact_title = document.createElement("p");
         contact_title.classList.add("contact-title");
-        contact_title.innerText = contact_list[i].name;
+        if (conversations[i].username1 == null) 
+            contact_title.innerText = "Discussions"
+        else if (conversations[i].username1 == myPseudo) 
+            contact_title.innerText = conversations[i].username2;
+        else
+            contact_title.innerText = conversations[i].username1;
         grid80.appendChild(contact_title);
 
         let message_hour = document.createElement("p");
         message_hour.classList.add("message-hour");
-        message_hour.innerText = contact_list[i].messageHour;
+        if (conversations[i].messageHour != null ) 
+            message_hour.innerText = conversations[i].messageHour;
+        else
+            message_hour.innerText = "/"
         grid80.appendChild(message_hour);
 
         let last_message = document.createElement("p");
         last_message.classList.add("last-message");
-        last_message.innerText = contact_list[i].lastMessage;
+        if (conversations[i].lastMessage != null) {
+            last_message.innerText = conversations[i].lastMessage;
+        }
+        else 
+            last_message.innerText = "/"
         contact.appendChild(last_message);
+    }
+
+    // Ajout des évènements au clic sur contact
+    for (let i = 0; i < conversations.length; i++) {
+        let contact = document.querySelector("#contact-" + i);
+        contact.addEventListener("click", selectContact, true);
     }
 }
 
-renderContacts();
-
 var selectContact = function(e) {
-    for (let i = 0; i < contact_list.length; i++) {
+    for (let i = 0; i < conversations.length; i++) {
         let contact = document.getElementById("contact-" + i);
         contact.classList.remove("selected");
     }
@@ -136,15 +185,24 @@ var selectContact = function(e) {
     let chatHome = document.querySelector("#chat");
     chatHome.classList.remove("hidden");
 
+    // Afficher le nom du destinaire
+    let chatname = document.querySelector("#chat-name");
+    conversations.forEach(conv => {
+        if ("contact-"+conv.idcontact == e.currentTarget.id) {
+            if (conv.username1 == null)
+                chatname.innerHTML = "Discussions";
+            else if (conv.username1 == myPseudo)
+                chatname.innerHTML = conv.username2
+            else
+                chatname.innerHTML = conv.username1
+        }
+    });
+
     // Afficher les messages
     renderMessages();
 };
 
-// Ajout des évènements au clic sur contact
-for (let i = 0; i < contact_list.length; i++) {
-    let contact = document.querySelector("#contact-" + i);
-    contact.addEventListener("click", selectContact, true);
-}
+
 
 // TODO : ajouter un bouton retour pour réafficher l'accueil
 

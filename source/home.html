@@ -21,9 +21,12 @@
   <div id="shadowbox">
     <div class="partie-gauche">
       <div class="header-gauche">
-        <!-- <p class="name">Dylan</p> -->
         <h1 class="title">Rooms</h1>
-        <i class="icon clickable fa fa-plus rightplus" id="add-contact" aria-hidden="true"></i>
+        <form id="newConvForm" action="/newConversation" method="post">
+          <input type="text" name="username2" placeholder="Pseudo du nouveau contact" /></input>
+          <!-- ToDo: l'input apparait seulement après clic sur le + -->
+          <i class="icon clickable fa fa-plus rightplus" id="add-contact" aria-hidden="true"></i>
+        </form>
       </div>
 
 
@@ -57,7 +60,7 @@
       <section id="chat" class="chat hidden">
         <div class="header-chat">
           <i class="icon fa fa-user-o" aria-hidden="true"></i>
-          <p class="name">Dylan</p>
+          <p id="chat-name" class="name">None</p>
           <i class="icon clickable fa fa-ellipsis-h right" aria-hidden="true"></i>
         </div>
 
