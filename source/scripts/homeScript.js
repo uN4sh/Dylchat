@@ -47,11 +47,9 @@ contact_list.push(new Contact("Projet AWS", "Elyn : On abandonne ?", "Vendredi")
 contact_list.push(new Contact("Test d'overflow", "Vérification de la scrollbar", "Scroll"));
 
 var messagesArray = Array();
-// messagesArray.push(new Message("Dylan", "Salut !", new Date()));
 
-
-// TODO : faire en sorte que cet URL s'adapte à l'adresse du serveur
-const ws = new WebSocket("ws://localhost:8080");
+// TODO : faire en sorte que cet URL s'adapte à l'adresse du serveur (en test)
+const ws = new WebSocket("ws://" + location.host.split(':')[0] + ":8080");
 
 
 var messageNumber = 0;

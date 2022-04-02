@@ -60,12 +60,13 @@ const wss = new WebSocket.Server({ port: 8080 });
 //     return result;
 // }
 
-var listClient = [];
+const clientList = new Map();
 console.log("\nServer is open !\n")
 
 const MessagesModel = require("./model/Messages");
+const User = require("./model/user");
 
-wss.on("connection", ws => {
+wss.on("connection", async (ws, req) => {
     // let clientId = getRandomID();
     // if (clientId == -1) {
     //     ws.send("ECHEC, veuillez retenter une connexion...");
@@ -76,8 +77,14 @@ wss.on("connection", ws => {
     //     listClient.push(infoClient);
     //     ws.send(clientId);
     // }
-    console.log("New client connected !!");
-    listClient.push(ws);
+    
+    const jwttoken = req.headers.cookie.split("jwt=")[1];
+    const user = await User.findOne({ jwttoken });
+    const metadata = {username: user.username, email: user.email};
+    console.log("%s is now connected!", metadata.username);
+    clientList.set(ws, metadata);
+
+    // ToDo: check si il y a un utilisateur avec token invalide et le déconnecter
 
     sendAllStoredMessages(ws);
 
@@ -94,19 +101,20 @@ wss.on("connection", ws => {
         // message.author += '#' + id;
         console.log(message);
         message = JSON.stringify(message);
-        for (let i = 0; i < listClient.length; i++) { // Envoie du message à tous les clients connectés
-            listClient[i].send(message);
-        }
+        
+        // Envoi du message à tous les clients connectés
+        clientList.forEach(function(metadata, clientws) {
+            clientws.send(message);
+        })
     });
 
     ws.on("close", () => {
-        for (let i = 0; i < listClient.length; i++) {
-            if (listClient[i] == ws) {
-                // console.log(`Client #${listClient[i].id} has disconnected!`);
-                console.log("Client is disconnected!");
-                listClient.splice(i, 1);
+        clientList.forEach(function(metadata, clientws) {
+            if (clientws == ws)  {
+                console.log("%s has disconnected", metadata.username);
+                clientList.delete(clientws);
             }
-        }
+        })
     });
 });
 
