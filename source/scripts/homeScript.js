@@ -7,7 +7,8 @@ class Contact {
 }
 
 class Message {
-    constructor(author, content, time) {
+    constructor(idchat, author, content, time) {
+        this.idchat = idchat;
         this.author = author;
         this.content = content;
         this.time = time;
@@ -33,6 +34,7 @@ async function getUsername() {
 
 let username = getUsername();
 var myPseudo = "Random";
+let activeConversationId;
 // var ID = -1;
 
 username.then(function(result) {
@@ -62,18 +64,19 @@ ws.addEventListener("open", () => {
 
 // Que faire quand le client reçoit un message du serveur
 ws.addEventListener("message", data => {
-    // if (messageNumber == 0) { // Le tout premier message est celui du serveur qui communique l'ID du client
-    //     console.log(data.data);
-    //     ID = parseInt(data.data);
-    //     alert(`Your ID is ${ID}`);
-    // } else {
+    // ToDo: à modifier pour afficher les messages sur les bonnes conversations :
+    // Si le message est sur la conversation active
+        // Faire un fetch DB avec un /getMessages 
+        // Call renderMessages() pour le réaffichage
+        // Call renderConversations() pour actualiser lastMessage et messageHour
+    // Sinon, le message est sur une autre conversation
+        // Call renderConversations() pour actualiser lastMessage et messageHour et faire remonter la conversation
+
     let msg = JSON.parse(data.data);
     console.log(msg);
-    let message = new Message(msg.author, msg.content, msg.time);
+    let message = new Message(activeConversationId, msg.author, msg.content, msg.time);
     messagesArray.push(message);
     renderMessages();
-    // }
-    // messageNumber++;
 });
 
 
@@ -190,6 +193,7 @@ var selectContact = function(e) {
     let chatname = document.querySelector("#chat-name");
     conversations.forEach(conv => {
         if ("contact-"+conv.idcontact == e.currentTarget.id) {
+            activeConversationId = conv._id; // Set active conv ID
             if (conv.username1 == null)
                 chatname.innerHTML = "Discussions";
             else if (conv.username1 == myPseudo)
@@ -215,7 +219,7 @@ function sendMessage() {
         return;
     }
 
-    let message = new Message(myPseudo, chatbox.value, getTime());
+    let message = new Message(activeConversationId, myPseudo, chatbox.value, getTime());
     ws.send(JSON.stringify(message));
 
     chatbox.value = "";

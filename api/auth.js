@@ -1,5 +1,4 @@
 const User = require("../model/user");
-const Conversation = require("../model/conversation");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
@@ -53,14 +52,6 @@ exports.register = async (req, res, next) => {
         res.cookie("jwt", token, {
             httpOnly: true,
             expiresIn: "5h", // 3hrs in ms
-        });
-
-        // Create global conversation
-        await Conversation.create({
-          username1: user.username,
-          username2: "Discussions",
-          lastMessage: null, 
-          messageHour: null 
         });
         
         // return new user

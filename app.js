@@ -90,7 +90,7 @@ const wss = new WebSocket.Server({ server:server });
 const clientList = new Map();
 console.log("\nServer is open !\n")
 
-const MessagesModel = require("./model/Messages");
+const MessageModel = require("./model/message");
 const User = require("./model/user");
 const Conversation = require("./model/conversation");
 
@@ -109,6 +109,7 @@ wss.on("connection", async (ws, req) => {
     // Check si le canal Discussions existe et le créer si non 
     const discussions = await Conversation.findOne({username1:null});
     if (!discussions) {
+        console.log("Création du canal Discussions")
         await Conversation.create({
             username1: null,
             username2: null,
@@ -118,7 +119,7 @@ wss.on("connection", async (ws, req) => {
     }
     
     const jwttoken = req.headers.cookie.split("jwt=")[1];
-    const user = await User.findOne({ jwttoken });
+    const user = await User.findOne({ token:jwttoken });
     const metadata = {username: user.username, email: user.email};
     console.log("%s is now connected!", metadata.username);
     clientList.set(ws, metadata);
@@ -127,25 +128,37 @@ wss.on("connection", async (ws, req) => {
 
     sendAllStoredMessages(ws);
 
-    ws.on("message", data => {
+    ws.on("message", async data => {
         storeMessage(data.toString(), ws);
         let message = JSON.parse(data.toString());
-        // let id = -1;
-        // for (let i = 0; i < listClient.length; i++) { // Cherche l'id de l'emetteur du message
-        //     if (listClient[i].connection == ws) {
-        //         id = listClient[i].id;
-        //         break;
-        //     }
-        // }
-        // message.author += '#' + id;
         console.log(message);
-        message = JSON.stringify(message);
         
-        // Envoi du message à tous les clients connectés
-        clientList.forEach(function(metadata, clientws) {
-            clientws.send(message);
-        })
-
+        // Get la conversation du message
+        const conv = await Conversation.findOne({_id:message.idchat});
+        if (!conv) {
+            console.log("ERR - Conversation non trouvée");
+            return;
+        }
+        
+        message = JSON.stringify(message);
+        // Si chat général : envoyer le message à tous les clients connectés
+        if (!conv.username1) {
+            clientList.forEach(function(metadata, clientws) {
+                console.log("Sent to " + metadata.username);
+                clientws.send(message);
+            })
+        }
+        // Sinon : l'envoyer seulement aux deux utilisateurs concernés
+        else {
+            // ToDo: mieux récupérer les users via la Map
+            clientList.forEach(function(metadata, clientws) {
+                if (metadata.username == conv.username1 || metadata.username == conv.username2) {
+                    console.log("Sent to " + metadata.username);
+                    clientws.send(message);
+                }
+            })
+        }
+        
         // ToDo: fetch last message pour la table Conversation
     });
 
@@ -155,13 +168,27 @@ wss.on("connection", async (ws, req) => {
     });
 });
 
+
 // Send to the client all the stored messages
-function sendAllStoredMessages(ws) {
-    MessagesModel.find({}, (err, tuples) => {
-        for (let i = 0; i < tuples.length; i++) {
-            // console.log(`${tuples[i].author} > ${tuples[i].content} (${tuples[i].time})`);
-            ws.send(JSON.stringify(tuples[i]));
-        }
+async function sendAllStoredMessages(ws) {
+    let metadata = clientList.get(ws);
+    
+    // Get tous les chats d'un user
+    var convIds = new Array();
+    await Conversation.find({
+        $or: [ {username1: null }, { username1: metadata.username }, {username2: metadata.username} ] 
+    }).then(async function(convs) {
+        convs.forEach(function(conv) {
+            convIds.push(conv._id);
+        });
+
+        // Get uniquement les messages des chats de l'utilisateurs 
+        await MessageModel.find({ idchat: { $in: convIds } }).then(function(msgs) {
+            // ToDo: sort des messages par heure : msgs.map(msg => msg.time).sort(); 
+            msgs.forEach(function(msg) {
+                ws.send(JSON.stringify(msg));
+            });
+        });
     });
 
     // let rawdata = fs.readFileSync('Messages.json');
@@ -174,15 +201,7 @@ function sendAllStoredMessages(ws) {
 // Store the message into the JSON file
 function storeMessage(message, ws) {
     message = JSON.parse(message);
-    // let id = -1;
-    // for (let i = 0; i < listClient.length; i++) {
-    //     if (listClient[i].connection == ws) {
-    //         id = listClient[i].id;
-    //         break;
-    //     }
-    // }
-    // message.author += `#${id}`;
-    let newMessage = new MessagesModel(message);
+    let newMessage = new MessageModel(message);
     newMessage.save();
 
     // let rawdata = fs.readFileSync('Messages.json');
