@@ -6,7 +6,8 @@ Projet M1 AWS : Web app de messagerie temps réel chiffrée de bout en bout disp
 
 ### Phase 1 : Interface
 
-- [x] Inscription / Connexion
+- [x] Page d'inscription / Connexion
+  - [ ] Gérer l'affichage des erreurs (connexion invalide, inscription invalide, accès non autorisé (`/home` sans token par exemple)) 
 - [x] Page d'accueil
 - [ ] **Partie gauche**
   - [x] Affichage des conversations
@@ -30,7 +31,7 @@ Projet M1 AWS : Web app de messagerie temps réel chiffrée de bout en bout disp
 - [x] Websockets: échanger des messages en temps réel
 - [x] Implémenter correctement le mécanisme de pseudo/ID
 - [x] Fusionner les travaux, afficher les messages dans les bulles de l'interface (utiliser la fonction `renderMessage()`)
-- [x] Host le serveur sur VPS (<http://dylchat.elyn.cf>)
+- [x] Host le serveur sur VPS
 
 ### Phase 2 : Authentification et cookie
 
@@ -38,12 +39,12 @@ Projet M1 AWS : Web app de messagerie temps réel chiffrée de bout en bout disp
 - [x] Générer un token JWT (cookie) pour rendre la connexion persistante
 - [ ] Actualiser le Token au bout de 5h / déconnecter l'utilisateur si Token invalide
 - [ ] Ajouter un check pour déconnecter l'utilisateur si le cookie n'existe plus (en cas de connexion ailleurs)
+- [ ] Gérer le statut `En ligne` / `Hors ligne` des utilisateurs (?)
 - [x] Créer une API pour les requêtes client vers DB (avec son cookie en paramètre de requète)
 - [x] Routage `/login` --> `/home` (recupérer le pseudo de l'utilisateur connecté)
 - [ ] Faire en sorte que le `GET /` d'une personne connectée mène au `/home`
-- [ ] Ajouter les actions en cas de connexion invalide, inscription invalide, accès non autorisé (`/home` sans token par exemple)
 
-### Phase 2 : Base de données MongoDB
+### Phase 2 : Base de données MongoDB (Users, Conversations, Messages)
 
 - [x] Users (usernamelowercase, username, email, password, token)
 - [ ] Conversations (user.username, user.username, idchat)
@@ -52,18 +53,16 @@ Projet M1 AWS : Web app de messagerie temps réel chiffrée de bout en bout disp
   - [x] Une row se crée dans la table avec un nouveau ID de chat
   - [x] Quand un user se connecte, une routine `renderConversations()` affiche toutes les conversations liées au contact
   - [ ] Gérer tous les cas d'erreurs à l'ajout de contact (utilisateur introuvable, conversation déjà existante, etc.)
-  - [ ] Quand un user clique sur un chat:
+  - [ ] Quand un user clique sur une conversation :
     - [x] Le pseudo de l'utilisateur s'affiche en haut du chat
     - [ ] la routine `renderMessage()` fetch les 50 derniers messages du chat en question et les affiche
-- [ ] Messages (idchat, author, content, time)
-
-### Phase 2 : Stockage des messages
-
-- [x] Première implémentation avec une DB pour la room publique unique
+- [x] Première implémentation d'une DB de messages pour la room publique unique
 - [x] Créer par défaut la `Conversation` (null, null) pour le canal `Discussions` (ouvert à tous)
+- [ ] Messages (idchat, author, content, time)
 - [ ] Réfléchir à l'implémentation de la base de données (stockage des messages)
   - Requète pour récupérer les 50 derniers messages pour les display
   - Si l'utilisateur remonte son chat, la scrollbar se bloque le temps de fetch les 50 prochains messages
+- [ ] Update les champs `lastMessage` et `messageHout` de la table `Conversation` à chaque nouveau message sur une conversation 
 
 ## Lancement du serveur
 
