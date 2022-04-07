@@ -7,7 +7,7 @@ const app = express();
 
 app.use(cookieParser());
 app.use(express.json()); // to support JSON-encoded bodies
-app.use(express.urlencoded()); // to support URL-encoded bodies
+app.use(express.urlencoded({ extended: true })); // to support URL-encoded bodies
 
 const path = require("path");
 const htmlPath = path.join(__dirname, "/source");
@@ -44,8 +44,37 @@ app.get("/home", auth, (req, res) => res.status(200).sendFile(__dirname + "/sour
 
 // WEBSOCKETS //
 
+var {SSL} = process.env;
+SSL = SSL == "true" ? true : false;
+
+var cfg = {
+    ssl: SSL,
+    port: 8080,
+    ssl_key: './privkey.pem',
+    ssl_cert: './fullchain.pem'
+};
+
+var httpServ = ( cfg.ssl ) ? require('https') : require('http');
+var server = null;
+
+var processRequest = function( req, res ) {
+    console.log("Request received.")
+};
+
+const fs = require('fs');
+if ( cfg.ssl ) {
+    server = httpServ.createServer({
+        // providing server with  SSL key/cert
+        key: fs.readFileSync( cfg.ssl_key ),
+        cert: fs.readFileSync( cfg.ssl_cert )
+    }, processRequest ).listen( cfg.port );
+
+} else {
+    server = httpServ.createServer(processRequest).listen( cfg.port );
+}
+
 const WebSocket = require("ws");
-const wss = new WebSocket.Server({ port: 8080 });
+const wss = new WebSocket.Server({ server:server });
 
 // function getTime() {
 //     let date = new Date();

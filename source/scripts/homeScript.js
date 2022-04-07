@@ -47,8 +47,9 @@ contact_list.push(new Contact("Projet AWS", "Elyn : On abandonne ?", "Vendredi")
 contact_list.push(new Contact("Test d'overflow", "Vérification de la scrollbar", "Scroll"));
 
 var messagesArray = Array();
-
-const ws = new WebSocket("ws://" + location.host.split(':')[0] + ":8080");
+var http = location.href.split(":")[0];
+http = http == "http" ? "ws" : "wss"; // ws:// si serveur HTTP, sinon wss://
+const ws = new WebSocket(http + "://" + location.host.split(':')[0] + ":8080");
 
 
 var messageNumber = 0;
