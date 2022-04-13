@@ -41,19 +41,83 @@ var switchLoginForm = function (e) {
 
 };
 
-var printErrorLoginForm = function(e) {
-  let errorHidden = document.querySelectorAll(".text-red.hidden");
-  console.log(e.status);
-  if(e.statusCode === 400) {
-    errorHidden.classList.getElementById("errorRegister").remove("hidden");
-    errorHidden.classList.getElementById("errorRegister").add("visible");
-  } else if(e.statusCode === 409) {
-    errorHidden.classList.getElementById("errorLoginID").remove("hidden");
-    errorHidden.classList.getElementById("errorLoginID").add("visible");
-    errorHidden.classList.getElementById("errorLoginPwd").remove("hidden");
-    errorHidden.classList.getElementById("errorLoginPwd").add("visible");
+// ToDo: passer en JQueries
+var printErrorLoginForm = function(res) {
+  // ToDo: ne pas filtrer par status code et garder qu'une seule ligne de message d'erreur en printant dedans res.message
+    // get("ErrorField")
+    // ErrorField.innerHTML = res.message
+    // rendre visible
+  console.log(res);
+  if(res.status === 409) {
+    document.getElementById("errorRegister").classList.remove("hidden");
+    document.getElementById("errorRegister").classList.add("visible");
+  } else if(res.status === 400) {
+    document.getElementById("errorLoginID").classList.remove("hidden");
+    document.getElementById("errorLoginID").classList.add("visible");
+    document.getElementById("errorLoginPwd").classList.remove("hidden");
+    document.getElementById("errorLoginPwd").classList.add("visible");
   }
 }
 
 let inactive = document.querySelector(".login.inactive");
 inactive.addEventListener("click", switchLoginForm, true);
+
+
+// Send login-form manually
+let loginform = document.querySelector("#login-form")
+loginform.addEventListener('submit', async (e) => {
+  
+  let body = {
+    usernameLogin: loginform.elements.usernameLogin.value,
+    passwordLogin: loginform.elements.passwordLogin.value
+  }
+
+  e.preventDefault();
+
+  const res = await fetch('/login', {
+    method: 'POST',
+    body: JSON.stringify(body),
+    headers: {'Content-Type': 'application/json'}
+  })
+
+  const data = res.json();
+  data.then(response => {
+    if (response.status === 200) {
+      window.location = response.redirect;
+    }
+    else {
+      // ToDo: print errors
+      printErrorLoginForm(response)
+    }
+  }).catch(error => console.error('Error:', error))
+})
+
+// Send register-form manually
+let registerform = document.querySelector("#register-form")
+registerform.addEventListener('submit', async (e) => {
+  
+  let body = {
+    usernameSignup: registerform.elements.usernameSignup.value,
+    emailSignup: registerform.elements.emailSignup.value,
+    passwordSignup: registerform.elements.passwordSignup.value
+  }
+
+  e.preventDefault();
+
+  const res = await fetch('/register', {
+    method: 'POST',
+    body: JSON.stringify(body),
+    headers: {'Content-Type': 'application/json'}
+  })
+
+  const data = res.json();
+  data.then(response => {
+    if (response.status === 201) {
+      window.location = response.redirect;
+    }
+    else {
+      printErrorLoginForm(response)
+    }
+  }).catch(error => console.error('Error:', error))
+})
+

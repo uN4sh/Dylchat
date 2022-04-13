@@ -23,7 +23,7 @@ exports.register = async (req, res, next) => {
         const oldUser = await User.findOne({ usernamelowercase:usernameSignup.toLowerCase() });
 
         if (oldUser) {
-            return res.status(409);
+            return res.status(409).send({status: 409, message: "Username Already Exist. Please Login."});
         }
 
         //Encrypt user password
@@ -55,8 +55,8 @@ exports.register = async (req, res, next) => {
         });
         
         // return new user
-        return res.status(201).redirect("/home");
-        // res.status(201).json(user);
+        // return res.status(201).redirect("/home");
+        return res.send({status: 201, redirect: "/home"});
     } catch (err) {
         console.log(err);
     }
@@ -97,9 +97,10 @@ exports.login = async (req, res, next) => {
             // user
             // return res.status(200).json(user);
             // res.set('x-access-token', token);
-            return res.status(200).redirect("/home");
+            // return res.status(200).redirect("/home");
+            return res.send({status:200, redirect: "/home"});
         }
-        return res.status(400);
+        return res.status(400).json({status: 400, message:"Invalid credentials"});
     } catch (err) {
         console.log(err);
     }

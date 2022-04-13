@@ -43,7 +43,8 @@
 
       <!-- Formulaire de connexion -->
       <div class="log-form visible">
-        <form action="/login" method="post">
+        <!-- <form id="login-form" action="/login" method="post"> -->
+        <form id="login-form">
           <div class="input-container">
             <input type="text" id="usernameLogin" name="usernameLogin" required="" />
             <label>Identifiant</label>
@@ -55,7 +56,7 @@
             <input type="password" id="passwordLogin" name="passwordLogin" required="" />
             <label>Mot de passe</label>
 
-              <i class="text-red hidden" id="erroLoginPwd" aria-hidden="true">Invalid Credentials</i>
+              <i class="text-red hidden" id="errorLoginPwd" aria-hidden="true">Invalid Credentials</i>
 
           </div>
           <div class="bouton-connexion">
@@ -66,7 +67,8 @@
 
       <!-- Formulaire d'inscription -->
       <div class="log-form hidden">
-        <form action="/register" method="post">
+        <!-- <form action="/register" method="post"> -->
+        <form id="register-form">
           <div class="input-container">
             <input type="text" id="usernameSignup" name="usernameSignup" />
             <label>Identifiant</label>
