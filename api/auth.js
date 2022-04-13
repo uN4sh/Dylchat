@@ -23,7 +23,7 @@ exports.register = async (req, res, next) => {
         const oldUser = await User.findOne({ usernamelowercase:usernameSignup.toLowerCase() });
 
         if (oldUser) {
-            return res.status(409).send("Username Already Exist. Please Login");
+            return res.status(409);
         }
 
         //Encrypt user password
@@ -99,7 +99,7 @@ exports.login = async (req, res, next) => {
             // res.set('x-access-token', token);
             return res.status(200).redirect("/home");
         }
-        return res.status(400).send("Invalid Credentials");
+        return res.status(400);
     } catch (err) {
         console.log(err);
     }

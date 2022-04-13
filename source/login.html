@@ -47,10 +47,16 @@
           <div class="input-container">
             <input type="text" id="usernameLogin" name="usernameLogin" required="" />
             <label>Identifiant</label>
+
+              <i class="text-red hidden" id="errorLoginID" aria-hidden="true">Invalid Credentials</i>
+
           </div>
           <div class="input-container">
             <input type="password" id="passwordLogin" name="passwordLogin" required="" />
             <label>Mot de passe</label>
+
+              <i class="text-red hidden" id="erroLoginPwd" aria-hidden="true">Invalid Credentials</i>
+
           </div>
           <div class="bouton-connexion">
             <button class="btn-connect" role="button">Connexion</button>
@@ -64,6 +70,9 @@
           <div class="input-container">
             <input type="text" id="usernameSignup" name="usernameSignup" />
             <label>Identifiant</label>
+
+              <i class="text-red hidden" id="errorRegister" aria-hidden="true">Username Already Exist. Please Login</i>
+            
           </div>
           <div class="input-container">
             <input type="email" id="emailSignup" name="emailSignup" />
