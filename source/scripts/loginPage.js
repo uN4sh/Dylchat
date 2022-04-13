@@ -43,10 +43,11 @@ var switchLoginForm = function (e) {
 
 var printErrorLoginForm = function(e) {
   let errorHidden = document.querySelectorAll(".text-red.hidden");
+  console.log(e.status);
   if(e.statusCode === 400) {
     errorHidden.classList.getElementById("errorRegister").remove("hidden");
     errorHidden.classList.getElementById("errorRegister").add("visible");
-  } else(e.statusCode === 409) {
+  } else if(e.statusCode === 409) {
     errorHidden.classList.getElementById("errorLoginID").remove("hidden");
     errorHidden.classList.getElementById("errorLoginID").add("visible");
     errorHidden.classList.getElementById("errorLoginPwd").remove("hidden");
