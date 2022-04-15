@@ -66,20 +66,20 @@ Projet M1 AWS : Web app de messagerie temps réel chiffrée de bout en bout disp
 - [ ] Réfléchir à l'implémentation de la base de données (stockage des messages)
   - Requète pour récupérer les 50 derniers messages pour les display
   - Si l'utilisateur remonte son chat, la scrollbar se bloque le temps de fetch les 50 prochains messages
-- [ ] Update les champs `lastMessage` et `messageHour` de la table `Conversation` à chaque nouveau message sur une conversation
+- [x] Update les champs `lastMessage` et `messageHour` de la table `Conversation` à chaque nouveau message sur une conversation
 
 ### Phase 2 : Scripts et amélioration de l'interface
 
 - [ ] Page d'inscription / connexion : gérer l'affichage des erreurs
-  - [ ] Connexion invalide
-  - [ ] Inscription invalide (pseudo déjà utilisé)
+  - [x] Connexion invalide
+  - [x] Inscription invalide (pseudo déjà utilisé)
   - [ ] Accès non autorisé (`/home` sans token par exemple)
 
 - [ ] `ws.onMessage`: à chaque nouveau message reçu du socket :
   - [ ] Si le message est sur la conversation active :
     - [ ] Faire un fetch DB avec un /getMessages
-    - [ ] Call `renderMessages()` pour le réaffichage
-    - [ ] Call `renderConversations()` pour actualiser lastMessage et messageHour
+    - [x] Call `renderMessages()` pour le réaffichage
+    - [x] Call `renderConversations()` pour actualiser lastMessage et messageHour
   - [ ] Sinon, le message est sur une autre conversation
     - [ ] Call `renderConversations()` pour actualiser lastMessage et messageHour (et faire remonter la conversation)
 
