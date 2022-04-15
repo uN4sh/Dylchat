@@ -87,13 +87,25 @@ ws.addEventListener("message", data => {
     renderConversations();
 });
 
-// ToDo: corriger heure différente: prendre heure serveur 
+// ToDo: En test: stocker les timestamps en UTC puis afficher au client selon son fuseau horaire 
 function getTime() {
+    /*
     let date = new Date();
     let milisec = Date.now();
     let seconds = milisec / 1000;
     let minutes = seconds / 60;
     minutes -= date.getTimezoneOffset(); // Permet de ne pas appliquer le fuseau horaire du client
+    let hours = minutes / 60;
+    let result = ("0" + Math.floor(hours % 24)).slice(-2) + ":" + ("0" + Math.floor(minutes % 60)).slice(-2);
+    return result;
+    */
+    return new Date().getTime();
+}
+
+function convertTimestamp(timestamp) {
+    let seconds = Math.round(timestamp / 1000);
+    let minutes = seconds / 60;
+    minutes -= new Date().getTimezoneOffset(); // Todo: Ajoute le fuseau horaire du client
     let hours = minutes / 60;
     let result = ("0" + Math.floor(hours % 24)).slice(-2) + ":" + ("0" + Math.floor(minutes % 60)).slice(-2);
     return result;
@@ -118,6 +130,10 @@ async function renderConversations() {
         for (let i = 0; i < conversations.length; i++) {
             let contact = document.createElement("div");
             contact.classList.add("contact");
+
+            if (conversations[i]._id == activeConversationId)
+                contact.classList.add("selected");
+
             contact.id = "contact-" + i;
             // ToDo: transformer conversations en une map (Id, conversation)
             conversations[i].idcontact = i;
@@ -141,7 +157,7 @@ async function renderConversations() {
             let message_hour = document.createElement("p");
             message_hour.classList.add("message-hour");
             if (conversations[i].messageHour != null)
-                message_hour.innerText = conversations[i].messageHour;
+                message_hour.innerText = convertTimestamp(conversations[i].messageHour);
             else
                 message_hour.innerText = "/"
             grid80.appendChild(message_hour);
@@ -276,6 +292,7 @@ function renderMessages() {
             newMsgDiv.appendChild(text);
         }
         // Check si c'est le dernier message pour afficher l'heure
+        // ToDo: le dernier message du messagesArray n'est pas forcément le dernier de la conv actuelle pour l'affichage de l'heure
         // ToDo: afficher l'heure si message date de + de 5mn
         // || (i > 0 && messagesArray[i].time > new Date(messagesArray[i-1].time.getTime() + 1 * 60000) )
         if (i == messagesArray.length - 1 || (i < messagesArray.length && messagesArray[i + 1].author != author)) {
@@ -289,7 +306,7 @@ function renderMessages() {
             }
             // let formatted_time = messagesArray[i].time.toLocaleTimeString().substring(0, 5);
             // time.appendChild(document.createTextNode(formatted_time));
-            time.appendChild(document.createTextNode(messagesArray[i].time));
+            time.appendChild(document.createTextNode(convertTimestamp(messagesArray[i].time)));
             newMsgDiv.appendChild(time);
         }
     }

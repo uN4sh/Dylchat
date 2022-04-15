@@ -38,10 +38,10 @@ Projet M1 AWS : Web app de messagerie temps réel chiffrée de bout en bout disp
 - [x] `/getUsers`: renvoie un JSON de tous les utilisateurs inscrits
 - [x] `/getUsername`: renvoie un JSON avec l'username et le mail de l'utilisateur connecté (via Token)
 - [x] `/getConversations`: renvoie la liste des conversations d'un utilisateur (via Token)
-  - [ ] Trier les conversations par timestamp du dernier message
+  - [x] Trier les conversations par timestamp du dernier message
 - [x] Routine `/newConversation`: crée une nouvelle conversation à partir du Token et du pseudo d'un autre utilisation s'il existe
 - [ ] `getAllMessages`: renvoie l'ensemble des messages pour un IdChat
-  - [ ] Trier les messages par timestamp
+  - [x] Trier les messages par timestamp
   - [ ] Sécurité: ajouter une vérification via Token que l'utilisateur a bien le droit d'accès à ces messages
 - [ ] `fetchMessages`: ToDo: réfléchir à une implémentation pour récupérer seulement une partie des messages du chat
 
@@ -80,13 +80,14 @@ Projet M1 AWS : Web app de messagerie temps réel chiffrée de bout en bout disp
     - [ ] Faire un fetch DB avec un /getMessages
     - [x] Call `renderMessages()` pour le réaffichage
     - [x] Call `renderConversations()` pour actualiser lastMessage et messageHour
-  - [ ] Sinon, le message est sur une autre conversation
-    - [ ] Call `renderConversations()` pour actualiser lastMessage et messageHour (et faire remonter la conversation)
+  - [x] Sinon, le message est sur une autre conversation
+    - [x] Call `renderConversations()` pour actualiser lastMessage et messageHour (et faire remonter la conversation)
 
 - [ ] **Partie gauche**
   - [ ] Script `getMessages(idchat)` pour un `GET` API sur `/getAllMessages` avec l'IdChat en body de requète
   - [ ] `selectContact()`: clear le tableau `messagesArray` et appeler `getMessages(idchat)` pour le re-remplir
   - [ ] Le bouton `+` pour ajouter un contact doit afficher une pop-up avec un `form` input qui `POST` sur `/newConversation`
+  - [ ] Améliorer l'affichage du dernier message (afficher le pseudo ou "vous:" ou autre idée), et couper le message au bout de x caractères
 - [ ] **Partie droite**
   - [ ] `renderMessages()`: Afficher l'heure après 10 minutes entre deux messages d'une même personne (en test)
   - [ ] `renderMessages()`: Afficher la date quelque part (fixe en haut ou à chaque message en timestamp ou à chaque nouveau jour)

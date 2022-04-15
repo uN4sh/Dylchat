@@ -190,7 +190,12 @@ async function sendAllStoredMessages(ws) {
 
         // Get uniquement les messages des chats de l'utilisateurs 
         await MessageModel.find({ idchat: { $in: convIds } }).then(function (msgs) {
-            // ToDo: sort des messages par heure : msgs = msgs.map(msg => msg.time).sort();
+
+            // Tri des messages par timestamp
+            msgs.sort(function (a, b) {
+                return a.time - b.time
+            });
+
             msgs.forEach(function (msg) {
                 ws.send(JSON.stringify(msg));
             });

@@ -10,8 +10,12 @@ exports.getConversations = async (req, res, next) => {
 			return res.status(409).json({ error: "User not found. Please logout and re-login.", username: "Undefined" });
 
 		const conversations = await Conversation.find({ $or: [{ username1: user.username }, { username2: user.username }, { username1: null }] })
-		// ToDo NEXT: trier les conversations par dernier message
-		// console.log("Chats:", conversations);
+
+		// Tri des conversations par timestamp du dernier message
+		conversations.sort(function (a, b) {
+			return b.messageHour - a.messageHour
+		});
+
 		res.status(200).json({ conversation: conversations });
 
 	} catch (err) {
