@@ -50,7 +50,7 @@ async function getConversations() {
 
 let myPseudo = "Random";
 let activeConversationId;
-let messagesArray = Array();
+let messagesDict = {};
 let conversations = Array();
 
 
@@ -78,7 +78,13 @@ ws.addEventListener("message", data => {
     let msg = JSON.parse(data.data);
     // console.log(msg);
     let message = new Message(msg.idchat, msg.author, msg.content, msg.time);
-    messagesArray.push(message);
+
+    // Stockage des messages dans le dictionnaire messagesDict selon les chats :
+    //      "chatid": [message, message, message]
+    //      "chatid": [message, message, message]
+    if (!(message.idchat in messagesDict))
+        messagesDict[message.idchat] = Array()
+    messagesDict[message.idchat].push(message);
 
     // Afficher les messages si le nouveau message est sur la conversation active
     if (msg.idchat == activeConversationId)
@@ -87,28 +93,11 @@ ws.addEventListener("message", data => {
     renderConversations();
 });
 
-// ToDo: En test: stocker les timestamps en UTC puis afficher au client selon son fuseau horaire 
-function getTime() {
-    /*
-    let date = new Date();
-    let milisec = Date.now();
-    let seconds = milisec / 1000;
-    let minutes = seconds / 60;
-    minutes -= date.getTimezoneOffset(); // Permet de ne pas appliquer le fuseau horaire du client
-    let hours = minutes / 60;
-    let result = ("0" + Math.floor(hours % 24)).slice(-2) + ":" + ("0" + Math.floor(minutes % 60)).slice(-2);
-    return result;
-    */
-    return new Date().getTime();
-}
 
 function convertTimestamp(timestamp) {
-    let seconds = Math.round(timestamp / 1000);
-    let minutes = seconds / 60;
-    minutes -= new Date().getTimezoneOffset(); // Todo: Ajoute le fuseau horaire du client
-    let hours = minutes / 60;
-    let result = ("0" + Math.floor(hours % 24)).slice(-2) + ":" + ("0" + Math.floor(minutes % 60)).slice(-2);
-    return result;
+    let msgdate = new Date(parseInt(timestamp));
+    // console.log(msgdate.toLocaleString());
+    return msgdate.toLocaleTimeString().slice(0, 5);
 }
 
 const newConvForm = document.getElementById("newConvForm");
@@ -225,7 +214,7 @@ async function sendMessage() {
         return;
     }
 
-    let message = new Message(activeConversationId, myPseudo, chatbox.value, getTime());
+    let message = new Message(activeConversationId, myPseudo, chatbox.value, new Date().getTime());
 
     ws.send(JSON.stringify(message));
     chatbox.value = "";
@@ -250,12 +239,17 @@ function renderMessages() {
     let messagesChat = document.getElementById("messages-chat");
     messagesChat.innerHTML = "";
 
+    if (!(activeConversationId in messagesDict))
+        return;
+
+    let messagesArray = messagesDict[activeConversationId]
     for (let i = 0; i < messagesArray.length; i++) {
+        // Ne pas afficher les messages des autres conversations
         if (messagesArray[i].idchat != activeConversationId)
             continue;
 
         var author = messagesArray[i].author;
-        // let messageId = parseInt(author.split('#')[1]);
+
         // Check si premier message pour ajouter le nom
         if (i == 0 || (i > 0 && messagesArray[i - 1].author != author)) {
             let newMsgDiv = document.createElement("div");
@@ -292,7 +286,6 @@ function renderMessages() {
             newMsgDiv.appendChild(text);
         }
         // Check si c'est le dernier message pour afficher l'heure
-        // ToDo: le dernier message du messagesArray n'est pas forcément le dernier de la conv actuelle pour l'affichage de l'heure
         // ToDo: afficher l'heure si message date de + de 5mn
         // || (i > 0 && messagesArray[i].time > new Date(messagesArray[i-1].time.getTime() + 1 * 60000) )
         if (i == messagesArray.length - 1 || (i < messagesArray.length && messagesArray[i + 1].author != author)) {
@@ -304,8 +297,7 @@ function renderMessages() {
             if (myPseudo == author) {
                 time.classList.add("response-time");
             }
-            // let formatted_time = messagesArray[i].time.toLocaleTimeString().substring(0, 5);
-            // time.appendChild(document.createTextNode(formatted_time));
+
             time.appendChild(document.createTextNode(convertTimestamp(messagesArray[i].time)));
             newMsgDiv.appendChild(time);
         }
