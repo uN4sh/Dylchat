@@ -100,15 +100,15 @@ function convertTimestamp(timestamp) {
     return msgdate.toLocaleTimeString().slice(0, 5);
 }
 
-const newConvForm = document.getElementById("newConvForm");
-document.querySelector("#add-contact").addEventListener("click", function () {
-    newConvForm.submit();
-});
-
+// TODO : intégrer dans la fonction 'ajouterContact'
+// const newConvForm = document.getElementById("newConvForm");
+// document.querySelector("#add-contact").addEventListener("click", function() {
+//     newConvForm.submit();
+// });
 
 
 async function renderConversations() {
-    await getConversations().then(function (res) {
+    await getConversations().then(function(res) {
         conversations = res.conversation;
 
         let div = document.getElementById("contact-list");
@@ -155,8 +155,7 @@ async function renderConversations() {
             last_message.classList.add("last-message");
             if (conversations[i].lastMessage != null) {
                 last_message.innerText = conversations[i].lastMessage;
-            }
-            else
+            } else
                 last_message.innerText = "/"
             contact.appendChild(last_message);
         }
@@ -169,7 +168,7 @@ async function renderConversations() {
     });
 }
 
-var selectContact = function (e) {
+var selectContact = function(e) {
     for (let i = 0; i < conversations.length; i++) {
         let contact = document.getElementById("contact-" + i);
         contact.classList.remove("selected");
@@ -308,17 +307,35 @@ function renderMessages() {
 
 window.addEventListener('DOMContentLoaded', async event => {
 
-    getUsername().then(function (res) {
+    getUsername().then(function(res) {
         myPseudo = res;
     });
 
     await renderConversations();
 
     // Touche entrée liée au bouton d'envoi de message
-    window.addEventListener('keyup', function (event) {
+    window.addEventListener('keyup', function(event) {
         if (event.keyCode === 13) {
             this.document.getElementById("send").click();
         }
     });
 
 });
+
+
+/* -------------------- Menu d'ajout de conversation -------------------- */
+function ouvrirMenu() {
+    document.getElementById("menu_ajouter_conv").style.display = "grid";
+}
+
+function fermerMenu() {
+    document.getElementById("menu_ajouter_conv").style.display = "none";
+}
+
+function ajouterContact() {
+    let input = document.getElementById("entree_pseudo");
+    let text = input.value;
+    document.getElementById("menu_ajouter_conv").style.display = "none";
+    alert(text);
+    input.value = "";
+}

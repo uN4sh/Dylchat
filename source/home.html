@@ -2,119 +2,121 @@
 <html lang="en">
 
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="icon" href="https://cdn.glitch.global/42e33cd0-7279-4ff4-bbdf-b2e87b5fb08b/logo2.jpeg?v=1647381921310" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="https://cdn.glitch.global/42e33cd0-7279-4ff4-bbdf-b2e87b5fb08b/logo2.jpeg?v=1647381921310" />
 
-  <title>Dylchat</title>
+    <title>Dylchat</title>
 
-  <!-- Import the webpage's stylesheet -->
-  <link rel="stylesheet" href="../stylesheets/mainstyle.css" />
-  <link rel="stylesheet" href="../stylesheets/chatboxes.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <!-- Import the webpage's stylesheet -->
+    <link rel="stylesheet" href="../stylesheets/mainstyle.css" />
+    <link rel="stylesheet" href="../stylesheets/chatboxes.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
 
-  <!-- Import the webpage's javascript file -->
-  <script src="../scripts/homeScript.js" defer></script>
+    <!-- Import the webpage's javascript file -->
+    <script src="../scripts/homeScript.js" defer></script>
 </head>
 
 <body>
-  <div id="shadowbox">
-    <div class="partie-gauche">
-      <div class="header-gauche">
-        <h1 class="title">Rooms</h1>
-        <form id="newConvForm" action="/newConversation" method="post">
-          <input type="text" name="username2" placeholder="Pseudo du nouveau contact" /></input>
-          <!-- ToDo: l'input apparait seulement après clic sur le + -->
-          <i class="icon clickable fa fa-plus rightplus" id="add-contact" aria-hidden="true"></i>
-        </form>
-      </div>
-
-
-      <div id="contact-list" class="contact-list">
-        <div id="contact-0" class="contact">
-          <div class="grid-80-20">
-            <p class="contact-title">title</p>
-            <p class="message-hour">hour</p>
-          </div>
-          <p class="last-message">msg</p>
-        </div>
-      </div>
-
+    <div id="menu_ajouter_conv">
+        <label for="entree_pseudo">Créer une conversation avec :</label>
+        <input type="text" id="entree_pseudo" placeholder="Pseudo de l'utilisateur...">
+        <button id="ajouter_conv" onclick="ajouterContact()">Ajouter</button>
+        <button id="fermer_menu" onclick="fermerMenu()">Fermer</button>
     </div>
 
-    <main class="partie-droite">
-
-      <!-- Accueil -->
-      <div id="accueil">
-        <p class="text-menu">Clique sur une conversation pour commencer.</p>
-        <break />
-        <p class="text-menu">Tu peux aussi <span class="text-link-blue">ajouter un contact</span> ou <span
-            class="text-link-blue">démarrer une discussion</span>.</p>
-
-      </div>
+    <div id="shadowbox">
+        <div class="partie-gauche">
+            <div class="header-gauche">
+                <h1 class="title">Rooms</h1>
+                <form id="newConvForm" action="/newConversation" method="post">
+                    <i class="icon clickable fa fa-plus rightplus" id="add-contact" aria-hidden="true" onclick="ouvrirMenu()"></i>
+                </form>
+            </div>
 
 
-          
+            <div id="contact-list" class="contact-list">
+                <div id="contact-0" class="contact">
+                    <div class="grid-80-20">
+                        <p class="contact-title">title</p>
+                        <p class="message-hour">hour</p>
+                    </div>
+                    <p class="last-message">msg</p>
+                </div>
+            </div>
 
-      <!-- Nouvelles chatboxes -->
-      <section id="chat" class="chat hidden">
-        <div class="header-chat">
-          <i class="icon fa fa-user-o" aria-hidden="true"></i>
-          <p id="chat-name" class="name">None</p>
-          <i class="icon clickable fa fa-ellipsis-h right" aria-hidden="true"></i>
         </div>
 
-        <div id="messages-chat" class="messages-chat">
+        <main class="partie-droite">
 
-          <!-- <div class="message">
+            <!-- Accueil -->
+            <div id="accueil">
+                <p class="text-menu">Clique sur une conversation pour commencer.</p>
+                <break />
+                <p class="text-menu">Tu peux aussi <span class="text-link-blue">ajouter un contact</span> ou <span class="text-link-blue">démarrer une discussion</span>.</p>
+
+            </div>
+
+
+
+
+            <!-- Nouvelles chatboxes -->
+            <section id="chat" class="chat hidden">
+                <div class="header-chat">
+                    <i class="icon fa fa-user-o" aria-hidden="true"></i>
+                    <p id="chat-name" class="name">None</p>
+                    <i class="icon clickable fa fa-ellipsis-h right" aria-hidden="true"></i>
+                </div>
+
+                <div id="messages-chat" class="messages-chat">
+
+                    <!-- <div class="message">
             <div class="photo" style="background-image: url(https://i.imgur.com/acykxOt.jpg);">
               <div class="online"></div>
             </div>
             <p class="text"> Salut ! </p>
           </div> -->
 
-          <div class="message">
-            <p class="username"> Dylan </p>
-          </div>
-          <div class="message text-only">
-            <p class="text"> Hello! </p>
-          </div>
+                    <div class="message">
+                        <p class="username"> Dylan </p>
+                    </div>
+                    <div class="message text-only">
+                        <p class="text"> Hello! </p>
+                    </div>
 
-          <div class="message text-only">
-            <p class="text"> Ça va bien toi toi ? </p>
-          </div>
-          <div class="message">
-            <p class="time"> 14h58</p>
-          </div>
-          <div class="space"></div>
-          
-          
-          <div class="message">
-            <p class="username"> Elyn </p>
-          </div>
-          <div class="message text-only">
-            <div class="response">
-              <p class="text"> ??? </p>
-            </div>
-          </div>
-          <div class="message">
-            <p class="time"> 15h04</p> 
-          </div>
-        
-        </div>
-
-        <div class="footer-chat">
-          <input id="chat-box" type="text" class="write-message" placeholder="Écris ici ton message" /></input>
-          <i id="send" class="icon send fa fa-paper-plane-o clickable" aria-hidden="true" onclick="sendMessage()"></i>
-        </div>
-        
-      </section>
+                    <div class="message text-only">
+                        <p class="text"> Ça va bien toi toi ? </p>
+                    </div>
+                    <div class="message">
+                        <p class="time"> 14h58</p>
+                    </div>
+                    <div class="space"></div>
 
 
+                    <div class="message">
+                        <p class="username"> Elyn </p>
+                    </div>
+                    <div class="message text-only">
+                        <div class="response">
+                            <p class="text"> ??? </p>
+                        </div>
+                    </div>
+                    <div class="message">
+                        <p class="time"> 15h04</p>
+                    </div>
 
-      <footer id="footer">Dylchat – Where everything starts</footer>
-    </main>
-  </div>
+                </div>
+
+                <div class="footer-chat">
+                    <input id="chat-box" type="text" class="write-message" placeholder="Écris ici ton message" /></input>
+                    <i id="send" class="icon send fa fa-paper-plane-o clickable" aria-hidden="true" onclick="sendMessage()"></i>
+                </div>
+
+            </section>
+
+            <footer id="footer">Dylchat – Where everything starts</footer>
+        </main>
+    </div>
 </body>
 
 </html>
