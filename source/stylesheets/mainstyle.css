@@ -60,15 +60,28 @@ video {
 }
 
 .header-gauche {
-    display: flex;
-    align-items: center;
+    /* display: flex;
+    align-items: center */
+    display: grid;
+    grid-template-areas: "rooms . plus";
+    grid-template-columns: 80% 20%;
 }
 
-.header-gauche .rightplus {
-    /* float: right; */
+.partie-gauche .header-gauche {
+    grid-area: rooms;
+}
+
+.partie-gauche .rightplus {
+    grid-area: plus;
+    padding: 50%;
+}
+
+
+/* .header-gauche .rightplus {
+    float: right;
     margin-right: 10% !important;
     margin-left: auto;
-}
+} */
 
 .title {
     margin-left: 10%;
