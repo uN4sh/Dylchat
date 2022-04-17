@@ -100,12 +100,6 @@ function convertTimestamp(timestamp) {
     return msgdate.toLocaleTimeString().slice(0, 5);
 }
 
-// TODO : intégrer dans la fonction 'ajouterContact'
-// const newConvForm = document.getElementById("newConvForm");
-// document.querySelector("#add-contact").addEventListener("click", function() {
-//     newConvForm.submit();
-// });
-
 
 async function renderConversations() {
     await getConversations().then(function(res) {
@@ -136,7 +130,7 @@ async function renderConversations() {
             let contact_title = document.createElement("p");
             contact_title.classList.add("contact-title");
             if (conversations[i].username1 == null)
-                contact_title.innerText = "Discussions"
+                contact_title.innerText = "[Discussions]"
             else if (conversations[i].username1 == myPseudo)
                 contact_title.innerText = conversations[i].username2;
             else
@@ -189,7 +183,7 @@ var selectContact = function(e) {
         if ("contact-" + conv.idcontact == e.currentTarget.id) {
             activeConversationId = conv._id; // Set active conv ID
             if (conv.username1 == null)
-                chatname.innerHTML = "Discussions";
+                chatname.innerHTML = "[Discussions] – Canal général";
             else if (conv.username1 == myPseudo)
                 chatname.innerHTML = conv.username2
             else
@@ -241,13 +235,22 @@ function renderMessages() {
     if (!(activeConversationId in messagesDict))
         return;
 
+    
+    // Récupérer les messages de la conversation courante
     let messagesArray = messagesDict[activeConversationId]
     for (let i = 0; i < messagesArray.length; i++) {
-        // Ne pas afficher les messages des autres conversations
-        if (messagesArray[i].idchat != activeConversationId)
-            continue;
 
         var author = messagesArray[i].author;
+        
+        // Affichage de la date au premier message ou entre 2 messages de dates différentes 
+        if ((i == 0) || 
+            (i > 0 && new Date(parseInt(messagesArray[i].time)).getDate()) != 
+                      new Date(parseInt(messagesArray[i-1].time)).getDate()) {
+                let testDateDIv = document.createElement("div");
+                testDateDIv.classList.add("date");
+                testDateDIv.innerHTML = new Date(parseInt(messagesArray[i].time)).toLocaleDateString();
+                messagesChat.appendChild(testDateDIv);
+        }
 
         // Check si premier message pour ajouter le nom
         if (i == 0 || (i > 0 && messagesArray[i - 1].author != author)) {
@@ -284,10 +287,13 @@ function renderMessages() {
             text.appendChild(document.createTextNode(messagesArray[i].content));
             newMsgDiv.appendChild(text);
         }
-        // Check si c'est le dernier message pour afficher l'heure
-        // ToDo: afficher l'heure si message date de + de 5mn
-        // || (i > 0 && messagesArray[i].time > new Date(messagesArray[i-1].time.getTime() + 1 * 60000) )
-        if (i == messagesArray.length - 1 || (i < messagesArray.length && messagesArray[i + 1].author != author)) {
+
+        // Affichage de l'heure si dernier message d'une personne ou écart de 5 minutes
+        if ((i == messagesArray.length - 1) || // Dernier message du tableau
+            (i < messagesArray.length && messagesArray[i + 1].author != author) || // Dernier message d'une personne
+            (i > 0 && new Date(parseInt(messagesArray[i].time)) > 
+                      new Date(parseInt(messagesArray[i-1].time)+5*60000))) // 5 minutes entre 2 messages d'une même personne
+            {
             let newMsgDiv = document.createElement("div");
             newMsgDiv.classList.add("message");
             messagesChat.appendChild(newMsgDiv);
@@ -332,10 +338,34 @@ function fermerMenu() {
     document.getElementById("menu_ajouter_conv").style.display = "none";
 }
 
-function ajouterContact() {
+async function ajouterContact() {
     let input = document.getElementById("entree_pseudo");
     let text = input.value;
     document.getElementById("menu_ajouter_conv").style.display = "none";
-    alert(text);
     input.value = "";
+
+    // POST Request 
+    const body = {username2: text};
+    const res = await fetch('/newConversation', {
+        method: 'POST',
+        body: JSON.stringify(body),
+        headers: {'Content-Type': 'application/json'}
+    })
+    const data = res.json();
+    data.then(response => {
+        if (response.status === 200) {
+          window.location = response.redirect;
+        }
+        else {
+          // ToDo: print errors
+          alert(response.error);
+        }
+    }).catch(error => console.error('Error:', error))
 }
+
+
+
+  
+
+  
+  

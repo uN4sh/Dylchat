@@ -96,6 +96,14 @@
     margin-left: auto;
 }
 
+.date {
+    font-size: 12px;
+    color: lightgrey;
+    margin-bottom: 10px;
+    margin: 0 35px;
+    text-align: center;
+}
+
 .time {
     font-size: 10px;
     color: lightgrey;

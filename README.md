@@ -86,14 +86,15 @@ Projet M1 AWS : Web app de messagerie temps réel chiffrée de bout en bout disp
 - [ ] **Partie gauche**
   - [ ] Script `getMessages(idchat)` pour un `GET` API sur `/getAllMessages` avec l'IdChat en body de requète
   - [ ] `selectContact()`: clear le tableau `messagesArray` et appeler `getMessages(idchat)` pour le re-remplir
-  - [ ] Le bouton `+` pour ajouter un contact doit afficher une pop-up avec un `form` input qui `POST` sur `/newConversation`
+  - [x] Le bouton `+` pour ajouter un contact doit afficher une pop-up avec un `form` input qui `POST` sur `/newConversation`
   - [ ] Améliorer l'affichage du dernier message (afficher le pseudo ou "vous:" ou autre idée), et couper le message au bout de x caractères
 - [ ] **Partie droite**
-  - [ ] `renderMessages()`: Afficher l'heure après 10 minutes entre deux messages d'une même personne (en test)
-  - [ ] `renderMessages()`: Afficher la date quelque part (fixe en haut ou à chaque message en timestamp ou à chaque nouveau jour)
+  - [x] `renderMessages()`: Afficher l'heure après 10 minutes entre deux messages d'une même personne (en test)
+  - [x] `renderMessages()`: Afficher la date quelque part (fixe en haut ou à chaque message en timestamp ou à chaque nouveau jour)
   - [ ] Ajouter un bouton retour à l’écran d’accueil (?)
   - [ ] Bouton option en haut à droite du contact (?)
   - [ ] Ajouter un bouton pour supprimer un message (?)
+    - [ ] Dans l'idéal, quand on passe la souris sur un message, l'icône option s'affiche pour pouvoir supprimer un message
   - [ ] Ajouter un bouton options profil (changement de pseudo, mot de passe et déconnexion + voir ma clé privée) (?)
 
 ### Phase 3 : Chiffrement

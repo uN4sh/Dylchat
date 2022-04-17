@@ -57,7 +57,8 @@ exports.newConversation = async (req, res, next) => {
 			messageHour: null
 		});
 
-		return res.status(200).redirect("/home");
+		return res.status(200).send({status:200, redirect: "/home"});
+		// return res.status(200).redirect("/home");
 
 	} catch (err) {
 		res.status(401).json({ message: "Not successful", error: err.message })

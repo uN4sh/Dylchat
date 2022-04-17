@@ -92,7 +92,8 @@ video {
     display: flex;
     flex-direction: column;
     overflow: scroll;
-    max-height: 50%;
+    /* max-height: 50%; */
+    height: calc(100vh - 200px);
     /* ToDo: trouver une solution pour que la taille de la liste ne dépasse pas */
     /* border: 1px solid #FFFFFF; */
     text-align: left;
