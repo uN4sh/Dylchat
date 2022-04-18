@@ -28,7 +28,7 @@ Projet M1 AWS : Web app de messagerie temps réel chiffrée de bout en bout disp
 - [ ] Actualiser le Token au bout de 5h / déconnecter l'utilisateur si Token invalide
 - [ ] Ajouter un check pour déconnecter l'utilisateur si le cookie n'existe plus (en cas de connexion ailleurs)
 - [ ] Gérer le statut `En ligne` / `Hors ligne` des utilisateurs (?)
-- [ ] Faire en sorte que le `GET /` d'une personne connectée mène au `/home`
+- [x] Faire en sorte que le `GET /` d'une personne connectée mène au `/home`
 
 ### Phase 2 : API Rest
 
@@ -70,10 +70,9 @@ Projet M1 AWS : Web app de messagerie temps réel chiffrée de bout en bout disp
 
 ### Phase 2 : Scripts et amélioration de l'interface
 
-- [ ] Page d'inscription / connexion : gérer l'affichage des erreurs
+- [x] Page d'inscription / connexion : gérer l'affichage des erreurs
   - [x] Connexion invalide
   - [x] Inscription invalide (pseudo déjà utilisé)
-  - [ ] Accès non autorisé (`/home` sans token par exemple)
 
 - [ ] `ws.onMessage`: à chaque nouveau message reçu du socket :
   - [ ] Si le message est sur la conversation active :

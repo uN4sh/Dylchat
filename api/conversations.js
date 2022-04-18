@@ -57,9 +57,8 @@ exports.newConversation = async (req, res, next) => {
 			messageHour: null
 		});
 
-		return res.status(200).send({status:200, redirect: "/home"});
-		// return res.status(200).redirect("/home");
-
+		// ToDo: pas de redirect mais envoi de la nouvelle conv par webSocket
+		return res.status(200).send({status:200, redirect: "/"});
 	} catch (err) {
 		res.status(401).json({ message: "Not successful", error: err.message })
 	}

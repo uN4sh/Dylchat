@@ -54,9 +54,7 @@ exports.register = async (req, res, next) => {
             expiresIn: "5h", // 3hrs in ms
         });
         
-        // return new user
-        // return res.status(201).redirect("/home");
-        return res.send({status: 201, redirect: "/home"});
+        return res.send({status: 201, redirect: "/"});
     } catch (err) {
         console.log(err);
     }
@@ -94,11 +92,9 @@ exports.login = async (req, res, next) => {
                 httpOnly: true,
                 expiresIn: "5h", // 3hrs in ms
             });
-            // user
-            // return res.status(200).json(user);
+
             // res.set('x-access-token', token);
-            // return res.status(200).redirect("/home");
-            return res.send({status:200, redirect: "/home"});
+            return res.send({status:200, redirect: "/"});
         }
         return res.status(400).json({status: 400, message:"Invalid credentials"});
     } catch (err) {

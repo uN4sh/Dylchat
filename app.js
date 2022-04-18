@@ -19,7 +19,17 @@ app.use("/images", express.static(__dirname + '/source/images'));
 
 
 // Routage //
-app.get("/", (req, res) => res.sendFile(__dirname + "/source/login.html")); // Accède à la page de login
+
+const verifyToken = require("./middleware/verifyToken");
+
+// Accède à la page home si le token (cookie) est valide, sinon renvoie la page login  
+app.get("/", verifyToken, (req, res) => {
+    if (req.user)
+        res.status(200).sendFile(__dirname + "/source/home.html");
+    else
+        res.status(req.err.status).sendFile(__dirname + "/source/login.html");
+})
+
 
 app.get("/logout", (req, res) => {
     res.cookie("jwt", "", { maxAge: "1" }) // Supprime le token de l'utilisateur
@@ -36,11 +46,6 @@ const { getConversations, newConversation, updateConversation } = require("./api
 app.post("/newConversation", newConversation);
 app.get("/getConversations", getConversations);
 app.post("/updateConversation", updateConversation);
-
-// Accède à la page home (si la fonction auth le valide selon le token) 
-const auth = require("./middleware/auth");
-app.get("/home", auth, (req, res) => res.status(200).sendFile(__dirname + "/source/home.html"));
-
 
 
 // WEBSOCKETS //
