@@ -235,21 +235,21 @@ function renderMessages() {
     if (!(activeConversationId in messagesDict))
         return;
 
-    
+
     // Récupérer les messages de la conversation courante
     let messagesArray = messagesDict[activeConversationId]
     for (let i = 0; i < messagesArray.length; i++) {
 
         var author = messagesArray[i].author;
-        
+
         // Affichage de la date au premier message ou entre 2 messages de dates différentes 
-        if ((i == 0) || 
-            (i > 0 && new Date(parseInt(messagesArray[i].time)).getDate()) != 
-                      new Date(parseInt(messagesArray[i-1].time)).getDate()) {
-                let testDateDIv = document.createElement("div");
-                testDateDIv.classList.add("date");
-                testDateDIv.innerHTML = new Date(parseInt(messagesArray[i].time)).toLocaleDateString();
-                messagesChat.appendChild(testDateDIv);
+        if ((i == 0) ||
+            (i > 0 && new Date(parseInt(messagesArray[i].time)).getDate()) !=
+            new Date(parseInt(messagesArray[i - 1].time)).getDate()) {
+            let testDateDIv = document.createElement("div");
+            testDateDIv.classList.add("date");
+            testDateDIv.innerHTML = new Date(parseInt(messagesArray[i].time)).toLocaleDateString();
+            messagesChat.appendChild(testDateDIv);
         }
 
         // Check si premier message pour ajouter le nom
@@ -291,9 +291,9 @@ function renderMessages() {
         // Affichage de l'heure si dernier message d'une personne ou écart de 5 minutes
         if ((i == messagesArray.length - 1) || // Dernier message du tableau
             (i < messagesArray.length && messagesArray[i + 1].author != author) || // Dernier message d'une personne
-            (i > 0 && new Date(parseInt(messagesArray[i].time)) > 
-                      new Date(parseInt(messagesArray[i-1].time)+5*60000))) // 5 minutes entre 2 messages d'une même personne
-            {
+            (i > 0 && new Date(parseInt(messagesArray[i].time)) >
+                new Date(parseInt(messagesArray[i - 1].time) + 5 * 60000))) // 5 minutes entre 2 messages d'une même personne
+        {
             let newMsgDiv = document.createElement("div");
             newMsgDiv.classList.add("message");
             messagesChat.appendChild(newMsgDiv);
@@ -341,31 +341,23 @@ function fermerMenu() {
 async function ajouterContact() {
     let input = document.getElementById("entree_pseudo");
     let text = input.value;
-    document.getElementById("menu_ajouter_conv").style.display = "none";
+    // document.getElementById("menu_ajouter_conv").style.display = "none";
     input.value = "";
 
     // POST Request 
-    const body = {username2: text};
+    const body = { username2: text };
     const res = await fetch('/newConversation', {
         method: 'POST',
         body: JSON.stringify(body),
-        headers: {'Content-Type': 'application/json'}
-    })
+        headers: { 'Content-Type': 'application/json' }
+    });
     const data = res.json();
     data.then(response => {
         if (response.status === 200) {
-          window.location = response.redirect;
-        }
-        else {
-          // ToDo: print errors
-          alert(response.error);
+            window.location = response.redirect;
+        } else {
+            let text_erreur = `Impossible de créer une conversation avec "${body.username2}"`;
+            document.getElementById("text_ajout_contact").innerHTML = text_erreur;
         }
     }).catch(error => console.error('Error:', error))
 }
-
-
-
-  
-
-  
-  

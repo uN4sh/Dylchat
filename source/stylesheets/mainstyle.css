@@ -138,8 +138,8 @@ video {
 
 #menu_ajouter_conv {
     display: none;
-    grid-template-areas: "text text" "input input" ". ." "add close";
-    grid-template-rows: 10% 10% 60% 15%;
+    grid-template-areas: "text text" "input input" "message message" "add close";
+    grid-template-rows: 10% 20% 50% 20%;
     /* Attribute */
     background-color: white;
     width: 250px;
@@ -191,14 +191,18 @@ input {
     grid-area: input;
 }
 
-#menu_ajouter_conv #ajouter_conv {
+#ajouter_conv {
     grid-area: add;
     background-color: rgb(20, 233, 13);
 }
 
-#menu_ajouter_conv #fermer_menu {
+#fermer_menu {
     grid-area: close;
     background-color: rgba(255, 0, 0, 0.951);
+}
+
+#text_ajout_contact {
+    grid-area: message;
 }
 
 .partie-droite {
