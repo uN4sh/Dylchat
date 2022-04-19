@@ -332,6 +332,7 @@ window.addEventListener('DOMContentLoaded', async event => {
 /* -------------------- Menu d'ajout de conversation -------------------- */
 function ouvrirMenu() {
     document.getElementById("menu_ajouter_conv").style.display = "grid";
+    document.getElementById("menu_deco").style.display = "none";
 }
 
 function fermerMenu() {
@@ -360,4 +361,20 @@ async function ajouterContact() {
             document.getElementById("text_ajout_contact").innerHTML = text_erreur;
         }
     }).catch(error => console.error('Error:', error))
+}
+
+
+/* -------------------- Menu de déconnexion -------------------- */
+
+function ouvrirDeconnexion() {
+    document.getElementById("menu_deco").style.display = "grid";
+    document.getElementById("menu_ajouter_conv").style.display = "none";
+}
+
+function fermerDeconnexion() {
+    document.getElementById("menu_deco").style.display = "none";
+}
+
+function deconnexion() {
+    //TODO
 }
