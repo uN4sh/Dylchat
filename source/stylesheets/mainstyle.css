@@ -156,11 +156,18 @@ video {
 .footer-gauche {
     background-color: #064663;
     display: grid;
-    grid-template-areas: "mon-profil . try-deconn";
-    grid-template-columns: 80% 20%;
+    grid-template-areas: "accueilpage . mon-profil . try-deconn";
+    grid-template-columns: 20% 60% 20%;
     bottom: 0;
-    margin-top: auto;
+    /*margin-top: auto;*/
     height: 10%
+}
+
+.accueilpage {
+    margin: 0 auto;
+    border-right: 2px solid rgb(4, 28, 50);
+    padding: 15px;
+    margin-bottom: 10px;
 }
 
 .mon-profil {

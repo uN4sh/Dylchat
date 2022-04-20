@@ -390,3 +390,17 @@ async function deconnexion() {
         console.log(err.message)
     }
 }
+
+function accueilpage(){
+	//document.getElementById("menu_deco").style.display = "none";
+	let activeAccueil = document.querySelector("#accueil");
+    activeAccueil.classList.remove("hidden");
+    let footer = document.querySelector("#footer");
+    footer.classList.remove("hidden");
+    let chatHome = document.querySelector("#chat");
+    chatHome.classList.add("hidden");
+    for (let i = 0; i < conversations.length; i++) {
+        let contact = document.getElementById("contact-" + i);
+        contact.classList.remove("selected");
+    }
+}
