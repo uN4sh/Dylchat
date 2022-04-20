@@ -2,10 +2,9 @@ const User = require("../model/user");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-exports.register = async (req, res, next) => {
+exports.register = async(req, res, next) => {
     try {
         // Get user input
-        console.log(req.body);
         const { usernameSignup, emailSignup, passwordSignup } = req.body;
 
         // Validate user input
@@ -20,10 +19,10 @@ exports.register = async (req, res, next) => {
 
         // check if user already exist
         // Validate if user exist in our database
-        const oldUser = await User.findOne({ usernamelowercase:usernameSignup.toLowerCase() });
+        const oldUser = await User.findOne({ usernamelowercase: usernameSignup.toLowerCase() });
 
         if (oldUser) {
-            return res.status(409).send({status: 409, message: "Username Already Exist. Please Login."});
+            return res.status(409).send({ status: 409, message: "Username Already Exist. Please Login." });
         }
 
         //Encrypt user password
@@ -36,57 +35,52 @@ exports.register = async (req, res, next) => {
             email: emailSignup.toLowerCase(), // sanitize
             password: encryptedUserPassword,
         });
-    
+
         // Create token
-        const token = jwt.sign(
-            { user_id: user._id, usernameSignup },
-            process.env.TOKEN_KEY,
-            {
-            expiresIn: "5h",
+        const token = jwt.sign({ user_id: user._id, usernameSignup },
+            process.env.TOKEN_KEY, {
+                expiresIn: "5h",
             }
         );
         // save user token
         user.token = token;
-        await User.updateOne({usernamelowercase:usernameSignup.toLowerCase()}, {$set: {token:token}});
+        await User.updateOne({ usernamelowercase: usernameSignup.toLowerCase() }, { $set: { token: token } });
 
         res.cookie("jwt", token, {
             httpOnly: true,
             expiresIn: "5h", // 3hrs in ms
         });
-        
-        return res.send({status: 201, redirect: "/"});
+
+        return res.send({ status: 201, redirect: "/" });
     } catch (err) {
         console.log(err);
     }
 };
 
-exports.login = async (req, res, next) => {
+exports.login = async(req, res, next) => {
     try {
         // Get user input
-        console.log(req.body);
         const { usernameLogin, passwordLogin } = req.body;
 
         // Validate user input
         if (!(usernameLogin && passwordLogin)) {
             res.status(400).send("All input is required");
         }
-        
-        // Validate if user exist in our database
-        const user = await User.findOne({ usernamelowercase:usernameLogin.toLowerCase() });
 
-        if (user && (await bcrypt.compare(passwordLogin, user.password))) {  
+        // Validate if user exist in our database
+        const user = await User.findOne({ usernamelowercase: usernameLogin.toLowerCase() });
+
+        if (user && (await bcrypt.compare(passwordLogin, user.password))) {
             // Create token
-            const token = jwt.sign(
-                { user_id: user._id, usernameLogin },
-                process.env.TOKEN_KEY,
-                {
-                expiresIn: "5h",
+            const token = jwt.sign({ user_id: user._id, usernameLogin },
+                process.env.TOKEN_KEY, {
+                    expiresIn: "5h",
                 }
             );
 
             // save user token
             user.token = token;
-            await User.updateOne({usernamelowercase:usernameLogin.toLowerCase()}, {$set: {token:token}});
+            await User.updateOne({ usernamelowercase: usernameLogin.toLowerCase() }, { $set: { token: token } });
 
             res.cookie("jwt", token, {
                 httpOnly: true,
@@ -94,9 +88,9 @@ exports.login = async (req, res, next) => {
             });
 
             // res.set('x-access-token', token);
-            return res.send({status:200, redirect: "/"});
+            return res.send({ status: 200, redirect: "/" });
         }
-        return res.status(400).json({status: 400, message:"Invalid credentials"});
+        return res.status(400).json({ status: 400, message: "Invalid credentials" });
     } catch (err) {
         console.log(err);
     }
@@ -158,34 +152,34 @@ exports.deleteUser = async (req, res, next) => {
 };
 */
 
-exports.getUsers = async (req, res, next) => {
+exports.getUsers = async(req, res, next) => {
     await User.find({})
         .then((users) => {
-        const userFunction = users.map((user) => {
-            const container = {};
-            container.username = user.username;
-            container.email = user.email;
-            container.id = user._id;
+            const userFunction = users.map((user) => {
+                const container = {};
+                container.username = user.username;
+                container.email = user.email;
+                container.id = user._id;
 
-            return container;
-        });
-        res.status(200).json({ user: userFunction });
-    })
-    .catch((err) =>
-      res.status(401).json({ message: "Not successful", error: err.message })
-    );
+                return container;
+            });
+            res.status(200).json({ user: userFunction });
+        })
+        .catch((err) =>
+            res.status(401).json({ message: "Not successful", error: err.message })
+        );
 };
 
-exports.getUsername = async (req, res, next) => {
-    if (!req.cookies.jwt) 
+exports.getUsername = async(req, res, next) => {
+    if (!req.cookies.jwt)
         return res.status(403).json({ message: "Not successful", error: "Vous devez être connecté pour consulter votre pseudo." });
     try {
-        
-        const user = await User.findOne({ token:req.cookies.jwt });
-        if (!user) 
-          return res.status(409).json({error: "User not found. Please logout and re-login.", username: "Undefined"});
+
+        const user = await User.findOne({ token: req.cookies.jwt });
+        if (!user)
+            return res.status(409).json({ error: "User not found. Please logout and re-login.", username: "Undefined" });
         return res.status(200).json({ username: user.username, email: user.email });
     } catch (err) {
         res.status(401).json({ message: "Not successful", error: err.message })
     }
-  };
+};
