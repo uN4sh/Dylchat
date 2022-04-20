@@ -67,14 +67,6 @@ ws.addEventListener("open", () => {
 
 // Que faire quand le client reçoit un message du serveur
 ws.addEventListener("message", data => {
-    // ToDo: à modifier pour afficher les messages sur les bonnes conversations :
-    // Si le message est sur la conversation active
-    //      Faire un fetch DB avec un /getMessages 
-    //      Call renderMessages() pour le réaffichage
-    //      Call renderConversations() pour actualiser lastMessage et messageHour
-    // Sinon, le message est sur une autre conversation
-    //      Call renderConversations() pour actualiser lastMessage et messageHour et faire remonter la conversation
-
     let msg = JSON.parse(data.data);
     // console.log(msg);
     let message = new Message(msg.idchat, msg.author, msg.content, msg.time);
@@ -90,6 +82,7 @@ ws.addEventListener("message", data => {
     if (msg.idchat == activeConversationId)
         renderMessages();
 
+    // Actualiser lastMessage et messageHour et faire remonter la conversation
     renderConversations();
 });
 
@@ -197,8 +190,6 @@ var selectContact = function(e) {
 
 
 
-// TODO : ajouter un bouton retour pour réafficher l'accueil
-
 
 async function sendMessage() {
     let chatbox = document.getElementById("chat-box");
@@ -291,6 +282,7 @@ function renderMessages() {
         // Affichage de l'heure si dernier message d'une personne ou écart de 5 minutes
         if ((i == messagesArray.length - 1) || // Dernier message du tableau
             (i < messagesArray.length && messagesArray[i + 1].author != author) || // Dernier message d'une personne
+            // ToDo: i < messagesArray.length && messagesArray[i + 1].author == author && date différente
             (i > 0 && new Date(parseInt(messagesArray[i].time)) >
                 new Date(parseInt(messagesArray[i - 1].time) + 5 * 60000))) // 5 minutes entre 2 messages d'une même personne
         {
@@ -315,6 +307,8 @@ window.addEventListener('DOMContentLoaded', async event => {
 
     getUsername().then(function(res) {
         myPseudo = res;
+        // Affichage du pseudo de l'utilisateur connecté
+        document.querySelector(".mon-profil").innerText = myPseudo;
     });
 
     await renderConversations();
@@ -355,6 +349,7 @@ async function ajouterContact() {
     const data = res.json();
     data.then(response => {
         if (response.status === 200) {
+            // ToDo: pas de redirect mais envoi de la nouvelle conv par webSocket
             window.location = response.redirect;
         } else {
             let text_erreur = `Impossible de créer une conversation avec "${body.username2}"`;

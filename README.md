@@ -8,9 +8,9 @@ Projet M1 AWS : Web app de messagerie temps réel chiffrée de bout en bout disp
 
 - [x] Page d'inscription / Connexion
 - [x] Page d'accueil
-- [ ] **Partie gauche**
+- [x] **Partie gauche**
   - [x] Affichage des conversations
-  - [ ] Scrollbar sur les conversations
+  - [x] Scrollbar sur les conversations
 - [x] **Partie droite**
   - [x] Taille des bulles en fonction du message, avec une largeur max (frame)
   - [x] Les messages envoyés doivent être affichés sur la droite de l'écran (CSS à régler)
@@ -43,7 +43,7 @@ Projet M1 AWS : Web app de messagerie temps réel chiffrée de bout en bout disp
 - [ ] `getAllMessages`: renvoie l'ensemble des messages pour un IdChat
   - [x] Trier les messages par timestamp
   - [ ] Sécurité: ajouter une vérification via Token que l'utilisateur a bien le droit d'accès à ces messages
-- [ ] `fetchMessages`: ToDo: réfléchir à une implémentation pour récupérer seulement une partie des messages du chat
+- [ ] `fetchMessages`: renvoie une partie des messages pour un IdChat
 
 ### Phase 2 : Base de données MongoDB (Users, Conversations, Messages)
 
@@ -53,20 +53,20 @@ Projet M1 AWS : Web app de messagerie temps réel chiffrée de bout en bout disp
     - [ ] Passer cette action par WebSocket pour que le chat soit automatiquement ajouté chez les 2 users
   - [x] Une row se crée dans la table avec un nouveau ID de chat
   - [x] Quand un user se connecte, une routine `renderConversations()` affiche toutes les conversations liées au contact
-  - [ ] Gérer tous les cas d'erreurs à l'ajout de contact (utilisateur introuvable, conversation déjà existante, etc.)
-  - [ ] Quand un user clique sur une conversation :
+  - [x] Gérer tous les cas d'erreurs à l'ajout de contact (utilisateur introuvable, conversation déjà existante, etc.)
+  - [x] Quand un user clique sur une conversation :
     - [x] Le pseudo de l'utilisateur s'affiche en haut du chat
-    - [ ] la routine `renderMessage()` fetch les 50 derniers messages du chat en question et les affiche
+    - [x] la routine `renderMessage()` fetch les messages du chat en question et les affiche avec heures et dates
 - [x] Messages (idchat, author, content, time)
 
 ### Phase 2 : Stockage des messages
 
 - [x] Première implémentation avec une DB pour la room publique unique
 - [x] Créer par défaut la `Conversation` (null, null) pour le canal `Discussions` (ouvert à tous)
-- [ ] Réfléchir à l'implémentation de la base de données (stockage des messages)
+- [x] Update les champs `lastMessage` et `messageHour` de la table `Conversation` à chaque nouveau message sur une conversation
+- [ ] Modifier la façon de récupérer les messges d'un chat (pour gérer un + grand nombre de données)
   - Requète pour récupérer les 50 derniers messages pour les display
   - Si l'utilisateur remonte son chat, la scrollbar se bloque le temps de fetch les 50 prochains messages
-- [x] Update les champs `lastMessage` et `messageHour` de la table `Conversation` à chaque nouveau message sur une conversation
 
 ### Phase 2 : Scripts et amélioration de l'interface
 
@@ -74,27 +74,27 @@ Projet M1 AWS : Web app de messagerie temps réel chiffrée de bout en bout disp
   - [x] Connexion invalide
   - [x] Inscription invalide (pseudo déjà utilisé)
 
-- [ ] `ws.onMessage`: à chaque nouveau message reçu du socket :
-  - [ ] Si le message est sur la conversation active :
-    - [ ] Faire un fetch DB avec un /getMessages
+- [x] `ws.onMessage`: à chaque nouveau message reçu du socket :
+  - [x] Si le message est sur la conversation active :
     - [x] Call `renderMessages()` pour le réaffichage
     - [x] Call `renderConversations()` pour actualiser lastMessage et messageHour
   - [x] Sinon, le message est sur une autre conversation
     - [x] Call `renderConversations()` pour actualiser lastMessage et messageHour (et faire remonter la conversation)
 
 - [ ] **Partie gauche**
+  - [x] Le bouton `+` pour ajouter un contact doit afficher une pop-up avec un `form` input qui `POST` sur `/newConversation`
   - [ ] Script `getMessages(idchat)` pour un `GET` API sur `/getAllMessages` avec l'IdChat en body de requète
   - [ ] `selectContact()`: clear le tableau `messagesArray` et appeler `getMessages(idchat)` pour le re-remplir
-  - [x] Le bouton `+` pour ajouter un contact doit afficher une pop-up avec un `form` input qui `POST` sur `/newConversation`
+  - [x] Ajout d'une barre "Profil" permettant l'accès aux options (retour à l'accueil, déconnexion)
   - [ ] Améliorer l'affichage du dernier message (afficher le pseudo ou "vous:" ou autre idée), et couper le message au bout de x caractères
 - [ ] **Partie droite**
   - [x] `renderMessages()`: Afficher l'heure après 10 minutes entre deux messages d'une même personne (en test)
   - [x] `renderMessages()`: Afficher la date quelque part (fixe en haut ou à chaque message en timestamp ou à chaque nouveau jour)
-  - [ ] Ajouter un bouton retour à l’écran d’accueil (?)
+  - [x] Ajouter un bouton retour à l’écran d’accueil (?)
+  - [x] Ajouter un bouton options profil (changement de pseudo, mot de passe et déconnexion + voir ma clé privée)
   - [ ] Bouton option en haut à droite du contact (?)
   - [ ] Ajouter un bouton pour supprimer un message (?)
     - [ ] Dans l'idéal, quand on passe la souris sur un message, l'icône option s'affiche pour pouvoir supprimer un message
-  - [ ] Ajouter un bouton options profil (changement de pseudo, mot de passe et déconnexion + voir ma clé privée) (?)
 
 ### Phase 3 : Chiffrement
 
