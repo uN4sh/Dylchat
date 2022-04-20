@@ -33,7 +33,8 @@ app.get("/", verifyToken, (req, res) => {
 
 app.get("/logout", (req, res) => {
     res.cookie("jwt", "", { maxAge: "1" }) // Supprime le token de l'utilisateur
-    res.status(200).redirect("/")
+    // res.status(200).redirect("/")
+    res.status(200).send({status:200, redirect: "/"});
 })
 
 const { register, login, getUsers, getUsername } = require("./api/auth");

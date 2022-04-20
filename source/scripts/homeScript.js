@@ -375,6 +375,18 @@ function fermerDeconnexion() {
     document.getElementById("menu_deco").style.display = "none";
 }
 
-function deconnexion() {
-    //TODO
+async function deconnexion() {
+    try {
+        const res = await fetch('/logout', {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        const data = await res.json()
+        
+        if (data.status === 200) {
+            window.location = data.redirect;
+        } 
+    } catch (err) {
+        console.log(err.message)
+    }
 }

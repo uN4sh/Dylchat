@@ -28,7 +28,7 @@
 
     <div id="menu_deco">
         <label for="title-deco">Voulez-vous vraiment vous déconnecter ?</label>
-        <button id="valider-deconnexion" onclick="deconnection()">Valider</button>
+        <button id="valider-deconnexion" onclick="deconnexion()">Valider</button>
         <button id="annuler-deconnexion" onclick="fermerDeconnexion()">Annuler</button>
     </div>
 
@@ -54,7 +54,7 @@
 
             <div class="footer-gauche">
                <h1 class="mon-profil">Mon Profil</h1>
-                <form id="deconnection" action="/deconnecter" method="deco">
+                <form id="deconnection" action="/logout" method="get">
                    <i class="icon clickable fa fa-sign-out trydeconnect fa-xl" id="try-deconn" aria-hidden="true" onclick="ouvrirDeconnexion()"></i>
                 </form>
             </div>

@@ -101,6 +101,20 @@ video {
     overflow-x: hidden;
 }
 
+.contact-list::-webkit-scrollbar {
+  width: 5px; /* width of the entire scrollbar */
+}
+
+.contact-list::-webkit-scrollbar-track {
+  background: rgb(4, 28, 50); /* color of the tracking area */
+}
+
+.contact-list::-webkit-scrollbar-thumb {
+  background-color: #565656; /* color of the scroll thumb */
+  border-radius: 10px; /* roundness of the scroll thumb */
+  /*border: 3px solid #565656; /* creates padding around scroll thumb */
+}
+
 .contact{
     border-bottom: 0.25px solid #565656;
 }
