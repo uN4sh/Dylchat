@@ -244,7 +244,7 @@ function renderMessages() {
         }
 
         // Check si premier message pour ajouter le nom
-        if (i == 0 || (i > 0 && messagesArray[i - 1].author != author)) {
+        if (i == 0 || (i > 0 && messagesArray[i - 1].author != author) || (i > 0 && messagesArray[i - 1].author == author && new Date(parseInt(messagesArray[i].time)).getDate() != new Date(parseInt(messagesArray[i - 1].time)).getDate())) {
             let newMsgDiv = document.createElement("div");
             newMsgDiv.classList.add("message");
             messagesChat.appendChild(newMsgDiv);
@@ -282,7 +282,7 @@ function renderMessages() {
         // Affichage de l'heure si dernier message d'une personne ou écart de 5 minutes
         if ((i == messagesArray.length - 1) || // Dernier message du tableau
             (i < messagesArray.length && messagesArray[i + 1].author != author) || // Dernier message d'une personne
-            // ToDo: i < messagesArray.length && messagesArray[i + 1].author == author && date différente
+            (i < messagesArray.length && messagesArray[i + 1].author == author && (new Date(parseInt(messagesArray[i].time)).getDate()) != new Date(parseInt(messagesArray[i + 1].time)).getDate()) ||  //Dernier message d'une date différente
             (i > 0 && new Date(parseInt(messagesArray[i].time)) >
                 new Date(parseInt(messagesArray[i - 1].time) + 5 * 60000))) // 5 minutes entre 2 messages d'une même personne
         {
