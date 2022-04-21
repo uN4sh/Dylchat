@@ -107,7 +107,7 @@ loginform.addEventListener('submit', async(e) => {
 
     e.preventDefault();
 
-    const res = await fetch('/login', {
+    const res = await fetch('/api/users/login', {
         method: 'POST',
         body: JSON.stringify(body),
         headers: { 'Content-Type': 'application/json' }
@@ -136,7 +136,7 @@ registerform.addEventListener('submit', async(e) => {
 
     e.preventDefault();
 
-    const res = await fetch('/register', {
+    const res = await fetch('/api/users/register', {
         method: 'POST',
         body: JSON.stringify(body),
         headers: { 'Content-Type': 'application/json' }

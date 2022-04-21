@@ -30,23 +30,14 @@ app.get("/", verifyToken, (req, res) => {
         res.status(req.err.status).sendFile(__dirname + "/source/login.html");
 })
 
+require("./routes/users.routes")(app);
+require("./routes/conversations.routes")(app);
 
 app.get("/logout", (req, res) => {
     res.cookie("jwt", "", { maxAge: "1" }) // Supprime le token de l'utilisateur
-    // res.status(200).redirect("/")
     res.status(200).send({status:200, redirect: "/"});
 })
 
-const { register, login, getUsers, getUsername } = require("./api/auth");
-app.post("/register", register); // Exécute la routine register
-app.post("/login", login); // Exécute la routine login 
-app.get("/getUsers", getUsers); // Affiche tous les users de la DB 
-app.get("/getUsername", getUsername); // Affiche l'username et l'email de l'utilisateur connecté
-
-const { getConversations, newConversation, updateConversation } = require("./api/conversations");
-app.post("/newConversation", newConversation);
-app.get("/getConversations", getConversations);
-app.post("/updateConversation", updateConversation);
 
 
 // WEBSOCKETS //
@@ -83,17 +74,6 @@ if (cfg.ssl) {
 const WebSocket = require("ws");
 const wss = new WebSocket.Server({ server: server });
 
-// function getTime() {
-//     let date = new Date();
-//     let milisec = Date.now();
-//     let seconds = milisec / 1000;
-//     let minutes = seconds / 60;
-//     minutes -= date.getTimezoneOffset();
-//     let hours = minutes / 60;
-//     let result = Math.floor(hours % 24) + ":" + Math.floor(minutes % 60);
-//     return result;
-// }
-
 const clientList = new Map();
 console.log("\nServer is open !\n")
 
@@ -102,16 +82,6 @@ const User = require("./model/user");
 const Conversation = require("./model/conversation");
 
 wss.on("connection", async (ws, req) => {
-    // let clientId = getRandomID();
-    // if (clientId == -1) {
-    //     ws.send("ECHEC, veuillez retenter une connexion...");
-    //     ws.close();
-    // } else {
-    //     console.log(`New client with ID : #${clientId}`);
-    //     let infoClient = { id: clientId, connection: ws };
-    //     listClient.push(infoClient);
-    //     ws.send(clientId);
-    // }
 
     // Check si le canal Discussions existe et le créer si non 
     const discussions = await Conversation.findOne({ username1: null });
@@ -151,6 +121,7 @@ wss.on("connection", async (ws, req) => {
 
         // Update la conversation avec le nouveau message
         const update = { lastMessage: message.author + ": " + message.content, messageHour: message.time };
+        // ToDo: modifier la BD pour stocker l'id du dernier message et non son contenu (comme ça ça sera géré en cas de modif ou suppression)
         await Conversation.findOneAndUpdate({ _id: message.idchat }, update);
 
 

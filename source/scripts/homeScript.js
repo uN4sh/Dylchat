@@ -17,7 +17,7 @@ class Message {
 
 async function getUsername() {
     try {
-        const res = await fetch('/getUsername', {
+        const res = await fetch('/api/users/getUsername', {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
         })
@@ -33,7 +33,7 @@ async function getUsername() {
 
 async function getConversations() {
     try {
-        const res = await fetch('/getConversations', {
+        const res = await fetch('/api/chats/getConversations', {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
         })
@@ -61,6 +61,7 @@ const ws = new WebSocket(http + "://" + location.host.split(':')[0] + ":8080");
 
 // Que faire lorsque la connexion est établie
 ws.addEventListener("open", () => {
+    // ToDo: ajouter une erreur quand c'est pas possible d'établir la connexion au bout d'un certain temps
     console.log("We are connected");
 });
 
@@ -341,7 +342,7 @@ async function ajouterContact() {
 
     // POST Request 
     const body = { username2: text };
-    const res = await fetch('/newConversation', {
+    const res = await fetch('/api/chats/newConversation', {
         method: 'POST',
         body: JSON.stringify(body),
         headers: { 'Content-Type': 'application/json' }
