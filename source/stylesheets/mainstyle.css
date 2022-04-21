@@ -225,7 +225,7 @@ video {
 #menu_deco button:hover {
     background-color: rgb(4, 28, 50);
     color: #fff;
-    transform: translateY(-7px);
+    transform: translateY(-2px);
 }
 
 #valider-deconnexion {
@@ -286,7 +286,7 @@ video {
 #menu_ajouter_conv button:hover {
     background-color: rgb(4, 28, 50);
     color: #fff;
-    transform: translateY(-7px);
+    transform: translateY(-2px);
 }
 
 input {
