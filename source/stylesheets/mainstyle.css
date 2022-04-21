@@ -19,7 +19,7 @@ body {
     font-family: sans-serif;
     line-height: 1.5;
     text-align: center;
-    background-color: #5270CD;
+    background-color: #216897;
 }
 
 
@@ -42,7 +42,7 @@ video {
     position: fixed;
     top: 5%;
     left: 5%;
-    box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;
+    box-shadow: rgba(0, 0, 0, 1) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;
     color: black;
     z-index: 10;
 }
@@ -102,20 +102,24 @@ video {
 }
 
 .contact-list::-webkit-scrollbar {
-  width: 5px; /* width of the entire scrollbar */
+    width: 5px;
+    /* width of the entire scrollbar */
 }
 
 .contact-list::-webkit-scrollbar-track {
-  background: rgb(4, 28, 50); /* color of the tracking area */
+    background: rgb(4, 28, 50);
+    /* color of the tracking area */
 }
 
 .contact-list::-webkit-scrollbar-thumb {
-  background-color: #565656; /* color of the scroll thumb */
-  border-radius: 10px; /* roundness of the scroll thumb */
-  /*border: 3px solid #565656; /* creates padding around scroll thumb */
+    background-color: #565656;
+    /* color of the scroll thumb */
+    border-radius: 10px;
+    /* roundness of the scroll thumb */
+    /*border: 3px solid #565656; /* creates padding around scroll thumb */
 }
 
-.contact{
+.contact {
     border-bottom: 0.25px solid #565656;
 }
 
@@ -151,6 +155,8 @@ video {
     margin-left: 15px;
     color: #888888;
 }
+
+
 /* -------------------- Menu de déconnexion -------------------- */
 
 .footer-gauche {
@@ -220,16 +226,15 @@ video {
     background-color: rgb(4, 28, 50);
     color: #fff;
     transform: translateY(-7px);
-    padding-bottom: 25px;
 }
 
-#menu_deco #valider-deconnexion {
+#valider-deconnexion {
     grid-area: deconnexion;
     background-color: #064663;
     color: white;
 }
 
-#menu_deco #annuler-deconnexion {
+#annuler-deconnexion {
     grid-area: close;
     background-color: #0099cc;
     color: white;
@@ -240,6 +245,7 @@ video {
     padding-top: 40px;
     color: rgb(4, 28, 50);
 }
+
 
 /* -------------------- Menu d'ajout de conversation -------------------- */
 
