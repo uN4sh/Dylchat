@@ -50,13 +50,11 @@ var switchLoginForm = function(e) {
         document.getElementById("passwordLogin").required = false;
         // Enable Signup
         document.getElementById("usernameSignup").required = true;
-        document.getElementById("emailSignup").required = true;
         document.getElementById("passwordSignup").required = true;
         // Enable password checker
     } else {
         // Disable Signup
         document.getElementById("usernameSignup").required = false;
-        document.getElementById("emailSignup").required = false;
         document.getElementById("passwordSignup").required = false;
         // Enable Login
         document.getElementById("usernameLogin").required = true;
@@ -130,7 +128,6 @@ registerform.addEventListener('submit', async(e) => {
 
     let body = {
         usernameSignup: registerform.elements.usernameSignup.value,
-        emailSignup: registerform.elements.emailSignup.value,
         passwordSignup: registerform.elements.passwordSignup.value
     }
 

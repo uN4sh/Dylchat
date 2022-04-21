@@ -9,7 +9,8 @@ exports.getConversations = async (req, res, next) => {
 		if (!user)
 			return res.status(409).json({ error: "User not found. Please logout and re-login.", username: "Undefined" });
 
-		const conversations = await Conversation.find({ $or: [{ username1: user.username }, { username2: user.username }, { username1: null }] })
+		const conversations = await Conversation.find({ $or: [{ userId1: user._id }, { userId2: user._id }, { userId1: null }] })
+		// ToDo: récupérer les pseudos à partir des userIds et retirer les champs username1 et username2 du modèle Conversation
 
 		// Tri des conversations par timestamp du dernier message
 		conversations.sort(function (a, b) {
@@ -42,8 +43,8 @@ exports.newConversation = async (req, res, next) => {
 		const already = await Conversation.findOne(
 			{
 				$or: [
-					{ $and: [{ username1: user.username }, { username2: user2.username }] },
-					{ $and: [{ username2: user.username }, { username1: user2.username }] }
+					{ $and: [{ userId1: user.id }, { userId2: user2.id }] },
+					{ $and: [{ userId2: user.id }, { userId1: user2.id }] }
 				]
 			}
 		)
@@ -51,6 +52,8 @@ exports.newConversation = async (req, res, next) => {
 			return res.status(411).json({ error: "This conversation already exists." });
 
 		await Conversation.create({
+			userId1: user.id,
+			userId2: user2.id,
 			username1: user.username,
 			username2: user2.username,
 			lastMessage: "Nouvelle conversation",

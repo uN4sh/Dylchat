@@ -1,5 +1,5 @@
 module.exports = app => {
-    const { register, login, getUsers, getUsername } = require("../controllers/users.controller");
+    const { register, login, logout, getUsers, getOnlineUsers, getUsername } = require("../controllers/users.controller");
     var router = require("express").Router();
 
     // Exécute la routine register
@@ -11,11 +11,14 @@ module.exports = app => {
     // Affiche tous les users de la DB
     router.get("/getUsers", getUsers);
 
-    // ToDo: Récupère les users connectés
-    // router.get("/getOnlineUsers", getOnlineUsers);
+    // Récupère les users connectés
+    router.get("/getOnlineUsers", getOnlineUsers);
 
-    // Affiche l'username et l'email de l'utilisateur connecté
+    // Récupère l'username de l'utilisateur connecté
     router.get("/getUsername", getUsername); 
+
+    // Déconnecte un utilisateur (le passe hors ligne et détruit son cookie)
+    router.get("/logout", logout);
 
     app.use('/api/users', router);
 };

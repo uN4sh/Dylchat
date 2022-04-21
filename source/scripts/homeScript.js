@@ -47,6 +47,22 @@ async function getConversations() {
     }
 }
 
+async function getOnlineUsers() {
+    try {
+        const res = await fetch('/api/users/getOnlineUsers', {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        const data = await res.json()
+        if (data.status === 200)
+            return data.users;
+        else
+            console.log(data);
+    } catch (err) {
+        console.log(err.message)
+    }
+}
+
 
 let myPseudo = "Random";
 let activeConversationId;
@@ -96,63 +112,75 @@ function convertTimestamp(timestamp) {
 
 
 async function renderConversations() {
-    await getConversations().then(function(res) {
+    await getConversations().then(async function(res) {
         conversations = res.conversation;
-
-        let div = document.getElementById("contact-list");
-        div.innerHTML = "";
         if (!conversations)
             return;
+    
+        // Récupération des utilisateurs en ligne
+        await getOnlineUsers().then(function(onlineUsers) {
+            let div = document.getElementById("contact-list");
+            div.innerHTML = "";
 
-        for (let i = 0; i < conversations.length; i++) {
-            let contact = document.createElement("div");
-            contact.classList.add("contact");
-
-            if (conversations[i]._id == activeConversationId)
-                contact.classList.add("selected");
-
-            contact.id = "contact-" + i;
-            // ToDo: transformer conversations en une map (Id, conversation)
-            conversations[i].idcontact = i;
-            div.appendChild(contact);
-
-            let grid80 = document.createElement("div");
-            grid80.classList.add("grid-80-20");
-            contact.appendChild(grid80);
-
-
-            let contact_title = document.createElement("p");
-            contact_title.classList.add("contact-title");
-            if (conversations[i].username1 == null)
-                contact_title.innerText = "[Discussions]"
-            else if (conversations[i].username1 == myPseudo)
-                contact_title.innerText = conversations[i].username2;
-            else
-                contact_title.innerText = conversations[i].username1;
-            grid80.appendChild(contact_title);
-
-            let message_hour = document.createElement("p");
-            message_hour.classList.add("message-hour");
-            if (conversations[i].messageHour != null)
-                message_hour.innerText = convertTimestamp(conversations[i].messageHour);
-            else
-                message_hour.innerText = "/"
-            grid80.appendChild(message_hour);
-
-            let last_message = document.createElement("p");
-            last_message.classList.add("last-message");
-            if (conversations[i].lastMessage != null) {
-                last_message.innerText = conversations[i].lastMessage;
-            } else
-                last_message.innerText = "/"
-            contact.appendChild(last_message);
-        }
-
-        // Ajout des évènements au clic sur contact
-        for (let i = 0; i < conversations.length; i++) {
-            let contact = document.querySelector("#contact-" + i);
-            contact.addEventListener("click", selectContact, true);
-        }
+            for (let i = 0; i < conversations.length; i++) {
+                let contact = document.createElement("div");
+                contact.classList.add("contact");
+    
+                if (conversations[i]._id == activeConversationId)
+                    contact.classList.add("selected");
+    
+                contact.id = "contact-" + i;
+                // ToDo: transformer conversations en une map (Id, conversation)
+                conversations[i].idcontact = i;
+                div.appendChild(contact);
+    
+                let grid80 = document.createElement("div");
+                grid80.classList.add("grid-80-20");
+                contact.appendChild(grid80);
+    
+    
+                let contact_title = document.createElement("p");
+                contact_title.classList.add("contact-title");
+                if (conversations[i].username1 == null)
+                    contact_title.innerText = "[Discussions]"
+                else if (conversations[i].username1 == myPseudo) {
+                    // ToDo: ajouter un vrai truc pour afficher les personnes en ligne
+                    if (onlineUsers.includes(conversations[i].username2))
+                        contact_title.innerText = "🟢 " + conversations[i].username2;
+                    else
+                        contact_title.innerText = conversations[i].username2;
+                }
+                else {
+                    if (onlineUsers.includes(conversations[i].username1))
+                        contact_title.innerText = "🟢 " + conversations[i].username1;
+                    else
+                        contact_title.innerText = conversations[i].username1;
+                }
+                grid80.appendChild(contact_title);
+    
+                let message_hour = document.createElement("p");
+                message_hour.classList.add("message-hour");
+                if (conversations[i].messageHour != null)
+                    message_hour.innerText = convertTimestamp(conversations[i].messageHour);
+                else
+                    message_hour.innerText = "/"
+                grid80.appendChild(message_hour);
+    
+                let last_message = document.createElement("p");
+                last_message.classList.add("last-message");
+                if (conversations[i].lastMessage != null) {
+                    last_message.innerText = conversations[i].lastMessage;
+                } else
+                    last_message.innerText = "/"
+                contact.appendChild(last_message);
+            }
+    
+            // Ajout des évènements au clic sur contact
+            for (let i = 0; i < conversations.length; i++) {
+                let contact = document.querySelector("#contact-" + i);
+                contact.addEventListener("click", selectContact, true);
+            }
+        })
     });
 }
 
@@ -373,7 +401,7 @@ function fermerDeconnexion() {
 
 async function deconnexion() {
     try {
-        const res = await fetch('/logout', {
+        const res = await fetch('/api/users/logout', {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
         })

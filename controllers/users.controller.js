@@ -5,10 +5,10 @@ const jwt = require("jsonwebtoken");
 exports.register = async(req, res, next) => {
     try {
         // Get user input
-        const { usernameSignup, emailSignup, passwordSignup } = req.body;
+        const { usernameSignup, passwordSignup } = req.body;
 
         // Validate user input
-        if (!(emailSignup && passwordSignup && usernameSignup)) {
+        if (!(passwordSignup && usernameSignup)) {
             res.status(400).send("All input is required");
             return;
         }
@@ -32,7 +32,6 @@ exports.register = async(req, res, next) => {
         const user = await User.create({
             usernamelowercase: usernameSignup.toLowerCase(),
             username: usernameSignup,
-            email: emailSignup.toLowerCase(), // sanitize
             password: encryptedUserPassword,
         });
 
@@ -80,7 +79,7 @@ exports.login = async(req, res, next) => {
 
             // save user token
             user.token = token;
-            await User.updateOne({ usernamelowercase: usernameLogin.toLowerCase() }, { $set: { token: token } });
+            await User.updateOne({ usernamelowercase: usernameLogin.toLowerCase() }, { $set: { token: token, status: 1 } });
 
             res.cookie("jwt", token, {
                 httpOnly: true,
@@ -95,6 +94,19 @@ exports.login = async(req, res, next) => {
         console.log(err);
     }
 };
+
+exports.logout = async (req, res, next) => {
+	if (!req.cookies.jwt) 
+		return res.status(403).json({ message: "Not successful", error: "Vous devez être connecté pour effectuer cette action." });
+    try {
+      	await User.updateOne({ token: req.cookies.jwt }, { $set: { token: -1, status: 0 } });
+      	res.cookie("jwt", "", { maxAge: "1" }) // Supprime le token de l'utilisateur
+        return res.status(200).send({status:200, redirect: "/"});
+    } catch (err) {
+        res.status(401).json({ message: "Not successful", error: err.message, redirect: "/" })
+    }
+}
+
 /*
 exports.update = async (req, res, next) => {
   const { role, id } = req.body;
@@ -157,10 +169,8 @@ exports.getUsers = async(req, res, next) => {
         .then((users) => {
             const userFunction = users.map((user) => {
                 const container = {};
-                container.username = user.username;
-                container.email = user.email;
                 container.id = user._id;
-
+                container.username = user.username;
                 return container;
             });
             res.status(200).json({ user: userFunction });
@@ -170,6 +180,26 @@ exports.getUsers = async(req, res, next) => {
         );
 };
 
+exports.getOnlineUsers = async(req, res, next) => {
+	if (!req.cookies.jwt) 
+		return res.status(403).json({ message: "Not successful", error: "Vous devez être connecté pour effectuer cette action." });
+    try {
+		await User.find({status: true})
+		.then((users) => {
+            const onlineUsers = users.map((user) => {
+				return user.username;
+                // const container = {};
+                // container.id = user._id;
+                // container.username = user.username;
+                // return container;
+            });
+			return res.status(200).send({status:200, users: onlineUsers});
+        })
+    } catch (err) {
+        res.status(401).json({ message: "Not successful", error: err.message })
+    }
+}
+
 exports.getUsername = async(req, res, next) => {
     if (!req.cookies.jwt)
         return res.status(403).json({ message: "Not successful", error: "Vous devez être connecté pour consulter votre pseudo." });
@@ -178,7 +208,7 @@ exports.getUsername = async(req, res, next) => {
         const user = await User.findOne({ token: req.cookies.jwt });
         if (!user)
             return res.status(409).json({ error: "User not found. Please logout and re-login.", username: "Undefined" });
-        return res.status(200).json({ username: user.username, email: user.email });
+        return res.status(200).json({ username: user.username });
     } catch (err) {
         res.status(401).json({ message: "Not successful", error: err.message })
     }

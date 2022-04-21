@@ -33,11 +33,6 @@ app.get("/", verifyToken, (req, res) => {
 require("./routes/users.routes")(app);
 require("./routes/conversations.routes")(app);
 
-app.get("/logout", (req, res) => {
-    res.cookie("jwt", "", { maxAge: "1" }) // Supprime le token de l'utilisateur
-    res.status(200).send({status:200, redirect: "/"});
-})
-
 
 
 // WEBSOCKETS //
@@ -84,10 +79,12 @@ const Conversation = require("./model/conversation");
 wss.on("connection", async (ws, req) => {
 
     // Check si le canal Discussions existe et le créer si non 
-    const discussions = await Conversation.findOne({ username1: null });
+    const discussions = await Conversation.findOne({ userId1: null });
     if (!discussions) {
         console.log("Création du canal Discussions")
         await Conversation.create({
+            userId1: null,
+            userId2: null,
             username1: null,
             username2: null,
             lastMessage: "Nouvelle conversation",
@@ -97,9 +94,10 @@ wss.on("connection", async (ws, req) => {
 
     const jwttoken = req.headers.cookie.split("jwt=")[1];
     const user = await User.findOne({ token: jwttoken });
-    const metadata = { username: user.username, email: user.email };
+    const metadata = { username: user.username, id: user._id };
     console.log("%s is now connected!", metadata.username);
     clientList.set(ws, metadata);
+    await User.updateOne({ token: jwttoken }, { $set: { status: 1 } });
 
     // ToDo: check si il y a un utilisateur avec token invalide et le déconnecter
 
@@ -127,7 +125,7 @@ wss.on("connection", async (ws, req) => {
 
         message = JSON.stringify(message);
         // Si chat général : envoyer le message à tous les clients connectés
-        if (!conv.username1) {
+        if (!conv.userId1) {
             clientList.forEach(function (metadata, clientws) {
                 console.log("Sent to " + metadata.username);
                 clientws.send(message);
@@ -137,7 +135,7 @@ wss.on("connection", async (ws, req) => {
         else {
             // ToDo: mieux récupérer les users via la Map
             clientList.forEach(function (metadata, clientws) {
-                if (metadata.username == conv.username1 || metadata.username == conv.username2) {
+                if (metadata.id.equals(conv.userId1) || metadata.id.equals(conv.userId2)) {
                     console.log("Sent to " + metadata.username);
                     clientws.send(message);
                 }
@@ -145,8 +143,10 @@ wss.on("connection", async (ws, req) => {
         }
     });
 
-    ws.on("close", () => {
+    // À la fermeture du socket: passe l'utilisateur hors ligne
+    ws.on("close", async () => {
         console.log("%s has disconnected", clientList.get(ws).username);
+        await User.updateOne({ _id: clientList.get(ws).id }, { $set: { status: 0 } });
         clientList.delete(ws);
     });
 });
@@ -159,7 +159,7 @@ async function sendAllStoredMessages(ws) {
     // Get tous les chats d'un user
     var convIds = new Array();
     await Conversation.find({
-        $or: [{ username1: null }, { username1: metadata.username }, { username2: metadata.username }]
+        $or: [{ userId1: null }, { userId1: metadata.id }, { userId2: metadata.id }]
     }).then(async function (convs) {
         convs.forEach(function (conv) {
             convIds.push(conv._id);
@@ -178,12 +178,6 @@ async function sendAllStoredMessages(ws) {
             });
         });
     });
-
-    // let rawdata = fs.readFileSync('Messages.json');
-    // let listMessages = JSON.parse(rawdata);
-    // for (let i = 0; i < listMessages.Messages.length; i++) {
-    //     ws.send(JSON.stringify(listMessages.Messages[i]));
-    // }
 }
 
 // Store the message into the JSON file
@@ -191,33 +185,7 @@ function storeMessage(message, ws) {
     message = JSON.parse(message);
     let newMessage = new MessageModel(message);
     newMessage.save();
-
-    // let rawdata = fs.readFileSync('Messages.json');
-    // let listMessages = JSON.parse(rawdata);
-
-    // listMessages.Messages.push(message);
-    // fs.writeFileSync("Messages.json", JSON.stringify(listMessages, null, 2));
 }
-
-// Génère un ID à 4 chiffres unique
-// TODO : Créer l'ID sous forme de 4 digits
-// TODO : Limiter le nombre de client dans la room pour éviter une boucle infinie dans cette fonction
-// function getRandomID() {
-//     let bonId = true;
-//     let nbTentative = 10;
-//     let id = -1;
-//     do {
-//         id = Math.floor(Math.random() * 1e4);
-//         for (let i = 0; i < listClient.length; i++) {
-//             if (listClient[i].id == id) {
-//                 bonId = false;
-//             }
-//         }
-//         nbTentative--;
-//     } while (!bonId && nbTentative > 0);
-
-//     return id;
-// }
 
 
 module.exports = app;
