@@ -33,8 +33,8 @@
             <!-- Boutons Connexion / S'inscrire -->
             <div class="login-container">
                 <span id="connexion" class="login left active">
-          Se connecter
-        </span>
+                    Se connecter
+                </span>
                 <span id="connexion" class="login"> | </span>
                 <span id="connexion" class="login inactive"> S'inscrire </span>
             </div>
@@ -42,6 +42,7 @@
             <!-- Formulaire de connexion -->
             <div class="log-form visible">
                 <!-- <form id="login-form" action="/login" method="post"> -->
+                <h1>Connexion</h1>
                 <form id="login-form">
                     <div class="input-container">
                         <input type="text" id="usernameLogin" name="usernameLogin" required="" />
@@ -66,6 +67,7 @@
             <!-- Formulaire d'inscription -->
             <div class="log-form hidden">
                 <!-- <form action="/register" method="post"> -->
+                <h1>Inscription</h1>
                 <form id="register-form">
                     <div class="input-container">
                         <input type="text" id="usernameSignup" name="usernameSignup" />
@@ -90,6 +92,8 @@
                     <div class="bouton-connexion">
                         <button class="btn-connect" role="button">S'inscrire</button>
                     </div>
+                    <div id="password_conseil"><b>Conseil :</b> un mot de passe <u>robuste</u> contient des lettres minuscules et majuscules, des caractères spéciaux et des chiffres. Nous vous conseillons d'écrir un mot de passe d'au moins 8 caractères</div>
+                    <!-- <p>Conseil : un mot de passe <u>robuste</u> contient des lettres minuscules et majuscules, des caractères spéciaux et des chiffres. Nous vous conseillons d'écir un mot de passe d'au moins 8 caractères.</p> -->
                 </form>
             </div>
 

@@ -47,6 +47,18 @@ video {
     z-index: 10;
 }
 
+#shadowbox h1 {
+    font-size: x-large;
+    margin: auto;
+    width: 70%;
+    padding-bottom: 5%;
+}
+
+#password_conseil {
+    padding: 5%;
+    margin: 2%;
+}
+
 .home-title {
     text-align: left;
     margin-bottom: 0em;
