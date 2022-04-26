@@ -64,7 +64,7 @@ Projet M1 AWS : Web app de messagerie temps réel chiffrée de bout en bout disp
 - [x] Première implémentation avec une DB pour la room publique unique
 - [x] Créer par défaut la `Conversation` (null, null) pour le canal `Discussions` (ouvert à tous)
 - [x] Update les champs `lastMessage` et `messageHour` de la table `Conversation` à chaque nouveau message sur une conversation
-- [ ] Modifier la façon de récupérer les messges d'un chat (pour gérer un + grand nombre de données)
+- [ ] Modifier la façon de récupérer les messages d'un chat (pour gérer un + grand nombre de données)
   - Requète pour récupérer les 50 derniers messages pour les display
   - Si l'utilisateur remonte son chat, la scrollbar se bloque le temps de fetch les 50 prochains messages
 
@@ -86,7 +86,7 @@ Projet M1 AWS : Web app de messagerie temps réel chiffrée de bout en bout disp
   - [ ] Script `getMessages(idchat)` pour un `GET` API sur `/getAllMessages` avec l'IdChat en body de requète
   - [ ] `selectContact()`: clear le tableau `messagesArray` et appeler `getMessages(idchat)` pour le re-remplir
   - [x] Ajout d'une barre "Profil" permettant l'accès aux options (retour à l'accueil, déconnexion)
-  - [ ] Améliorer l'affichage du dernier message (afficher le pseudo ou "vous:" ou autre idée), et couper le message au bout de x caractères
+  - [x] Améliorer l'affichage du dernier message (afficher le pseudo ou "vous:" ou autre idée), et couper le message au bout de x caractères
 - [ ] **Partie droite**
   - [x] `renderMessages()`: Afficher l'heure après 10 minutes entre deux messages d'une même personne (en test)
   - [x] `renderMessages()`: Afficher la date quelque part (fixe en haut ou à chaque message en timestamp ou à chaque nouveau jour)
@@ -111,7 +111,7 @@ Projet M1 AWS : Web app de messagerie temps réel chiffrée de bout en bout disp
 
 - À la racine du projet :
   - `npm init -y`
-  - `npm install cors mongoose express jsonwebtoken dotenv bcryptjs cookie-parser`
+  - `npm install cors mongoose express jsonwebtoken dotenv bcryptjs cookie-parser ws`
   - `npm install nodemon -D`
   - Modifier les scripts du fichier `package.json` comme suit :
 
