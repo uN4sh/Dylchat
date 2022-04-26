@@ -184,7 +184,6 @@ async function renderConversations() {
                             break;
                     }
                     if(deleteMyName == 0){
-                        console.log(conversations[i].lastMessage);
                         last_message.innerText = conversations[i].lastMessage.substring(conversations[i].username1.length);
                     }
                 } else if(me == "username2"){
@@ -196,11 +195,13 @@ async function renderConversations() {
                             break;
                     }
                     if(deleteMyName == 0){
-                        console.log(conversations[i].lastMessage);
                         last_message.innerText = conversations[i].lastMessage.substring(conversations[i].username2.length);
                     }
                 }
-                console.log(last_message)
+                if(last_message.innerText.length > 18){
+                    last_message.innerText = last_message.innerText.substring(0, 18);
+                    last_message.innerText = last_message.innerText.concat("...");
+                }
                 contact.appendChild(last_message);
             }
     
