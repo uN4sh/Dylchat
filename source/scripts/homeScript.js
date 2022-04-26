@@ -138,12 +138,13 @@ async function renderConversations() {
                 grid80.classList.add("grid-80-20");
                 contact.appendChild(grid80);
     
-    
+                let me;
                 let contact_title = document.createElement("p");
                 contact_title.classList.add("contact-title");
                 if (conversations[i].username1 == null)
                     contact_title.innerText = "[Discussions]"
                 else if (conversations[i].username1 == myPseudo) {
+                    me = "username1";
                     // ToDo: ajouter un vrai truc pour afficher les personnes en ligne
                     if (onlineUsers.includes(conversations[i].username2))
                         contact_title.innerText = "🟢 " + conversations[i].username2;
@@ -151,6 +152,7 @@ async function renderConversations() {
                         contact_title.innerText = conversations[i].username2;
                 }
                 else {
+                    me = "username2";
                     if (onlineUsers.includes(conversations[i].username1))
                         contact_title.innerText = "🟢 " + conversations[i].username1;
                     else
@@ -172,6 +174,33 @@ async function renderConversations() {
                     last_message.innerText = conversations[i].lastMessage;
                 } else
                     last_message.innerText = "/"
+                let deleteMyName = 0;
+                if(me == "username1"){
+                    for (let j = 0; j <= conversations[i].username1.length-1; j++){
+                        if(conversations[i].lastMessage[j] != conversations[i].username1[j]){
+                            deleteMyName = 1;
+                        }
+                        if(deleteMyName == 1)
+                            break;
+                    }
+                    if(deleteMyName == 0){
+                        console.log(conversations[i].lastMessage);
+                        last_message.innerText = conversations[i].lastMessage.substring(conversations[i].username1.length);
+                    }
+                } else if(me == "username2"){
+                    for (let j = 0; j <= conversations[i].username2.length-1; j++){    
+                        if(conversations[i].lastMessage[j] != conversations[i].username2[j]){
+                            deleteMyName = 1;
+                        }
+                        if(deleteMyName == 1)
+                            break;
+                    }
+                    if(deleteMyName == 0){
+                        console.log(conversations[i].lastMessage);
+                        last_message.innerText = conversations[i].lastMessage.substring(conversations[i].username2.length);
+                    }
+                }
+                console.log(last_message)
                 contact.appendChild(last_message);
             }
     
