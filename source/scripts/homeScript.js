@@ -1,3 +1,5 @@
+const socket = io();
+
 class Message {
     constructor(idchat, author, content, time) {
         this.idchat = idchat;
@@ -62,24 +64,22 @@ let messagesDict = {};
 let conversations = Array();
 
 
+/*
 var http = location.href.split(":")[0];
 http = http == "http" ? "ws" : "wss"; // ws:// si serveur HTTP, sinon wss://
 const ws = new WebSocket(http + "://" + location.host.split(':')[0] + ":8080");
+*/
 
+// ToDo: ajouter une erreur quand c'est pas possible d'établir la connexion au bout d'un certain temps
 
 // Que faire lorsque la connexion est établie
-ws.addEventListener("open", () => {
-    // ToDo: ajouter une erreur quand c'est pas possible d'établir la connexion au bout d'un certain temps
-    console.log("We are connected");
+socket.on("connected", (metadata) => {
+    console.log("We are connected,", metadata.username);
 });
 
 
 // Que faire quand le client reçoit un message du serveur
-ws.addEventListener("message", data => {
-    let msg = JSON.parse(data.data);
-    // console.log(msg);
-    let message = new Message(msg.idchat, msg.author, msg.content, msg.time);
-
+socket.on("newMessage", (message) => {
     // Stockage des messages dans le dictionnaire messagesDict selon les chats :
     //      "chatid": [message, message, message]
     //      "chatid": [message, message, message]
@@ -88,13 +88,25 @@ ws.addEventListener("message", data => {
     messagesDict[message.idchat].push(message);
 
     // Afficher les messages si le nouveau message est sur la conversation active
-    if (msg.idchat == activeConversationId)
+    if (message.idchat == activeConversationId)
         renderMessages();
 
     // Actualiser lastMessage et messageHour et faire remonter la conversation
     renderConversations();
 });
 
+
+socket.on("allMessages", (msgs) => {
+    msgs.forEach(message => {
+        if (!(message.idchat in messagesDict))
+            messagesDict[message.idchat] = Array()
+        messagesDict[message.idchat].push(message);
+    });
+
+    // Afficher les messages et actualiser les conversations
+    renderMessages();
+    renderConversations();
+});
 
 function convertTimestamp(timestamp) {
     let msgdate = new Date(parseInt(timestamp));
@@ -237,7 +249,7 @@ async function sendMessage() {
 
     let message = new Message(activeConversationId, myPseudo, chatbox.value, new Date().getTime());
 
-    ws.send(JSON.stringify(message));
+    socket.emit("newMessage", message);
     chatbox.value = "";
 }
 

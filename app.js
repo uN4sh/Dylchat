@@ -2,6 +2,7 @@ require("dotenv").config();
 require("./config/database").connect();
 const express = require("express");
 const cookieParser = require("cookie-parser");
+var cookie = require("cookie");
 
 const app = express();
 
@@ -35,14 +36,15 @@ require("./routes/conversations.routes")(app);
 
 
 
-// WEBSOCKETS //
+// Init serveur HTTP/HTTPS //
 
-var { SSL } = process.env;
+let SSL = process.env.SSL;
+const PORT = process.env.API_PORT;
 SSL = SSL == "true" ? true : false;
 
 var cfg = {
     ssl: SSL,
-    port: 8080,
+    port: PORT,
     ssl_key: './privkey.pem',
     ssl_cert: './fullchain.pem'
 };
@@ -50,9 +52,9 @@ var cfg = {
 var httpServ = (cfg.ssl) ? require('https') : require('http');
 var server = null;
 
-var processRequest = function (req, res) {
-    console.log("Request received.")
-};
+// var processRequest = function (req, res) {
+//     console.log("Request received.")
+// };
 
 const fs = require('fs');
 if (cfg.ssl) {
@@ -60,14 +62,17 @@ if (cfg.ssl) {
         // providing server with  SSL key/cert
         key: fs.readFileSync(cfg.ssl_key),
         cert: fs.readFileSync(cfg.ssl_cert)
-    }, processRequest).listen(cfg.port);
+    }, app);
 
 } else {
-    server = httpServ.createServer(processRequest).listen(cfg.port);
+    server = httpServ.createServer(app);
 }
 
-const WebSocket = require("ws");
-const wss = new WebSocket.Server({ server: server });
+
+// WEBSOCKETS //
+
+const socketIO = require('socket.io');
+const io = socketIO(server);
 
 const clientList = new Map();
 console.log("\nServer is open !\n")
@@ -76,7 +81,8 @@ const MessageModel = require("./model/message");
 const User = require("./model/user");
 const Conversation = require("./model/conversation");
 
-wss.on("connection", async (ws, req) => {
+
+io.on('connection', async (socket) => {
 
     // Check si le canal Discussions existe et le créer si non 
     const discussions = await Conversation.findOne({ userId1: null });
@@ -90,22 +96,24 @@ wss.on("connection", async (ws, req) => {
         });
     }
 
-    const jwttoken = req.headers.cookie.split("jwt=")[1];
-    const user = await User.findOne({ token: jwttoken });
+    var cookies = cookie.parse(socket.handshake.headers.cookie);
+    const user = await User.findOne({ token: cookies.jwt });
     const metadata = { username: user.username, id: user._id };
     console.log("%s is now connected!", metadata.username);
-    clientList.set(ws, metadata);
-    await User.updateOne({ token: jwttoken }, { $set: { status: 1 } });
+    clientList.set(socket, metadata);
+    await User.updateOne({ token: cookies.jwt }, { $set: { status: 1 } });
+    socket.emit("connected", metadata);
 
     // ToDo: check si il y a un utilisateur avec token invalide et le déconnecter
 
     // ToDo: ne pas envoyer tous les messages (laisser l'user fetch les messages en cliquant sur une conv)
-    sendAllStoredMessages(ws);
+    sendAllStoredMessages(socket);
 
-    ws.on("message", async data => {
-        // ToDo: parser la data reçue pour savoir si c'est un message ou si c'est une nouvelle conv
-        let messageId = storeMessage(data.toString(), ws);
-        let message = JSON.parse(data.toString());
+    socket.on("newMessage", async (message) => {
+        let newMessage = new MessageModel(message);
+        newMessage.save();
+
+        let messageId = newMessage._id;
         console.log(message);
 
 
@@ -120,38 +128,37 @@ wss.on("connection", async (ws, req) => {
         await Conversation.findOneAndUpdate({ _id: message.idchat }, { lastMessageId: messageId });
 
 
-        message = JSON.stringify(message);
         // Si chat général : envoyer le message à tous les clients connectés
         if (!conv.userId1) {
-            clientList.forEach(function (metadata, clientws) {
+            clientList.forEach(function (metadata, clientSocket) {
                 console.log("Sent to " + metadata.username);
-                clientws.send(message);
+                clientSocket.emit("newMessage", message);
             })
         }
         // Sinon : l'envoyer seulement aux deux utilisateurs concernés
         else {
             // ToDo: mieux récupérer les users via la Map
-            clientList.forEach(function (metadata, clientws) {
+            clientList.forEach(function (metadata, clientSocket) {
                 if (metadata.id.equals(conv.userId1) || metadata.id.equals(conv.userId2)) {
                     console.log("Sent to " + metadata.username);
-                    clientws.send(message);
+                    clientSocket.emit("newMessage", message);
                 }
             })
         }
     });
 
     // À la fermeture du socket: passe l'utilisateur hors ligne
-    ws.on("close", async () => {
-        console.log("%s has disconnected", clientList.get(ws).username);
-        await User.updateOne({ _id: clientList.get(ws).id }, { $set: { status: 0 } });
-        clientList.delete(ws);
+    socket.on('disconnect', async () => {
+        console.log("%s has disconnected", clientList.get(socket).username);
+        await User.updateOne({ _id: clientList.get(socket).id }, { $set: { status: 0 } });
+        clientList.delete(socket);
     });
 });
 
 
 // Send to the client all the stored messages
-async function sendAllStoredMessages(ws) {
-    let metadata = clientList.get(ws);
+async function sendAllStoredMessages(socket) {
+    let metadata = clientList.get(socket);
 
     // Get tous les chats d'un user
     var convIds = new Array();
@@ -170,20 +177,9 @@ async function sendAllStoredMessages(ws) {
                 return a.time - b.time
             });
 
-            msgs.forEach(function (msg) {
-                ws.send(JSON.stringify(msg));
-            });
+            socket.emit("allMessages", msgs);
         });
     });
 }
 
-// Store the message into the JSON file
-function storeMessage(message, ws) {
-    message = JSON.parse(message);
-    let newMessage = new MessageModel(message);
-    newMessage.save();
-    return newMessage._id;
-}
-
-
-module.exports = app;
+module.exports = server;
