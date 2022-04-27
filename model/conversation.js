@@ -5,8 +5,7 @@ const conversationSchema = new mongoose.Schema({
     userId2: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
     username1: { type: String },
     username2: { type: String },
-    lastMessage: { type: String },
-    messageHour: { type: String }
+    lastMessageId: { type: mongoose.Schema.Types.ObjectId, ref: 'message' }
 }, {
     versionKey: false
 });

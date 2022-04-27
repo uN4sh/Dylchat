@@ -1,5 +1,6 @@
 const User = require("../model/user");
 const Conversation = require("../model/conversation");
+const MessageModel = require("../model/message");
 
 exports.getConversations = async (req, res, next) => {
 	if (!req.cookies.jwt)
@@ -16,8 +17,35 @@ exports.getConversations = async (req, res, next) => {
 		conversations.sort(function (a, b) {
 			return b.messageHour - a.messageHour
 		});
+		
+		let lastMessageIds = [];
+		conversations.forEach( (conv) => {
+			lastMessageIds.push({_id: conv.lastMessageId });
+		})
 
-		res.status(200).json({ conversation: conversations });
+		const lastMessages = await MessageModel.find({ $or: lastMessageIds, });
+		
+		let enrichedConversations = [];
+		conversations.forEach(async (conv) => {
+
+			let data = {
+				_id: conv['_id'],
+				username1: conv['username1'],
+				username2: conv['username2'],
+			}
+
+			lastMessages.forEach(msg => {
+				if (msg.idchat.equals(conv._id)) {
+					data['messageAuthor'] = msg.author;
+					data['messageContent'] = msg.content;
+					data['messageTime'] = msg.time;
+				}
+			});
+			
+			enrichedConversations.push(data);	
+		});
+		
+		res.status(200).json({ conversation: enrichedConversations });
 
 	} catch (err) {
 		res.status(401).json({ message: "Not successful", error: err.message })
@@ -55,9 +83,7 @@ exports.newConversation = async (req, res, next) => {
 			userId1: user.id,
 			userId2: user2.id,
 			username1: user.username,
-			username2: user2.username,
-			lastMessage: "Nouvelle conversation",
-			messageHour: null
+			username2: user2.username
 		});
 
 		// ToDo: pas de redirect mais envoi de la nouvelle conv par webSocket
@@ -76,7 +102,7 @@ exports.updateConversation = async (req, res, next) => {
 			return res.status(409).json({ error: "User not found. Please logout and re-login.", username: "Undefined" });
 
 		const { message } = req.body;
-		const update = { lastMessage: message.author + ": " + message.content, messageHour: message.time };
+		const update = { lastMessageId: message._id };
 		await Conversation.findOneAndUpdate({ _id: message.idchat }, update);
 
 		return res.status(200).json({ message: "Update effectué" });

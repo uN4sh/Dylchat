@@ -1,11 +1,3 @@
-class Contact {
-    constructor(name, lastMessage, messageHour) {
-        this.name = name;
-        this.lastMessage = lastMessage;
-        this.messageHour = messageHour;
-    }
-}
-
 class Message {
     constructor(idchat, author, content, time) {
         this.idchat = idchat;
@@ -137,7 +129,8 @@ async function renderConversations() {
                 let grid80 = document.createElement("div");
                 grid80.classList.add("grid-80-20");
                 contact.appendChild(grid80);
-    
+                
+                // Nom du contact
                 let me;
                 let contact_title = document.createElement("p");
                 contact_title.classList.add("contact-title");
@@ -159,47 +152,32 @@ async function renderConversations() {
                         contact_title.innerText = conversations[i].username1;
                 }
                 grid80.appendChild(contact_title);
-    
+                
+                // Heure du dernier message
                 let message_hour = document.createElement("p");
                 message_hour.classList.add("message-hour");
-                if (conversations[i].messageHour != null)
-                    message_hour.innerText = convertTimestamp(conversations[i].messageHour);
+                if (conversations[i].messageTime != null)
+                    message_hour.innerText = convertTimestamp(conversations[i].messageTime);
                 else
                     message_hour.innerText = "/"
                 grid80.appendChild(message_hour);
-    
+                
+                // Contenu du dernier message
                 let last_message = document.createElement("p");
                 last_message.classList.add("last-message");
-                if (conversations[i].lastMessage != null) {
-                    last_message.innerText = conversations[i].lastMessage;
-                } else
-                    last_message.innerText = "/"
-                let deleteMyName = 0;
-                if(me == "username1"){
-                    for (let j = 0; j <= conversations[i].username1.length-1; j++){
-                        if(conversations[i].lastMessage[j] != conversations[i].username1[j]){
-                            deleteMyName = 1;
-                        }
-                        if(deleteMyName == 1)
-                            break;
+                if ("messageContent" in conversations[i]) {
+                    if (conversations[i].messageAuthor == myPseudo) {
+                        last_message.innerText = conversations[i].messageContent;
                     }
-                    if(deleteMyName == 0){
-                        last_message.innerText = conversations[i].lastMessage.substring(conversations[i].username1.length);
+                    else {
+                        last_message.innerText = conversations[i].messageAuthor + ": " + conversations[i].messageContent;
                     }
-                } else if(me == "username2"){
-                    for (let j = 0; j <= conversations[i].username2.length-1; j++){    
-                        if(conversations[i].lastMessage[j] != conversations[i].username2[j]){
-                            deleteMyName = 1;
-                        }
-                        if(deleteMyName == 1)
-                            break;
-                    }
-                    if(deleteMyName == 0){
-                        last_message.innerText = conversations[i].lastMessage.substring(conversations[i].username2.length);
-                    }
+                } else { // Nouvelle conversation
+                    last_message.innerText = "Nouvelle conversation"
                 }
-                if(last_message.innerText.length > 18){
-                    last_message.innerText = last_message.innerText.substring(0, 18);
+                
+                if (last_message.innerText.length > 25){
+                    last_message.innerText = last_message.innerText.substring(0, 25);
                     last_message.innerText = last_message.innerText.concat("...");
                 }
                 contact.appendChild(last_message);

@@ -86,9 +86,7 @@ wss.on("connection", async (ws, req) => {
             userId1: null,
             userId2: null,
             username1: null,
-            username2: null,
-            lastMessage: "Nouvelle conversation",
-            messageHour: null
+            username2: null
         });
     }
 
@@ -106,9 +104,10 @@ wss.on("connection", async (ws, req) => {
 
     ws.on("message", async data => {
         // ToDo: parser la data reçue pour savoir si c'est un message ou si c'est une nouvelle conv
-        storeMessage(data.toString(), ws);
+        let messageId = storeMessage(data.toString(), ws);
         let message = JSON.parse(data.toString());
         console.log(message);
+
 
         // Get la conversation du message
         const conv = await Conversation.findOne({ _id: message.idchat });
@@ -117,10 +116,8 @@ wss.on("connection", async (ws, req) => {
             return;
         }
 
-        // Update la conversation avec le nouveau message
-        const update = { lastMessage: message.author + ": " + message.content, messageHour: message.time };
-        // ToDo: modifier la BD pour stocker l'id du dernier message et non son contenu (comme ça ça sera géré en cas de modif ou suppression)
-        await Conversation.findOneAndUpdate({ _id: message.idchat }, update);
+        // Update la conversation en stockant l'ID du nouveau message
+        await Conversation.findOneAndUpdate({ _id: message.idchat }, { lastMessageId: messageId });
 
 
         message = JSON.stringify(message);
@@ -185,6 +182,7 @@ function storeMessage(message, ws) {
     message = JSON.parse(message);
     let newMessage = new MessageModel(message);
     newMessage.save();
+    return newMessage._id;
 }
 
 
