@@ -1,6 +1,13 @@
 .logo {
-    width: 150px;
-    height: 150px;
+    width: 200px;
+    height: 200px;
+    margin : auto;
+    display: flex;
+}
+
+#texte-intro {
+    font-size: x-large;
+    color: #888888;
 }
 
 .logo-title {
@@ -32,6 +39,7 @@
     display: flex;
     gap: 2%;
     padding-bottom: 3em;
+    max-height: 10px;
 }
 
 .login {
@@ -183,6 +191,10 @@
 
 
 /* Password checker */
+
+#password_conseil {
+    padding : 0px;
+}
 
 #strenght_password {
     display: grid;
