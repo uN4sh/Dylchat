@@ -437,6 +437,8 @@ async function deconnexion() {
 
 function accueilpage(){
 	//document.getElementById("menu_deco").style.display = "none";
+    document.getElementById("menu_ajouter_conv").style.display = "none";
+    document.getElementById("menu_deco").style.display = "none";
 	let activeAccueil = document.querySelector("#accueil");
     activeAccueil.classList.remove("hidden");
     let footer = document.querySelector("#footer");
