@@ -1,6 +1,5 @@
 const User = require("../model/user");
 const Conversation = require("../model/conversation");
-const MessageModel = require("../model/message");
 
 exports.getConversations = async (req, res, next) => {
 	if (!req.cookies.jwt)
@@ -17,10 +16,10 @@ exports.getConversations = async (req, res, next) => {
 
 		// Tri des conversations par timestamp du dernier message
 		conversations.sort(function (a, b) {
-			return b.lastMessageId.time - a.lastMessageId.time
+			if (a.lastMessageId && b.lastMessageId) 
+				return b.lastMessageId.time - a.lastMessageId.time
 		});
 
-		
 		res.status(200).json({ conversation: conversations });
 
 	} catch (err) {
@@ -39,9 +38,9 @@ exports.newConversation = async (req, res, next) => {
 
 		const user2 = await User.findOne({ usernamelowercase: username2.toLowerCase() });
 		if (!user2)
-			return res.status(410).json({ error: "User 2 not found. Could not create conversation." });
+			return res.status(410).json({ error: "Utilisateur non trouvé. Impossible de créer une conversation." });
 		if (user.username == user2.username)
-			return res.status(411).json({ error: "You can't create a conversation with yourself." });
+			return res.status(411).json({ error: "Vous ne pouvez pas créer une conversation avec vous même." });
 
 		// Vérifier que la conversation n'existe pas déjà 
 		const already = await Conversation.findOne(
@@ -52,16 +51,16 @@ exports.newConversation = async (req, res, next) => {
 				]
 			}
 		)
-		if (already)
-			return res.status(411).json({ error: "This conversation already exists." });
+		if (already) // ToDo: renvoyer l'ID de la conversation pour l'ouvrir (agira comme recherche)
+			return res.status(411).json({ error: "Cette conversation existe déjà !", convId: already._id });
 
 		await Conversation.create({
 			userId1: user.id,
 			userId2: user2.id,
+			lastMessageId: null
 		});
 
-		// ToDo: pas de redirect mais envoi de la nouvelle conv par webSocket
-		return res.status(200).send({status:200, redirect: "/"});
+		return res.status(200).send({status:200, userId1: user.id, userId2: user2.id});
 	} catch (err) {
 		res.status(401).json({ message: "Not successful", error: err.message })
 	}

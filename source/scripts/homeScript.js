@@ -149,7 +149,7 @@ async function renderConversations() {
 
                 // Titre de la conversation
                 if (conversations[i].userId1 == null)
-                    $(`#contact-title-${i}`).text = "[Discussions]"
+                    $(`#contact-title-${i}`).text("[Discussions]");
                 else if (conversations[i].userId1.username == myPseudo) {
                     // ToDo: ajouter un vrai truc pour afficher les personnes en ligne
                     if (onlineUsers.includes(conversations[i].userId2.username))
@@ -163,24 +163,23 @@ async function renderConversations() {
                     else
                         $(`#contact-title-${i}`).text(conversations[i].userId1.username);
                 }
-
-                // Timetamp du dernier message
-                // ToDo: Écrire la date au lieu de l'heure si le message date pas d'aujourd'hui
-                if (conversations[i].lastMessageId.time != null)
-                    $(`#contact-hour-${i}`).text(convertTimestampToTime(conversations[i].lastMessageId.time));
-                else
-                    $(`#contact-hour-${i}`).text("/")
                 
                 // Contenu du dernier message
-                if ("lastMessageId" in conversations[i]) {
-                    if (conversations[i].lastMessageId.author == myPseudo) {
+                if (conversations[i].lastMessageId) {
+
+                    if (conversations[i].lastMessageId.author == myPseudo)
                         $(`#contact-message-${i}`).text(conversations[i].lastMessageId.content);
-                    }
-                    else {
+                    else
                         $(`#contact-message-${i}`).text(conversations[i].lastMessageId.author + ": " + conversations[i].lastMessageId.content);
-                    }
-                } else { // Nouvelle conversation
+                    
+                    // Timetamp du dernier message
+                    // ToDo: Écrire la date au lieu de l'heure si le message date pas d'aujourd'hui
+                    $(`#contact-hour-${i}`).text(convertTimestampToTime(conversations[i].lastMessageId.time));
+                    
+                } else { 
+                    // Nouvelle conversation
                     $(`#contact-message-${i}`).text("Nouvelle conversation");
+                    $(`#contact-hour-${i}`).text("-")
                 }
                 
                 // Tronquer le message si trop long pour affichage
@@ -368,6 +367,7 @@ window.addEventListener('DOMContentLoaded', async event => {
 
 /* -------------------- Menu d'ajout de conversation -------------------- */
 function ouvrirMenu() {
+    $("#text_ajout_contact").empty();
     document.getElementById("menu_ajouter_conv").style.display = "grid";
     document.getElementById("menu_deco").style.display = "none";
 }
@@ -377,30 +377,32 @@ function fermerMenu() {
 }
 
 async function ajouterContact() {
-    let input = document.getElementById("entree_pseudo");
-    let text = input.value;
-    // document.getElementById("menu_ajouter_conv").style.display = "none";
-    input.value = "";
-
     // POST Request 
-    const body = { username2: text };
+    const body = { username2: $("#entree_pseudo").val() };
+    $("#entree_pseudo").val("");
     const res = await fetch('/api/chats/newConversation', {
         method: 'POST',
         body: JSON.stringify(body),
         headers: { 'Content-Type': 'application/json' }
     });
-    const data = res.json();
-    data.then(response => {
+
+    res.json().then(response => {
         if (response.status === 200) {
-            // ToDo: pas de redirect mais envoi de la nouvelle conv par webSocket
-            window.location = response.redirect;
+            socket.emit("newConversation", response.userId1, response.userId2);
         } else {
-            let text_erreur = `Impossible de créer une conversation avec "${body.username2}"`;
-            document.getElementById("text_ajout_contact").innerHTML = text_erreur;
+            $("#text_ajout_contact").text(response.error);
         }
     }).catch(error => console.error('Error:', error))
 }
 
+socket.on("newConversation", () => {
+    fermerMenu();
+    renderConversations();
+});
+
+socket.on("newConversationError", (error) => {
+    $("#text_ajout_contact").text(error);
+});
 
 /* -------------------- Menu de déconnexion -------------------- */
 

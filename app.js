@@ -90,7 +90,8 @@ io.on('connection', async (socket) => {
         console.log("Création du canal Discussions")
         await Conversation.create({
             userId1: null,
-            userId2: null
+            userId2: null,
+            lastMessageId: null
         });
     }
 
@@ -143,6 +144,16 @@ io.on('connection', async (socket) => {
                 }
             })
         }
+    });
+
+    socket.on('newConversation', async (data) => {
+        // Transmet la nouvelle conversation aux 2 utilisateurs concernés
+        socket.emit("newConversation");
+        clientList.forEach(function (metadata, clientSocket) {
+            if (metadata.id.equals(data.userId2)) {
+                clientSocket.emit("newConversation");
+            }
+        })
     });
 
     // À la fermeture du socket: passe l'utilisateur hors ligne
