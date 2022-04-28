@@ -172,9 +172,12 @@ async function renderConversations() {
                     else
                         $(`#contact-message-${i}`).text(conversations[i].lastMessageId.author + ": " + conversations[i].lastMessageId.content);
                     
-                    // Timetamp du dernier message
-                    // ToDo: Écrire la date au lieu de l'heure si le message date pas d'aujourd'hui
-                    $(`#contact-hour-${i}`).text(convertTimestampToTime(conversations[i].lastMessageId.time));
+                    // Timestamp du dernier message (affichée en date si message ancien)
+                    let messageDate = new Date(parseInt(conversations[i].lastMessageId.time)).getDate();
+                    if (messageDate == new Date().getDate())
+                        $(`#contact-hour-${i}`).text(convertTimestampToTime(conversations[i].lastMessageId.time));
+                    else
+                        $(`#contact-hour-${i}`).text(convertTimestampToDate(conversations[i].lastMessageId.time));
                     
                 } else { 
                     // Nouvelle conversation
@@ -273,13 +276,13 @@ function renderMessages() {
     for (let i = 0; i < messagesArray.length; i++) {
 
         var author = messagesArray[i].author;
+        var messageDate = new Date(parseInt(messagesArray[i].time)).getDate();
 
         // Affichage de la date au premier message ou entre 2 messages de dates différentes 
         if ((i == 0) ||
-            (i > 0 && new Date(parseInt(messagesArray[i].time)).getDate()) !=
-            new Date(parseInt(messagesArray[i - 1].time)).getDate()) {
+            (i > 0 && messageDate != new Date(parseInt(messagesArray[i - 1].time)).getDate())) {
 
-            let messageDateString = new Date(parseInt(messagesArray[i].time)).toLocaleDateString();
+            let messageDateString = convertTimestampToDate(messagesArray[i].time);
             $("#messages-chat").append(`
                 <div class="date">${messageDateString}</div>
             `);
@@ -288,7 +291,7 @@ function renderMessages() {
         // Check si premier message pour ajouter le nom
         if (i == 0 || 
             (i > 0 && messagesArray[i - 1].author != author) || 
-            (i > 0 && messagesArray[i - 1].author == author && new Date(parseInt(messagesArray[i].time)).getDate() != new Date(parseInt(messagesArray[i - 1].time)).getDate())) {
+            (i > 0 && messagesArray[i - 1].author == author && messageDate != new Date(parseInt(messagesArray[i - 1].time)).getDate())) {
             
             $("#messages-chat").append(`
                 <div class="message">
@@ -325,9 +328,8 @@ function renderMessages() {
         // Affichage de l'heure si dernier message d'une personne ou écart de 5 minutes
         if ((i == messagesArray.length - 1) || // Dernier message du tableau
             (i < messagesArray.length && messagesArray[i + 1].author != author) || // Dernier message d'une personne
-            (i < messagesArray.length && messagesArray[i + 1].author == author && (new Date(parseInt(messagesArray[i].time)).getDate()) != new Date(parseInt(messagesArray[i + 1].time)).getDate()) ||  //Dernier message d'une date différente
-            (i > 0 && new Date(parseInt(messagesArray[i].time)) >
-                new Date(parseInt(messagesArray[i - 1].time) + 5 * 60000))) // 5 minutes entre 2 messages d'une même personne
+            (i < messagesArray.length && messagesArray[i + 1].author == author && messageDate != new Date(parseInt(messagesArray[i + 1].time)).getDate()) ||  //Dernier message d'une date différente
+            (i > 0 && new Date(parseInt(messagesArray[i].time)) > new Date(parseInt(messagesArray[i - 1].time) + 5 * 60000))) // 5 minutes entre 2 messages d'une même personne
             {
 
             let messageTimeString = convertTimestampToTime(messagesArray[i].time);
