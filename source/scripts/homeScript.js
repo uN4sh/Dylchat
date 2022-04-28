@@ -108,10 +108,15 @@ socket.on("allMessages", (msgs) => {
     renderConversations();
 });
 
-function convertTimestamp(timestamp) {
+function convertTimestampToTime(timestamp) {
     let msgdate = new Date(parseInt(timestamp));
     // console.log(msgdate.toLocaleString());
     return msgdate.toLocaleTimeString().slice(0, 5);
+}
+
+function convertTimestampToDate(timestamp) {
+    let msgdate = new Date(parseInt(timestamp));
+    return msgdate.toLocaleDateString();
 }
 
 
@@ -123,74 +128,66 @@ async function renderConversations() {
     
         // Récupération des utilisateurs en ligne
         await getOnlineUsers().then(function(onlineUsers) {
-            let div = document.getElementById("contact-list");
-            div.innerHTML = "";
+            $("#contact-list").empty();
 
             for (let i = 0; i < conversations.length; i++) {
-                let contact = document.createElement("div");
-                contact.classList.add("contact");
-    
+
+                $("#contact-list").append(`
+                    <div id="contact-${i}" class="contact">
+                        <div class="grid-80-20">
+                            <p id="contact-title-${i}" class="contact-title"> RIEN </p>
+                            <p id="contact-hour-${i}" class="message-hour"> RIEN </p>
+                        </div>
+                        <p id="contact-message-${i}" class="last-message">    </p>
+                    </div>
+                `);
+
                 if (conversations[i]._id == activeConversationId)
-                    contact.classList.add("selected");
-    
-                contact.id = "contact-" + i;
-                // ToDo: transformer conversations en une map (Id, conversation)
+                    $(`#contact-${i}`).addClass("selected");
+
                 conversations[i].idcontact = i;
-                div.appendChild(contact);
-    
-                let grid80 = document.createElement("div");
-                grid80.classList.add("grid-80-20");
-                contact.appendChild(grid80);
-                
-                // Nom du contact
-                let me;
-                let contact_title = document.createElement("p");
-                contact_title.classList.add("contact-title");
+
+                // Titre de la conversation
                 if (conversations[i].userId1 == null)
-                    contact_title.innerText = "[Discussions]"
+                    $(`#contact-title-${i}`).text = "[Discussions]"
                 else if (conversations[i].userId1.username == myPseudo) {
                     // ToDo: ajouter un vrai truc pour afficher les personnes en ligne
                     if (onlineUsers.includes(conversations[i].userId2.username))
-                        contact_title.innerText = "🟢 " + conversations[i].userId2.username;
+                        $(`#contact-title-${i}`).text("🟢 " + conversations[i].userId2.username);
                     else
-                        contact_title.innerText = conversations[i].userId2.username;
+                        $(`#contact-title-${i}`).text(conversations[i].userId2.username);
                 }
                 else {
                     if (onlineUsers.includes(conversations[i].userId1.username))
-                        contact_title.innerText = "🟢 " + conversations[i].userId1.username;
+                        $(`#contact-title-${i}`).text("🟢 " + conversations[i].userId1.username);
                     else
-                        contact_title.innerText = conversations[i].userId1.username;
+                        $(`#contact-title-${i}`).text(conversations[i].userId1.username);
                 }
-                grid80.appendChild(contact_title);
-                
-                // Heure du dernier message
-                let message_hour = document.createElement("p");
-                message_hour.classList.add("message-hour");
+
+                // Timetamp du dernier message
+                // ToDo: Écrire la date au lieu de l'heure si le message date pas d'aujourd'hui
                 if (conversations[i].lastMessageId.time != null)
-                    message_hour.innerText = convertTimestamp(conversations[i].lastMessageId.time);
+                    $(`#contact-hour-${i}`).text(convertTimestampToTime(conversations[i].lastMessageId.time));
                 else
-                    message_hour.innerText = "/"
-                grid80.appendChild(message_hour);
+                    $(`#contact-hour-${i}`).text("/")
                 
                 // Contenu du dernier message
-                let last_message = document.createElement("p");
-                last_message.classList.add("last-message");
                 if ("lastMessageId" in conversations[i]) {
                     if (conversations[i].lastMessageId.author == myPseudo) {
-                        last_message.innerText = conversations[i].lastMessageId.content;
+                        $(`#contact-message-${i}`).text(conversations[i].lastMessageId.content);
                     }
                     else {
-                        last_message.innerText = conversations[i].lastMessageId.author + ": " + conversations[i].lastMessageId.content;
+                        $(`#contact-message-${i}`).text(conversations[i].lastMessageId.author + ": " + conversations[i].lastMessageId.content);
                     }
                 } else { // Nouvelle conversation
-                    last_message.innerText = "Nouvelle conversation"
+                    $(`#contact-message-${i}`).text("Nouvelle conversation");
                 }
                 
-                if (last_message.innerText.length > 25){
-                    last_message.innerText = last_message.innerText.substring(0, 25);
-                    last_message.innerText = last_message.innerText.concat("...");
+                // Tronquer le message si trop long pour affichage
+                if ($(`#contact-message-${i}`).text().length > 25){
+                    $(`#contact-message-${i}`).text($(`#contact-message-${i}`).text().substring(0, 25));
+                    $(`#contact-message-${i}`).text($(`#contact-message-${i}`).text().concat("..."));
                 }
-                contact.appendChild(last_message);
             }
     
             // Ajout des évènements au clic sur contact
@@ -267,9 +264,7 @@ function updateScroll() {
 <p class="response-time time"> 15h04</p>  
 */
 function renderMessages() {
-    let messagesChat = document.getElementById("messages-chat");
-    messagesChat.innerHTML = "";
-
+    $("#messages-chat").empty();
     if (!(activeConversationId in messagesDict))
         return;
 
@@ -284,46 +279,48 @@ function renderMessages() {
         if ((i == 0) ||
             (i > 0 && new Date(parseInt(messagesArray[i].time)).getDate()) !=
             new Date(parseInt(messagesArray[i - 1].time)).getDate()) {
-            let testDateDIv = document.createElement("div");
-            testDateDIv.classList.add("date");
-            testDateDIv.innerHTML = new Date(parseInt(messagesArray[i].time)).toLocaleDateString();
-            messagesChat.appendChild(testDateDIv);
+
+            let messageDateString = new Date(parseInt(messagesArray[i].time)).toLocaleDateString();
+            $("#messages-chat").append(`
+                <div class="date">${messageDateString}</div>
+            `);
         }
 
         // Check si premier message pour ajouter le nom
-        if (i == 0 || (i > 0 && messagesArray[i - 1].author != author) || (i > 0 && messagesArray[i - 1].author == author && new Date(parseInt(messagesArray[i].time)).getDate() != new Date(parseInt(messagesArray[i - 1].time)).getDate())) {
-            let newMsgDiv = document.createElement("div");
-            newMsgDiv.classList.add("message");
-            messagesChat.appendChild(newMsgDiv);
-            let text = document.createElement("p");
-            text.classList.add("username");
-            if (myPseudo == author) {
-                text.classList.add("response-username");
-            }
-            text.appendChild(document.createTextNode(author));
-            newMsgDiv.appendChild(text);
+        if (i == 0 || 
+            (i > 0 && messagesArray[i - 1].author != author) || 
+            (i > 0 && messagesArray[i - 1].author == author && new Date(parseInt(messagesArray[i].time)).getDate() != new Date(parseInt(messagesArray[i - 1].time)).getDate())) {
+            
+            $("#messages-chat").append(`
+                <div class="message">
+                    <p id="chat-username-${i}" class="username">RIEN</p>
+                </div>
+            `);
+
+            if (myPseudo == author) 
+                $(`#chat-username-${i}`).addClass("response-username");
+
+            $(`#chat-username-${i}`).text(author);
         }
+
         if (myPseudo == author) {
-            let newMsgDiv = document.createElement("div");
-            newMsgDiv.classList.add("message");
-            newMsgDiv.classList.add("text-only");
-            messagesChat.appendChild(newMsgDiv);
-            let response = document.createElement("div");
-            response.classList.add("response");
-            newMsgDiv.appendChild(response);
-            let text = document.createElement("p");
-            text.classList.add("text");
-            text.appendChild(document.createTextNode(messagesArray[i].content));
-            response.appendChild(text);
+            $("#messages-chat").append(`
+                <div class="message text-only">
+                    <div class="response">
+                        <p id="chat-response-${i}" class="text">RIEN</p>
+                    </div>
+                </div>
+            `);
+
+            $(`#chat-response-${i}`).text(messagesArray[i].content);
         } else {
-            let newMsgDiv = document.createElement("div");
-            newMsgDiv.classList.add("message");
-            newMsgDiv.classList.add("text-only");
-            messagesChat.appendChild(newMsgDiv);
-            let text = document.createElement("p");
-            text.classList.add("text");
-            text.appendChild(document.createTextNode(messagesArray[i].content));
-            newMsgDiv.appendChild(text);
+            $("#messages-chat").append(`
+                <div class="message text-only">
+                    <p id="chat-message-${i}" class="text">RIEN</p>
+                </div>
+            `);
+
+            $(`#chat-message-${i}`).text(messagesArray[i].content);
         }
 
         // Affichage de l'heure si dernier message d'une personne ou écart de 5 minutes
@@ -332,18 +329,17 @@ function renderMessages() {
             (i < messagesArray.length && messagesArray[i + 1].author == author && (new Date(parseInt(messagesArray[i].time)).getDate()) != new Date(parseInt(messagesArray[i + 1].time)).getDate()) ||  //Dernier message d'une date différente
             (i > 0 && new Date(parseInt(messagesArray[i].time)) >
                 new Date(parseInt(messagesArray[i - 1].time) + 5 * 60000))) // 5 minutes entre 2 messages d'une même personne
-        {
-            let newMsgDiv = document.createElement("div");
-            newMsgDiv.classList.add("message");
-            messagesChat.appendChild(newMsgDiv);
-            let time = document.createElement("p");
-            time.classList.add("time");
-            if (myPseudo == author) {
-                time.classList.add("response-time");
-            }
+            {
 
-            time.appendChild(document.createTextNode(convertTimestamp(messagesArray[i].time)));
-            newMsgDiv.appendChild(time);
+            let messageTimeString = convertTimestampToTime(messagesArray[i].time);
+            $("#messages-chat").append(`
+                <div class="message">
+                    <p id="chat-time-${i}" class="time">${messageTimeString}</p>
+                </div>
+            `);
+
+            if (myPseudo == author)
+                $(`#chat-time-${i}`).addClass("response-time")
         }
     }
     updateScroll();

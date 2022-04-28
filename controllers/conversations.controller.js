@@ -20,7 +20,6 @@ exports.getConversations = async (req, res, next) => {
 			return b.lastMessageId.time - a.lastMessageId.time
 		});
 
-		console.log(conversations);
 		
 		res.status(200).json({ conversation: conversations });
 
