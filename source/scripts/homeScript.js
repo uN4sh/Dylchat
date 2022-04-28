@@ -146,30 +146,28 @@ async function renderConversations() {
                 let me;
                 let contact_title = document.createElement("p");
                 contact_title.classList.add("contact-title");
-                if (conversations[i].username1 == null)
+                if (conversations[i].userId1 == null)
                     contact_title.innerText = "[Discussions]"
-                else if (conversations[i].username1 == myPseudo) {
-                    me = "username1";
+                else if (conversations[i].userId1.username == myPseudo) {
                     // ToDo: ajouter un vrai truc pour afficher les personnes en ligne
-                    if (onlineUsers.includes(conversations[i].username2))
-                        contact_title.innerText = "🟢 " + conversations[i].username2;
+                    if (onlineUsers.includes(conversations[i].userId2.username))
+                        contact_title.innerText = "🟢 " + conversations[i].userId2.username;
                     else
-                        contact_title.innerText = conversations[i].username2;
+                        contact_title.innerText = conversations[i].userId2.username;
                 }
                 else {
-                    me = "username2";
-                    if (onlineUsers.includes(conversations[i].username1))
-                        contact_title.innerText = "🟢 " + conversations[i].username1;
+                    if (onlineUsers.includes(conversations[i].userId1.username))
+                        contact_title.innerText = "🟢 " + conversations[i].userId1.username;
                     else
-                        contact_title.innerText = conversations[i].username1;
+                        contact_title.innerText = conversations[i].userId1.username;
                 }
                 grid80.appendChild(contact_title);
                 
                 // Heure du dernier message
                 let message_hour = document.createElement("p");
                 message_hour.classList.add("message-hour");
-                if (conversations[i].messageTime != null)
-                    message_hour.innerText = convertTimestamp(conversations[i].messageTime);
+                if (conversations[i].lastMessageId.time != null)
+                    message_hour.innerText = convertTimestamp(conversations[i].lastMessageId.time);
                 else
                     message_hour.innerText = "/"
                 grid80.appendChild(message_hour);
@@ -177,12 +175,12 @@ async function renderConversations() {
                 // Contenu du dernier message
                 let last_message = document.createElement("p");
                 last_message.classList.add("last-message");
-                if ("messageContent" in conversations[i]) {
-                    if (conversations[i].messageAuthor == myPseudo) {
-                        last_message.innerText = conversations[i].messageContent;
+                if ("lastMessageId" in conversations[i]) {
+                    if (conversations[i].lastMessageId.author == myPseudo) {
+                        last_message.innerText = conversations[i].lastMessageId.content;
                     }
                     else {
-                        last_message.innerText = conversations[i].messageAuthor + ": " + conversations[i].messageContent;
+                        last_message.innerText = conversations[i].lastMessageId.author + ": " + conversations[i].lastMessageId.content;
                     }
                 } else { // Nouvelle conversation
                     last_message.innerText = "Nouvelle conversation"
@@ -224,12 +222,12 @@ var selectContact = function(e) {
     conversations.forEach(conv => {
         if ("contact-" + conv.idcontact == e.currentTarget.id) {
             activeConversationId = conv._id; // Set active conv ID
-            if (conv.username1 == null)
+            if (conv.userId1 == null)
                 chatname.innerHTML = "[Discussions] – Canal général";
-            else if (conv.username1 == myPseudo)
-                chatname.innerHTML = conv.username2
+            else if (conv.userId1.username == myPseudo)
+                chatname.innerHTML = conv.userId2.username
             else
-                chatname.innerHTML = conv.username1
+                chatname.innerHTML = conv.userId1.username
         }
     });
 

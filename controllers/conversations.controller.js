@@ -11,41 +11,18 @@ exports.getConversations = async (req, res, next) => {
 			return res.status(409).json({ error: "User not found. Please logout and re-login.", username: "Undefined" });
 
 		const conversations = await Conversation.find({ $or: [{ userId1: user._id }, { userId2: user._id }, { userId1: null }] })
-		// ToDo: récupérer les pseudos à partir des userIds et retirer les champs username1 et username2 du modèle Conversation
+				.populate("lastMessageId", "author content time")
+				.populate("userId1", "username")
+				.populate("userId2", "username")
 
 		// Tri des conversations par timestamp du dernier message
 		conversations.sort(function (a, b) {
-			return b.messageHour - a.messageHour
+			return b.lastMessageId.time - a.lastMessageId.time
 		});
-		
-		let lastMessageIds = [];
-		conversations.forEach( (conv) => {
-			lastMessageIds.push({_id: conv.lastMessageId });
-		})
 
-		const lastMessages = await MessageModel.find({ $or: lastMessageIds, });
+		console.log(conversations);
 		
-		let enrichedConversations = [];
-		conversations.forEach(async (conv) => {
-
-			let data = {
-				_id: conv['_id'],
-				username1: conv['username1'],
-				username2: conv['username2'],
-			}
-
-			lastMessages.forEach(msg => {
-				if (msg.idchat.equals(conv._id)) {
-					data['messageAuthor'] = msg.author;
-					data['messageContent'] = msg.content;
-					data['messageTime'] = msg.time;
-				}
-			});
-			
-			enrichedConversations.push(data);	
-		});
-		
-		res.status(200).json({ conversation: enrichedConversations });
+		res.status(200).json({ conversation: conversations });
 
 	} catch (err) {
 		res.status(401).json({ message: "Not successful", error: err.message })
@@ -82,8 +59,6 @@ exports.newConversation = async (req, res, next) => {
 		await Conversation.create({
 			userId1: user.id,
 			userId2: user2.id,
-			username1: user.username,
-			username2: user2.username
 		});
 
 		// ToDo: pas de redirect mais envoi de la nouvelle conv par webSocket

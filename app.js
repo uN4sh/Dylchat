@@ -90,9 +90,7 @@ io.on('connection', async (socket) => {
         console.log("Création du canal Discussions")
         await Conversation.create({
             userId1: null,
-            userId2: null,
-            username1: null,
-            username2: null
+            userId2: null
         });
     }
 
