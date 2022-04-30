@@ -194,8 +194,7 @@ async function renderConversations() {
     
             // Ajout des évènements au clic sur contact
             for (let i = 0; i < conversations.length; i++) {
-                let contact = document.querySelector("#contact-" + i);
-                contact.addEventListener("click", selectContact, true);
+                $(`#contact-${i}`).on("click", selectContact);
             }
         })
     });
@@ -203,30 +202,25 @@ async function renderConversations() {
 
 var selectContact = function(e) {
     for (let i = 0; i < conversations.length; i++) {
-        let contact = document.getElementById("contact-" + i);
-        contact.classList.remove("selected");
+        $(`#contact-${i}`).removeClass("selected");
     }
     e.currentTarget.classList.add("selected");
 
     // Affichage de la discussion sur la partie droite en cachant l'accueil
-    let activeAccueil = document.querySelector("#accueil");
-    activeAccueil.classList.add("hidden");
-    let footer = document.querySelector("#footer");
-    footer.classList.add("hidden");
-    let chatHome = document.querySelector("#chat");
-    chatHome.classList.remove("hidden");
-
+    $("#accueil").addClass("hidden");
+    $("#footer").addClass("hidden");
+    $("#chat").removeClass("hidden");
+    
     // Afficher le nom du destinaire
-    let chatname = document.querySelector("#chat-name");
     conversations.forEach(conv => {
         if ("contact-" + conv.idcontact == e.currentTarget.id) {
             activeConversationId = conv._id; // Set active conv ID
             if (conv.userId1 == null)
-                chatname.innerHTML = "[Discussions] – Canal général";
+                $("#chat-name").text("[Discussions] – Canal général");
             else if (conv.userId1.username == myPseudo)
-                chatname.innerHTML = conv.userId2.username
+                $("#chat-name").text(conv.userId2.username);
             else
-                chatname.innerHTML = conv.userId1.username
+                $("#chat-name").text(conv.userId1.username);
         }
     });
 
@@ -238,16 +232,15 @@ var selectContact = function(e) {
 
 
 async function sendMessage() {
-    let chatbox = document.getElementById("chat-box");
-    if (chatbox.value.length == 0) {
+    if ($("#chat-box").val().length == 0) {
         console.log("Aucun message à envoyer");
         return;
     }
 
-    let message = new Message(activeConversationId, myPseudo, chatbox.value, new Date().getTime());
+    let message = new Message(activeConversationId, myPseudo, $("#chat-box").val(), new Date().getTime());
 
     socket.emit("newMessage", message);
-    chatbox.value = "";
+    $("#chat-box").val("");
 }
 
 
@@ -352,7 +345,7 @@ window.addEventListener('DOMContentLoaded', async event => {
     getUsername().then(function(res) {
         myPseudo = res;
         // Affichage du pseudo de l'utilisateur connecté
-        document.querySelector(".mon-profil").innerText = myPseudo;
+        $(".mon-profil").text(myPseudo);
     });
 
     await renderConversations();
@@ -360,7 +353,7 @@ window.addEventListener('DOMContentLoaded', async event => {
     // Touche entrée liée au bouton d'envoi de message
     window.addEventListener('keyup', function(event) {
         if (event.keyCode === 13) {
-            this.document.getElementById("send").click();
+            $("#send").click();
         }
     });
 
@@ -370,12 +363,12 @@ window.addEventListener('DOMContentLoaded', async event => {
 /* -------------------- Menu d'ajout de conversation -------------------- */
 function ouvrirMenu() {
     $("#text_ajout_contact").empty();
-    document.getElementById("menu_ajouter_conv").style.display = "grid";
-    document.getElementById("menu_deco").style.display = "none";
+    $("#menu_ajouter_conv").css("display", "grid");
+    $("#menu_deco").css("display", "none");
 }
 
 function fermerMenu() {
-    document.getElementById("menu_ajouter_conv").style.display = "none";
+    $("#menu_ajouter_conv").css("display", "none");
 }
 
 async function ajouterContact() {
@@ -409,12 +402,12 @@ socket.on("newConversationError", (error) => {
 /* -------------------- Menu de déconnexion -------------------- */
 
 function ouvrirDeconnexion() {
-    document.getElementById("menu_deco").style.display = "grid";
-    document.getElementById("menu_ajouter_conv").style.display = "none";
+    $("#menu_deco").css("display", "grid");
+    $("#menu_ajouter_conv").css("display", "none");
 }
 
 function fermerDeconnexion() {
-    document.getElementById("menu_deco").style.display = "none";
+    $("#menu_deco").css("display", "none");
 }
 
 async function deconnexion() {
@@ -434,17 +427,14 @@ async function deconnexion() {
 }
 
 function accueilpage(){
-	//document.getElementById("menu_deco").style.display = "none";
-    document.getElementById("menu_ajouter_conv").style.display = "none";
-    document.getElementById("menu_deco").style.display = "none";
-	let activeAccueil = document.querySelector("#accueil");
-    activeAccueil.classList.remove("hidden");
-    let footer = document.querySelector("#footer");
-    footer.classList.remove("hidden");
-    let chatHome = document.querySelector("#chat");
-    chatHome.classList.add("hidden");
+    $("#menu_ajouter_conv").css("display", "none");
+    $("#menu_deco").css("display", "none");
+	
+    $("#accueil").removeClass("hidden");
+    $("#footer").removeClass("hidden");
+    $("#chat").addClass("hidden");
+    
     for (let i = 0; i < conversations.length; i++) {
-        let contact = document.getElementById("contact-" + i);
-        contact.classList.remove("selected");
+        $(`contact-${i}`).removeClass("selected");
     }
 }

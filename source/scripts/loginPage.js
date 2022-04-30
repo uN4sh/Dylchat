@@ -46,19 +46,19 @@ var switchLoginForm = function(e) {
     let usernameLogin = document.getElementById("usernameLogin");
     if (usernameLogin.required) {
         // Disable Login
-        document.getElementById("usernameLogin").required = false;
-        document.getElementById("passwordLogin").required = false;
+        $("#usernameLogin").prop('required', false);
+        $("#passwordLogin").prop('required', false);
         // Enable Signup
-        document.getElementById("usernameSignup").required = true;
-        document.getElementById("passwordSignup").required = true;
+        $("#usernameSignup").prop('required', true);
+        $("#passwordSignup").prop('required', true);
         // Enable password checker
     } else {
         // Disable Signup
-        document.getElementById("usernameSignup").required = false;
-        document.getElementById("passwordSignup").required = false;
+        $("#usernameSignup").prop('required', false);
+        $("#passwordSignup").prop('required', false);
         // Enable Login
-        document.getElementById("usernameLogin").required = true;
-        document.getElementById("passwordLogin").required = true;
+        $("#usernameLogin").prop('required', true);
+        $("#passwordLogin").prop('required', true);
         // Disable password checker
     }
 
@@ -80,13 +80,13 @@ var printErrorLoginForm = function(res) {
     // rendre visible
     console.log(res);
     if (res.status === 409) {
-        document.getElementById("errorRegister").classList.remove("hidden");
-        document.getElementById("errorRegister").classList.add("visible");
+        $("#errorRegister").removeClass("hidden");
+        $("#errorRegister").addClass("visible");
     } else if (res.status === 400) {
-        document.getElementById("errorLoginID").classList.remove("hidden");
-        document.getElementById("errorLoginID").classList.add("visible");
-        document.getElementById("errorLoginPwd").classList.remove("hidden");
-        document.getElementById("errorLoginPwd").classList.add("visible");
+        $("#errorLoginID").removeClass("hidden");
+        $("#errorLoginID").addClass("visible");
+        $("#errorLoginPwd").removeClass("hidden");
+        $("#errorLoginPwd").addClass("visible");
     }
 }
 
