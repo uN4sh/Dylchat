@@ -133,12 +133,24 @@ async function renderConversations() {
             for (let i = 0; i < conversations.length; i++) {
 
                 $("#contact-list").append(`
-                    <div id="contact-${i}" class="contact">
-                        <div class="grid-80-20">
-                            <p id="contact-title-${i}" class="contact-title"> RIEN </p>
-                            <p id="contact-hour-${i}" class="message-hour"> RIEN </p>
+                    <div id="contact-${i}" class="row sideBar-body">
+                      <div class="sideBar-main">
+                          <div class="row">
+                              <div class="col-sm-8 col-xs-8 sideBar-name">
+                                  <span id="contact-title-${i}" class="name-meta"> RIEN </span>
+                              </div>
+                              <div class="col-sm-4 col-xs-4 pull-right sideBar-time">
+                                  <span id="contact-hour-${i}" class="time-meta pull-right"> RIEN </span>
+                              </div>
+                          </div>
                         </div>
-                        <p id="contact-message-${i}" class="last-message">    </p>
+                      <div class="sideBar-main">
+                        <div class="row">
+                          <div class="col-sm-12 col-xs-12 sideBar-lastMessage">
+                                <span id="contact-message-${i}" class="lastMessage-meta"> RIEN </span>
+                          </div> 
+                        </div>
+                      </div>
                     </div>
                 `);
 
@@ -186,10 +198,10 @@ async function renderConversations() {
                 }
                 
                 // Tronquer le message si trop long pour affichage
-                if ($(`#contact-message-${i}`).text().length > 25){
-                    $(`#contact-message-${i}`).text($(`#contact-message-${i}`).text().substring(0, 25));
-                    $(`#contact-message-${i}`).text($(`#contact-message-${i}`).text().concat("..."));
-                }
+                // if ($(`#contact-message-${i}`).text().length > 25){
+                //     $(`#contact-message-${i}`).text($(`#contact-message-${i}`).text().substring(0, 25));
+                //     $(`#contact-message-${i}`).text($(`#contact-message-${i}`).text().concat("..."));
+                // }
             }
     
             // Ajout des évènements au clic sur contact
@@ -200,36 +212,14 @@ async function renderConversations() {
     });
 }
 
-var selectContact = function(e) {
-    for (let i = 0; i < conversations.length; i++) {
-        $(`#contact-${i}`).removeClass("selected");
+function selectContact(e) {
+  conversations.forEach(conv => {
+    if ("contact-" + conv.idcontact == e.currentTarget.id) {
+      openChat(conv);
+      return;
     }
-    e.currentTarget.classList.add("selected");
-
-    // Affichage de la discussion sur la partie droite en cachant l'accueil
-    $("#accueil").addClass("hidden");
-    $("#footer").addClass("hidden");
-    $("#chat").removeClass("hidden");
-    
-    // Afficher le nom du destinaire
-    conversations.forEach(conv => {
-        if ("contact-" + conv.idcontact == e.currentTarget.id) {
-            activeConversationId = conv._id; // Set active conv ID
-            if (conv.userId1 == null)
-                $("#chat-name").text("[Discussions] – Canal général");
-            else if (conv.userId1.username == myPseudo)
-                $("#chat-name").text(conv.userId2.username);
-            else
-                $("#chat-name").text(conv.userId1.username);
-        }
-    });
-
-    // Afficher les messages
-    renderMessages();
+  });
 };
-
-
-
 
 async function sendMessage() {
     if ($("#chat-box").val().length == 0) {
@@ -250,19 +240,13 @@ function updateScroll() {
     messagesChat.scrollTop = messagesChat.scrollHeight;
 }
 
-/*
-<div class="message text-only">
-  <div class="response">
-    <p class="text"> ??? </p>
-  </div>
-</div>
-<p class="response-time time"> 15h04</p>  
-*/
+// ToDo: faire un updateScroll après renderConversation
+
+
 function renderMessages() {
     $("#messages-chat").empty();
     if (!(activeConversationId in messagesDict))
         return;
-
 
     // Récupérer les messages de la conversation courante
     let messagesArray = messagesDict[activeConversationId]
@@ -277,64 +261,67 @@ function renderMessages() {
 
             let messageDateString = convertTimestampToDate(messagesArray[i].time);
             $("#messages-chat").append(`
-                <div class="date">${messageDateString}</div>
-            `);
-        }
-
-        // Check si premier message pour ajouter le nom
-        if (i == 0 || 
-            (i > 0 && messagesArray[i - 1].author != author) || 
-            (i > 0 && messagesArray[i - 1].author == author && messageDate != new Date(parseInt(messagesArray[i - 1].time)).getDate())) {
-            
-            $("#messages-chat").append(`
-                <div class="message">
-                    <p id="chat-username-${i}" class="username">RIEN</p>
-                </div>
-            `);
-
-            if (myPseudo == author) 
-                $(`#chat-username-${i}`).addClass("response-username");
-
-            $(`#chat-username-${i}`).text(author);
-        }
-
-        if (myPseudo == author) {
-            $("#messages-chat").append(`
-                <div class="message text-only">
-                    <div class="response">
-                        <p id="chat-response-${i}" class="text">RIEN</p>
+                <div class="row message-body">
+                    <div class="message-main">
+                        <span class="message-date">${messageDateString}</span>
                     </div>
                 </div>
             `);
-
-            $(`#chat-response-${i}`).text(messagesArray[i].content);
-        } else {
-            $("#messages-chat").append(`
-                <div class="message text-only">
-                    <p id="chat-message-${i}" class="text">RIEN</p>
-                </div>
-            `);
-
-            $(`#chat-message-${i}`).text(messagesArray[i].content);
         }
 
-        // Affichage de l'heure si dernier message d'une personne ou écart de 5 minutes
-        if ((i == messagesArray.length - 1) || // Dernier message du tableau
-            (i < messagesArray.length && messagesArray[i + 1].author != author) || // Dernier message d'une personne
-            (i < messagesArray.length && messagesArray[i + 1].author == author && messageDate != new Date(parseInt(messagesArray[i + 1].time)).getDate()) ||  //Dernier message d'une date différente
-            (i > 0 && new Date(parseInt(messagesArray[i].time)) > new Date(parseInt(messagesArray[i - 1].time) + 5 * 60000))) // 5 minutes entre 2 messages d'une même personne
-            {
 
-            let messageTimeString = convertTimestampToTime(messagesArray[i].time);
-            $("#messages-chat").append(`
-                <div class="message">
-                    <p id="chat-time-${i}" class="time">${messageTimeString}</p>
-                </div>
-            `);
-
-            if (myPseudo == author)
-                $(`#chat-time-${i}`).addClass("response-time")
+        // Message envoyé 
+        if (myPseudo == author) {
+          $("#messages-chat").append(`
+              <div class="row message-body">
+                  <div class="col-sm-12 message-main-sender">
+                      <div class="row sender-nick">
+                        <span id="chat-username-${i}">  </span>
+                      </div>
+                      <div class="sender">
+                          <div id="chat-content-${i}" class="message-text">
+                              RIEN
+                          </div>
+                          <span id="chat-time-${i}" class="message-time pull-right">
+                              RIEN
+                          </span>
+                      </div>
+                  </div>
+              </div>
+          `);
         }
+        // Message reçu
+        else {
+          $("#messages-chat").append(`
+              <div class="row message-body">
+                  <div class="col-sm-12 message-main-receiver">
+                      <div class="row receiver-nick">
+                        <span id="chat-username-${i}">  </span>
+                      </div>
+                      <div class="receiver">
+                          <div id="chat-content-${i}" class="message-text">
+                              RIEN
+                          </div>
+                          <span id="chat-time-${i}" class="message-time pull-right">
+                              RIEN
+                          </span>
+                      </div>
+                  </div>
+              </div>
+          `);
+        }
+
+        $(`#chat-content-${i}`).text(messagesArray[i].content);
+        $(`#chat-time-${i}`).text(convertTimestampToTime(messagesArray[i].time));
+
+        // Check si premier message pour ajouter le nom
+        if (i == 0 || 
+          (i > 0 && messagesArray[i - 1].author != author) || 
+          (i > 0 && messagesArray[i - 1].author == author && messageDate != new Date(parseInt(messagesArray[i - 1].time)).getDate())) 
+        {
+            $(`#chat-username-${i}`).text(author);
+        }
+
     }
     updateScroll();
 }
@@ -345,7 +332,7 @@ window.addEventListener('DOMContentLoaded', async event => {
     getUsername().then(function(res) {
         myPseudo = res;
         // Affichage du pseudo de l'utilisateur connecté
-        $(".mon-profil").text(myPseudo);
+        $("#username").text(myPseudo);
     });
 
     await renderConversations();
@@ -357,24 +344,39 @@ window.addEventListener('DOMContentLoaded', async event => {
         }
     });
 
+    // Link des boutons à leurs fonctions
+    $("#back-button").click(function() {
+      $("#partie-gauche").slideToggle("fast");
+    });
+
+    $("#logout-button").on("click", function (event) {
+      $('#logoutPopup').modal('show'); 
+    });
+    
+    $("#add-contact-button").on("click", openAddContactPopup);
+
 });
 
 
 /* -------------------- Menu d'ajout de conversation -------------------- */
-function ouvrirMenu() {
-    $("#text_ajout_contact").empty();
-    $("#menu_ajouter_conv").css("display", "grid");
-    $("#menu_deco").css("display", "none");
-}
 
-function fermerMenu() {
-    $("#menu_ajouter_conv").css("display", "none");
-}
+function openAddContactPopup(event) {
+  $("#addContactError").addClass("invisible");
+  $('#addContactPopup').modal('show');
 
-async function ajouterContact() {
+  $("#addContactConfirm").on("click", async function(e) {
+    e.preventDefault();
+
+    // Check si l'utilisateur a entré un pseudo
+    if ($("#addContactInput").val().length == 0) {
+      $("#addContactError").text("Veuillez entrer l'identifiant de l'utilisateur à qui vous souhaitez écrire.");
+      $("#addContactError").removeClass("invisible");
+      return;
+    }
+
     // POST Request 
-    const body = { username2: $("#entree_pseudo").val() };
-    $("#entree_pseudo").val("");
+    const body = { username2: $("#addContactInput").val() };
+    $("#addContactInput").val("");
     const res = await fetch('/api/chats/newConversation', {
         method: 'POST',
         body: JSON.stringify(body),
@@ -384,31 +386,23 @@ async function ajouterContact() {
     res.json().then(response => {
         if (response.status === 200) {
             socket.emit("newConversation", response.userId1, response.userId2);
+            $('#addContactPopup').modal('hide');
+            $("#addContactConfirm").off('click');
         } else {
-            $("#text_ajout_contact").text(response.error);
+            $("#addContactError").text(response.error);
+            $("#addContactError").removeClass("invisible");
         }
     }).catch(error => console.error('Error:', error))
-}
+  
+  });
+};
 
 socket.on("newConversation", () => {
-    fermerMenu();
     renderConversations();
-});
-
-socket.on("newConversationError", (error) => {
-    $("#text_ajout_contact").text(error);
 });
 
 /* -------------------- Menu de déconnexion -------------------- */
 
-function ouvrirDeconnexion() {
-    $("#menu_deco").css("display", "grid");
-    $("#menu_ajouter_conv").css("display", "none");
-}
-
-function fermerDeconnexion() {
-    $("#menu_deco").css("display", "none");
-}
 
 async function deconnexion() {
     try {
@@ -437,4 +431,52 @@ function accueilpage(){
     for (let i = 0; i < conversations.length; i++) {
         $(`contact-${i}`).removeClass("selected");
     }
+}
+
+
+function openChat(chat) {
+  for (let i = 0; i < conversations.length; i++) {
+    $(`#contact-${i}`).removeClass("selected");
+  }
+  $(`#contact-${chat.idcontact}`).addClass("selected");
+
+  // Affichage de la discussion sur la partie droite en cachant l'accueil
+  $("#accueil").addClass("hidden");
+  $("#footer").addClass("hidden");
+
+  $("#header-chat").removeClass("hidden");
+  $("#messages-chat").removeClass("hidden");
+  $("#reply-chat").removeClass("hidden");
+
+  // Si écran XS : retirer la partie gauche au clic sur un contact
+  if ($(window).width() < 768) {
+    // $("#partie-gauche").addClass("hidden");
+    $("#partie-gauche").slideToggle("fast"); // ToDo: faire un slide left/right (cf. jquery-ui easing)
+  };
+
+  // Afficher le nom du destinaire
+  activeConversationId = chat._id; // Set active conv ID
+  if (chat.userId1 == null)
+      $("#chat-name").text("[Discussions] – Canal général");
+  else if (chat.userId1.username == myPseudo)
+      $("#chat-name").text(chat.userId2.username);
+  else
+      $("#chat-name").text(chat.userId1.username);
+  
+  // Afficher les messages
+  renderMessages();
+}
+
+
+function openGeneralChat() {
+  for (let i = 0; i < conversations.length; i++) {
+    $(`#contact-${i}`).removeClass("selected");
+  }
+
+  conversations.forEach(conv => {
+    if (!("userId1" in conv)) {
+      openChat(conv);
+      return;
+    } 
+  });
 }

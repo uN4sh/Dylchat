@@ -8,136 +8,249 @@
 
     <title>Dylchat</title>
 
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <!-- Import the webpage's stylesheet -->
-    <link rel="stylesheet" href="../stylesheets/mainstyle.css" />
-    <link rel="stylesheet" href="../stylesheets/chatboxes.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="../stylesheets/homeBootstrap.css" />
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- JQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- Popper.js et Bootstrap 3.3.7.min.js -->
+    <script type='text/javascript'
+    src='https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js'></script>
+    <script src="https://netdna.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    
+    <!-- Socket.io -->
+    <script src="/socket.io/socket.io.js"></script>
 
     <!-- Import the webpage's javascript file -->
     <script src="../scripts/homeScript.js" defer></script>
-    <!-- JQuery -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <!-- Socket.io -->
-    <script src="/socket.io/socket.io.js"></script>
+
 </head>
 
 <body>
-    <div id="menu_ajouter_conv">
-        <label for="entree_pseudo">Créer une conversation avec :</label>
-        <p id="text_ajout_contact"></p>
-        <input type="text" id="entree_pseudo" placeholder="Pseudo de l'utilisateur...">
-        <button id="ajouter_conv" onclick="ajouterContact()">Ajouter</button>
-        <button id="fermer_menu" onclick="fermerMenu()">Fermer</button>
-    </div>
-
-    <div id="menu_deco">
-        <label for="title-deco">Voulez-vous vraiment vous déconnecter ?</label>
-        <button id="valider-deconnexion" onclick="deconnexion()">Valider</button>
-        <button id="annuler-deconnexion" onclick="fermerDeconnexion()">Annuler</button>
-    </div>
-
-    <div id="shadowbox">
-        <div class="partie-gauche">
-            <div class="header-gauche">
-                <h1 class="title">Rooms</h1>
-                <form id="newConvForm" action="/newConversation" method="post">
-                    <i class="icon clickable fa fa-plus rightplus" id="add-contact" aria-hidden="true" onclick="ouvrirMenu()"></i>
-                </form>
-            </div>
-
-
-            <div id="contact-list" class="contact-list">
-                <div id="contact-0" class="contact">
-                    <div class="grid-80-20">
-                        <p class="contact-title">title</p>
-                        <p class="message-hour">hour</p>
-                    </div>
-                    <p class="last-message">msg</p>
+    <!-- Pop-ups -->    
+    <div class="modal fade" id="logoutPopup" role="dialog">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <p>Voulez-vous vraiment vous déconnecter ?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-primary" onclick="deconnexion()">Déconnexion</button>
                 </div>
             </div>
-
-            <div class="footer-gauche">
-                <!-- <form id="deconnection" action="/logout" method="get"> -->
-                   <i class="icon clickable fa fa-home accueilpage fa-xl" id="accueilpage" aria-hidden="true" onclick="accueilpage()"></i>
-                <!-- </form> -->
-               <h1 class="mon-profil">Mon Profil</h1>
-                <form id="deconnection" action="/logout" method="get">
-                   <i class="icon clickable fa fa-sign-out trydeconnect fa-xl" id="try-deconn" aria-hidden="true" onclick="ouvrirDeconnexion()"></i>
-                </form>
-            </div>
-
         </div>
+    </div>
 
-        <main class="partie-droite">
-
-            <!-- Accueil -->
-            <div id="accueil">
-                <p class="text-menu">Clique sur une conversation pour commencer.</p>
-                <break />
-                <p class="text-menu">Tu peux aussi <span class="text-link-blue" onclick="ouvrirMenu()">ajouter un contact</span> ou <span class="text-link-blue">démarrer une discussion</span>.</p>
-
-            </div>
-
-
-
-
-            <!-- Nouvelles chatboxes -->
-            <section id="chat" class="chat hidden">
-                <div class="header-chat">
-                    <i class="icon fa fa-user-o" aria-hidden="true"></i>
-                    <p id="chat-name" class="name">None</p>
-                    <i class="icon clickable fa fa-ellipsis-h right" aria-hidden="true"></i>
+    <div class="modal fade" id="addContactPopup" role="dialog">
+        <div class="modal-dialog ">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title fw-bold">Ajouter une conversation<h4>
                 </div>
 
-                <div id="messages-chat" class="messages-chat">
-
-                    <!-- <div class="message">
-            <div class="photo" style="background-image: url(https://i.imgur.com/acykxOt.jpg);">
-              <div class="online"></div>
+                <div class="modal-body">
+                    <form class="form-inline">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <div class="input-group-addon">@</div>
+                                <input type="text" class="form-control" id="addContactInput" placeholder="Pseudo">
+                            </div>
+                        </div>
+                        <button id="addContactConfirm" type="submit" class="btn btn-primary">Ajouter</button>
+                    </form>
+                    <small id="addContactError" class="form-text text-danger fw-bold invisible">A room name is required to create a room.</small>
+                </div>
             </div>
-            <p class="text"> Salut ! </p>
-          </div> -->
+        </div>
+    </div>
 
-                    <div class="message">
-                        <p class="username"> Dylan </p>
-                    </div>
-                    <div class="message text-only">
-                        <p class="text"> Hello! </p>
-                    </div>
+    
+    <!-- Fin pop-ups -->
 
-                    <div class="message text-only">
-                        <p class="text"> Ça va bien toi toi ? </p>
-                    </div>
-                    <div class="message">
-                        <p class="time"> 14h58</p>
-                    </div>
-                    <div class="space"></div>
+    <div class="container app">
+        <div class="row app-one">
+            
+            <div id="partie-gauche" class="col-sm-4 side"> <!-- Partie gauche -->
+                <div class="side-one"> <!-- Side One  -->
+                    
+                    <div class="row heading-left">
+                        <div class="col-sm-6 col-xs-6 heading-left-name">
+                            <span class="heading-left-name-meta">Rooms</span>
+                        </div>
+                        <div class="col-sm-1 col-xs-1"></div>
 
+                        <div id="add-contact-button" class="col-sm-1 col-xs-1 heading-plus pull-right">
+                            <i class="fa fa-plus" aria-hidden="true"></i>
+                        </div>
 
-                    <div class="message">
-                        <p class="username"> Elyn </p>
-                    </div>
-                    <div class="message text-only">
-                        <div class="response">
-                            <p class="text"> ??? </p>
+                        <div class="col-sm-1 col-xs-1 heading-search pull-right">
+                            <i class="fa fa-search" aria-hidden="true"></i>
                         </div>
                     </div>
-                    <div class="message">
-                        <p class="time"> 15h04</p>
+
+                    <!-- <div class="row searchBox">
+                        <div class="col-sm-12 searchBox-inner">
+                            <div class="form-group has-feedback">
+                                <input id="searchText" type="text" class="form-control" name="searchText"
+                                    placeholder="Search">
+                                <span class="glyphicon glyphicon-search form-control-feedback"></span>
+                            </div>
+                        </div>
+                    </div> -->
+
+
+                    <div id="contact-list" class="row sideBar"> <!-- Liste de contacts -->
+                    
+                        <div id="contact-0" class="row sideBar-body">
+                            <div class="sideBar-main">
+                                <div class="row">
+                                    <div class="col-sm-8 col-xs-8 sideBar-name">
+                                        <span class="name-meta">[Discussions]</span>
+                                    </div>
+                                    <div class="col-sm-4 col-xs-4 pull-right sideBar-time">
+                                        <span class="time-meta pull-right">18:18</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="sideBar-main">
+                                <div class="row">
+                                    <div class="col-sm-12 col-xs-12 sideBar-lastMessage">
+                                        <span class="lastMessage-meta">Dylan: Ouais les gars</span>
+                                    </div> 
+                                </div>
+                            </div>
+                        </div>
+
+                    </div> <!-- Fin liste de contacts -->
+
+                    <div class="row footer-gauche">
+                        
+                        <div class="col-sm-2 col-xs-2 footer-accueil" onclick="accueilpage()">
+                            <i class="fa fa-home fa-xl" aria-hidden="true"></i>
+                        </div>
+                        
+                        <div class="col-sm-8 col-xs-8 footer-username">
+                            <span id="username">Mon Profil</span>
+                        </div>
+
+                        <div id="logout-button" class="col-sm-2 col-xs-2 footer-logout">
+                           <i class="fa fa-sign-out fa-xl" aria-hidden="true"></i>
+                        </div>
+
                     </div>
 
+                </div> <!-- Fin Side One  -->
+
+            </div> <!-- Fin partie gauche -->
+
+
+
+            <div id="partie-droite" class="col-sm-8 conversation"> <!-- Début partie droite -->
+
+                
+
+                <!-- Accueil -->
+                <div id="accueil" class="row accueil-body">
+                    <div class="accueil-main">
+                        <p class="text-menu">Clique sur une conversation pour commencer.</p>
+                        <break />
+                        <p class="text-menu">
+                            Tu peux aussi <span class="text-link-blue" onclick="openAddContactPopup()">ajouter un contact</span> ou <span class="text-link-blue" onclick="openGeneralChat()">rejoindre les Grandes Discussions</span> !
+                        </p>
+                    </div>
+                </div> 
+
+                <div id="footer" class="row footer-body">
+                    <div class="footer-main">
+                        <p class="text-menu">Dylchat – Where everything starts</p>
+                    </div>
                 </div>
 
-                <div class="footer-chat">
-                    <input id="chat-box" type="text" class="write-message" placeholder="Écris ici ton message" /></input>
-                    <i id="send" class="icon send fa fa-paper-plane-o clickable" aria-hidden="true" onclick="sendMessage()"></i>
-                </div>
 
+                <div id="header-chat" class="row heading hidden"> <!-- header de conversation --> 
+                    <!-- Bouton retour qui s'affiche uniquement en dessous de sm -->
+                    <div id="back-button" class="hidden-sm hidden-md hidden-lg col-sm-2 col-xs-1 heading-dot">
+                        <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                    </div>
+
+                    <div class="col-sm-2 col-md-1 col-xs-1 heading-avatar">
+                        <i class="fa fa-user-o" aria-hidden="true"></i>
+                    </div>
+
+                    <div class="col-sm-8 col-xs-7 heading-name">
+                        <span id="chat-name" class="heading-name-meta">Elyn</span>
+                        <span class="heading-online">Online</span>
+                    </div>
+                    <div class="col-sm-1 col-xs-1 heading-dot pull-right">
+                        <i class="fa fa-ellipsis-h right" aria-hidden="true"></i>
+                    </div>
+                </div> <!-- fin header de conversation --> 
+
+
+                <div id="messages-chat" class="row message hidden"> <!-- Conteneur des messages -->
+
+                    <div class="row message-body">
+                        <div class="message-main">
+                            <span class="message-date">01/20/2022</span>
+                        </div>
+                    </div>
+
+                    <div class="row message-body">
+                        <div class="col-sm-12 message-main-receiver">
+                            <span id="chat-username-0" class="message-nick">Elyn</span>
+                            <div class="receiver">
+                                <div class="message-text">
+                                    Hi, what are you doing?! Comment ça se passe quand le message est trop long ?
+                                </div>
+                                <span class="message-time pull-right">
+                                    17:21
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row message-body">
+                        <div class="col-sm-12 message-main-sender">
+                            <span id="chat-username-0" class="message-nick pull-right">Moi</span>
+                            <div class="sender">
+                                <div class="message-text">
+                                    I am doing nothing man! Visiblement ça se passe bien, tout est carré !
+                                </div>
+                                <span class="message-time pull-right">
+                                    17:23
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+             
+
+                </div> <!-- Fin messages -->
+                
+
+                <div id="reply-chat" class="row reply hidden"> <!-- Barre d'envoi de message -->
+                    <div class="col-sm-9 col-xs-9 reply-main">
+                        <input id="chat-box" type="text" class="write-message" placeholder="Écris ici ton message" /></input>
+                    </div>
+                    <!-- <div class="col-sm-1 col-xs-1 reply-send">
+                        <i class="fa fa-image fa-2x" aria-hidden="true"></i>
+                    </div> -->
+                    <div class="col-sm-2 col-xs-2 reply-send">
+                        <i id="send" class="fa fa-paper-plane-o" aria-hidden="true" onclick="sendMessage()"></i>
+                    </div>
+                </div> <!-- Fin barre d'envoi de message -->
             </section>
 
-            <footer id="footer">Dylchat – Where everything starts</footer>
-        </main>
-    </div>
-</body>
+            </div> <!-- Fin partie droite-->
+        
+        </div> <!-- Fin app one -->
+    </div> <!-- Fin container app -->
 
+</body>
 </html>
