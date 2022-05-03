@@ -1,46 +1,19 @@
-let password_input = document.getElementById("passwordSignup");
-let box1 = document.getElementById("strenght_password_box_1");
-let box2 = document.getElementById("strenght_password_box_2");
-let box3 = document.getElementById("strenght_password_box_3");
-
-let strongPassword = new RegExp('(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{8,})');
-let mediumPassword = new RegExp('((?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{6,}))|((?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9])(?=.{8,}))|((?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,}))');
-
-function StrengthChecker(PasswordParameter) {
-    if (strongPassword.test(PasswordParameter)) {
-        box1.style.backgroundColor = "green";
-        box2.style.backgroundColor = "green";
-        box3.style.backgroundColor = "green";
-    } else if (mediumPassword.test(PasswordParameter)) {
-        box1.style.backgroundColor = "orange";
-        box2.style.backgroundColor = "orange";
-        box3.style.backgroundColor = "gray";
-    } else if (PasswordParameter == '') {
-        box1.style.backgroundColor = "gray";
-        box2.style.backgroundColor = "gray";
-        box3.style.backgroundColor = "gray";
-    } else {
-        box1.style.backgroundColor = "red";
-        box2.style.backgroundColor = "gray";
-        box3.style.backgroundColor = "gray";
-    }
-}
-
-// Ajoute un événement sur l'input pour vérifier la rigidité du mot de passe après que l'utilisateur l'ait tapé
-password_input.addEventListener("input", () => {
-    StrengthChecker(password_input.value);
-});
 
 var switchLoginForm = function(e) {
-    let exActive = document.querySelector(".login.active");
-    exActive.classList.remove("active");
-    exActive.classList.add("inactive");
+    
+    if (e && "login-active" in e.currentTarget.classList) {
+        return;
+    }
 
-    e.currentTarget.classList.remove("inactive");
-    e.currentTarget.classList.add("active");
-
-    let inactive = document.querySelector(".login.inactive");
-    inactive.addEventListener("click", switchLoginForm, true);
+    let exActive = document.querySelector(".login-active");
+    let exInactive = document.querySelector(".login-inactive");
+    exActive.classList.remove("login-active");
+    exActive.classList.add("login-inactive");
+    exActive.addEventListener("click", switchLoginForm, true);
+    
+    exInactive.classList.remove("login-inactive");
+    exInactive.classList.add("login-active");
+    exInactive.removeEventListener("click", switchLoginForm, true);
 
     // Enlever le required des formulaires
     let usernameLogin = document.getElementById("usernameLogin");
@@ -63,8 +36,8 @@ var switchLoginForm = function(e) {
     }
 
     // Remplaçage du formulaire
-    let hiddenForm = document.querySelector(".log-form.hidden");
-    let activeForm = document.querySelector(".log-form.visible");
+    let hiddenForm = document.querySelector(".log-form-container.hidden");
+    let activeForm = document.querySelector(".log-form-container.visible");
     activeForm.classList.remove("visible");
     activeForm.classList.add("hidden");
     hiddenForm.classList.remove("hidden");
@@ -90,61 +63,112 @@ var printErrorLoginForm = function(res) {
     }
 }
 
-let inactive = document.querySelector(".login.inactive");
-inactive.addEventListener("click", switchLoginForm, true);
-
-
-// Send login-form manually
-let loginform = document.querySelector("#login-form")
-loginform.addEventListener('submit', async(e) => {
-
-    let body = {
-        usernameLogin: loginform.elements.usernameLogin.value,
-        passwordLogin: loginform.elements.passwordLogin.value
+function updateWindow() {
+    if ($(window).width() < 770) {
+        $("#partie-gauche").slideUp("slow"); 
     }
+    else {
+        $("#partie-gauche").slideDown("fast");//css("display", "block-inline;");
+    };
+}
 
-    e.preventDefault();
+window.addEventListener('DOMContentLoaded', async event => {
 
-    const res = await fetch('/api/users/login', {
-        method: 'POST',
-        body: JSON.stringify(body),
-        headers: { 'Content-Type': 'application/json' }
+    updateWindow();
+    window.addEventListener('resize', updateWindow);
+    
+
+    document.querySelector("#se-connecter").addEventListener("click", switchLoginForm, true);
+    document.querySelector("#s-inscrire").addEventListener("click", switchLoginForm, true);
+
+
+    // Send login-form manually
+    let loginform = document.querySelector("#login-form")
+    loginform.addEventListener('submit', async(e) => {
+
+        let body = {
+            usernameLogin: loginform.elements.usernameLogin.value,
+            passwordLogin: loginform.elements.passwordLogin.value
+        }
+
+        e.preventDefault();
+
+        const res = await fetch('/api/users/login', {
+            method: 'POST',
+            body: JSON.stringify(body),
+            headers: { 'Content-Type': 'application/json' }
+        })
+
+        const data = res.json();
+        data.then(response => {
+            if (response.status === 200) {
+                window.location = response.redirect;
+            } else {
+                // ToDo: print errors
+                printErrorLoginForm(response)
+            }
+        }).catch(error => console.error('Error:', error))
     })
 
-    const data = res.json();
-    data.then(response => {
-        if (response.status === 200) {
-            window.location = response.redirect;
-        } else {
-            // ToDo: print errors
-            printErrorLoginForm(response)
+    // Send register-form manually
+    let registerform = document.querySelector("#register-form")
+    registerform.addEventListener('submit', async(e) => {
+        
+        let body = {
+            usernameSignup: registerform.elements.usernameSignup.value,
+            passwordSignup: registerform.elements.passwordSignup.value
         }
-    }).catch(error => console.error('Error:', error))
-})
+        console.log("register", body);
 
-// Send register-form manually
-let registerform = document.querySelector("#register-form")
-registerform.addEventListener('submit', async(e) => {
+        e.preventDefault();
 
-    let body = {
-        usernameSignup: registerform.elements.usernameSignup.value,
-        passwordSignup: registerform.elements.passwordSignup.value
-    }
+        const res = await fetch('/api/users/register', {
+            method: 'POST',
+            body: JSON.stringify(body),
+            headers: { 'Content-Type': 'application/json' }
+        })
 
-    e.preventDefault();
-
-    const res = await fetch('/api/users/register', {
-        method: 'POST',
-        body: JSON.stringify(body),
-        headers: { 'Content-Type': 'application/json' }
+        const data = res.json();
+        data.then(response => {
+            if (response.status === 201) {
+                window.location = response.redirect;
+            } else {
+                printErrorLoginForm(response)
+            }
+        }).catch(error => console.error('Error:', error))
     })
 
-    const data = res.json();
-    data.then(response => {
-        if (response.status === 201) {
-            window.location = response.redirect;
+    let password_input = document.getElementById("passwordSignup");
+    let box1 = document.getElementById("strenght_password_box_1");
+    let box2 = document.getElementById("strenght_password_box_2");
+    let box3 = document.getElementById("strenght_password_box_3");
+
+    let strongPassword = new RegExp('(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{8,})');
+    let mediumPassword = new RegExp('((?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{6,}))|((?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9])(?=.{8,}))|((?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,}))');
+
+    function StrengthChecker(PasswordParameter) {
+        if (strongPassword.test(PasswordParameter)) {
+            box1.style.backgroundColor = "green";
+            box2.style.backgroundColor = "green";
+            box3.style.backgroundColor = "green";
+        } else if (mediumPassword.test(PasswordParameter)) {
+            box1.style.backgroundColor = "orange";
+            box2.style.backgroundColor = "orange";
+            box3.style.backgroundColor = "gray";
+        } else if (PasswordParameter == '') {
+            box1.style.backgroundColor = "gray";
+            box2.style.backgroundColor = "gray";
+            box3.style.backgroundColor = "gray";
         } else {
-            printErrorLoginForm(response)
+            box1.style.backgroundColor = "red";
+            box2.style.backgroundColor = "gray";
+            box3.style.backgroundColor = "gray";
         }
-    }).catch(error => console.error('Error:', error))
-})
+    }
+
+    // Ajoute un événement sur l'input pour vérifier la rigidité du mot de passe après que l'utilisateur l'ait tapé
+    password_input.addEventListener("input", () => {
+        StrengthChecker(password_input.value);
+    });
+
+});

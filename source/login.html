@@ -8,105 +8,135 @@
 
     <title>Dylchat</title>
 
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <!-- Import the webpage's stylesheet -->
-    <link rel="stylesheet" href="../stylesheets/mainstyle.css" />
+    <link rel="stylesheet" href="../stylesheets/homeBootstrap.css" />
     <link rel="stylesheet" href="../stylesheets/loginPage.css" />
-
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <!-- JQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- Popper.js et Bootstrap 3.3.7.min.js -->
+    <script type='text/javascript'
+    src='https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js'></script>
+    <script src="https://netdna.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    
+    <!-- Socket.io -->
+    <script src="/socket.io/socket.io.js"></script>
 
-    <!-- Import the webpage's javascript file -->
-    <script src="../scripts/loginPage.js" defer></script>
+    <!-- ToDo Import the webpage's javascript file -->
+    <script src="../scripts/loginPage.js"></script>
+    
 </head>
 
 <body>
     <!-- Frame principale de l'application -->
-    <div id="shadowbox">
-        <aside class="partie-gauche">
-            <img src="https://cdn.glitch.global/42e33cd0-7279-4ff4-bbdf-b2e87b5fb08b/logo.jpeg?v=1647381849949" class="logo" />
-            <p id="texte-intro"> Bienvenue sur Dylchat, messagerie sécurisée. </p>
-            <p id="texte-intro"> On vous observe... </p>
-        </aside>
-
-        <main class="partie-droite">
-
-            <div class="logo-title">
-                <img src="https://cdn.glitch.global/42e33cd0-7279-4ff4-bbdf-b2e87b5fb08b/logo2.jpeg?v=1647381921310" class="imageflottante" />
-                <h2 class="Dylchat-title">Dylchat</h2>
-            </div>
-
-            <!-- Boutons Connexion / S'inscrire -->
-            <div class="login-container">
-                <span id="connexion" class="login left active">
-                    Se connecter
-                </span>
-                <span id="connexion" class="login"> | </span>
-                <span id="connexion" class="login inactive"> S'inscrire </span>
-            </div>
-
-            <!-- Formulaire de connexion -->
-            <div class="log-form visible">
-                <!-- <form id="login-form" action="/login" method="post"> -->
-                <h1>Connexion</h1>
-                <form id="login-form">
-                    <div class="input-container">
-                        <input type="text" id="usernameLogin" name="usernameLogin" required="" />
-                        <label>Identifiant</label>
-
-                        <i class="text-red hidden" id="errorLoginID" aria-hidden="true">Invalid Credentials</i>
-
+    <div class="container app">
+        <div class="row app-one">
+    
+            <div id="partie-gauche" class="col-sm-4 side">
+                <div class="side-one">
+                    <div class="row side-spacer-1"></div>
+                    <div class="row side-logo-container">
+                        <img src="https://cdn.glitch.global/42e33cd0-7279-4ff4-bbdf-b2e87b5fb08b/logo.jpeg?v=1647381849949"/>
                     </div>
-                    <div class="input-container">
-                        <input type="password" id="passwordLogin" name="passwordLogin" required="" />
-                        <label>Mot de passe</label>
-
-                        <i class="text-red hidden" id="errorLoginPwd" aria-hidden="true">Invalid Credentials</i>
-
+                    <div class="row side-spacer-2"></div>
+                    <div class="row side-text-container">
+                        <p class="side-text-meta">Bienvenue sur Dylchat, messagerie sécurisée.</p>
                     </div>
-                    <div class="bouton-connexion">
-                        <button class="btn-connect" role="button">Connexion</button>
+                    <div class="row side-text-container">
+                        <p class="side-text-meta" style="color: #555">On vous observe...</p>
                     </div>
-                </form>
-            </div>
+                </div>
+            </div> <!-- Fin partie gauche -->
 
-            <!-- Formulaire d'inscription -->
-            <div class="log-form hidden">
-                <!-- <form action="/register" method="post"> -->
-                <h1>Inscription</h1>
-                <form id="register-form">
-                    <div class="input-container">
-                        <input type="text" id="usernameSignup" name="usernameSignup" />
-                        <label>Identifiant</label>
+            
+            <div class="col-sm-8 conversation">
+                <div class="row logo-title">
+                    <img src="https://cdn.glitch.global/42e33cd0-7279-4ff4-bbdf-b2e87b5fb08b/logo2.jpeg?v=1647381921310" />
+                    <p class="dylchat-title">Dylchat</p>
+                </div>
 
-                        <i class="text-red hidden" id="errorRegister" aria-hidden="true">Username Already Exist. Please Login</i>
-
+                <!-- Boutons Connexion / S'inscrire -->
+                <div class="row login-container">
+                    <div class="col-sm-12 login">
+                        <span id="se-connecter" class="login-text login-active">Se connecter</span>
+                    
+                        <span class="login-text">|</span>
+            
+                        <span id="s-inscrire" class="login-text login-inactive"> S'inscrire </span>
                     </div>
-                    <!-- <div class="input-container">
-                        <input type="email" id="emailSignup" name="emailSignup" />
-                        <label>Adresse mail</label>
-                    </div> -->
-                    <div class="input-container">
-                        <input type="password" id="passwordSignup" name="passwordSignup" />
-                        <label>Mot de passe</label>
-                        <div id="strenght_password">
-                            <div id="strenght_password_box_1"></div>
-                            <div id="strenght_password_box_2"></div>
-                            <div id="strenght_password_box_3"></div>
+                </div>
+
+                <!-- Formulaire de connexion -->
+                <div class="row log-form-container visible">
+                    
+                    <form id="login-form" class="log-form">
+                        <div class="input-container">
+                            <input type="text" id="usernameLogin" name="usernameLogin" required="" />
+                            <label>Identifiant</label>
+    
+                            <i class="text-red hidden" id="errorLoginID" aria-hidden="true">Invalid Credentials</i>
+    
                         </div>
-                    </div>
-                    <div class="bouton-connexion">
-                        <button class="btn-connect" role="button">S'inscrire</button>
-                    </div>
-                    <div id="password_conseil"><b>Conseil :</b> un mot de passe <u>robuste</u> contient des lettres minuscules et majuscules, des caractères spéciaux et des chiffres. Nous vous conseillons d'écrire un mot de passe d'au moins 8 caractères</div>
-                    <!-- <p>Conseil : un mot de passe <u>robuste</u> contient des lettres minuscules et majuscules, des caractères spéciaux et des chiffres. Nous vous conseillons d'écir un mot de passe d'au moins 8 caractères.</p> -->
-                </form>
-            </div>
+                        <div class="input-container">
+                            <input type="password" id="passwordLogin" name="passwordLogin" required="" />
+                            <label>Mot de passe</label>
+    
+                            <i class="text-red hidden" id="errorLoginPwd" aria-hidden="true">Invalid Credentials</i>
+    
+                        </div>
+                        <div class="bouton-text-container">
+                            <div class="bouton-connexion">
+                                <button class="btn-connect" role="button">Connexion</button>
+                            </div>
+                            <p class="text-connect gray">Pas encore de compte ?</p>
+                            <p class="text-connect text-link-blue" onclick="switchLoginForm()">S'inscrire</p>
+                        </div>
+                    </form>
 
-            <!-- Footer -->
-            <footer>Dylchat – Where everything starts</footer>
-        </main>
+                </div>
+
+                <!-- Formulaire d'inscription -->
+                <div class="row log-form-container hidden">
+                    
+                    <form id="register-form" class="log-form">
+                        <div class="input-container">
+                            <input type="text" id="usernameSignup" name="usernameSignup" required="" />
+                            <label>Identifiant</label>
+    
+                            <i class="text-red hidden" id="errorRegister" aria-hidden="true">Username Already Exist. Please Login</i>
+    
+                        </div>
+                        <div class="input-container">
+                            <input type="password" id="passwordSignup" name="passwordSignup" required="" />
+                            <label>Mot de passe</label>
+                        </div>
+
+                       
+                        <div class="strenght-password-container">
+                                <div id="strenght_password_box_1" class="strenght-password-bar"></div>
+                                <div id="strenght_password_box_2" class="strenght-password-bar"></div>
+                                <div id="strenght_password_box_3" class="strenght-password-bar"></div>
+                        </div>
+                        
+                        <div class="bouton-text-container">
+                            <div class="bouton-connexion">
+                                <button class="btn-connect" role="button">S'inscrire</button>
+                            </div>
+                            <p class="text-connect gray">Déjà inscrit ?</p>
+                            <p class="text-connect text-link-blue" onclick="switchLoginForm()">Se connecter</p>
+                        </div>
+                        <div id="password_conseil"><b>Conseil :</b> un mot de passe <u>robuste</u> contient des lettres minuscules et majuscules, des caractères spéciaux et des chiffres. Nous vous conseillons d'écrire un mot de passe d'au moins 8 caractères</div>
+                    </form>
+
+                </div>
+
+            </div> <!-- Fin partie droite -->
+        </div>
     </div>
 
 </body>
-
-</html>
