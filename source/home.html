@@ -47,25 +47,64 @@
         </div>
     </div>
 
-    <div class="modal fade" id="addContactPopup" role="dialog">
+    <div class="modal fade" id="addContactPopup" data-keyboard="true" role="dialog">
         <div class="modal-dialog ">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                     <h4 class="modal-title fw-bold">Ajouter une conversation<h4>
                 </div>
-
+                
                 <div class="modal-body">
-                    <form class="form-inline">
+                    <form>
                         <div class="form-group">
                             <div class="input-group">
                                 <div class="input-group-addon">@</div>
                                 <input type="text" class="form-control" id="addContactInput" placeholder="Pseudo">
                             </div>
                         </div>
-                        <button id="addContactConfirm" type="submit" class="btn btn-primary">Ajouter</button>
+
+                        <div class="form-group">
+                            <button id="openEndToEndPopup" type="button" class="btn btn-default">🔒 Conversation chiffrée</button>
+                            <button id="addContactConfirm" type="submit" class="btn btn-primary">Ajouter sans chiffrement</button>
+                        </div>
+
                     </form>
-                    <small id="addContactError" class="form-text text-danger fw-bold invisible">A room name is required to create a room.</small>
+                    <small id="addContactError" class="form-text text-danger fw-bold invisible">Error placeholder</small>
+
+                </div> <!-- Fin modal body -->
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="diffieHellmanPopup" role="dialog">
+        <div class="modal-dialog ">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <!-- <button type="button" class="close" data-dismiss="modal">&times;</button> -->
+                    <h4 class="modal-title fw-bold">🔒 Créer une conversation chiffrée <span class="gray">– Échange de clés Diffie-Hellman authentifié</span><h4>
+                </div>
+                
+                <div class="modal-body">
+                    <h5 id="otherUserDFProgress" class="form-text text-primary fw-bold">En attente de ...</h5>
+                    <form>
+                        <div class="form-group">
+                            <div class="input-group">
+                                <div class="input-group-addon">#</div>
+                                <input type="text" class="form-control" id="publicKeyInput" placeholder="Clé publique">
+                            </div>
+                            <div class="input-group">
+                                <div class="input-group-addon">#</div>
+                                <input type="text" class="form-control" id="privateKeyInput" placeholder="Clé privée">
+                            </div>
+                        </div>
+                        <!-- ToDo: ajouter les champs nécessaires au Diffie-Hellman -->
+                        <button id="cancelDiffieHellman" type="submit" class="btn btn-default">Annuler le protocole</button>
+                        <button id="readyDiffieHellman" type="submit" class="btn btn-primary">Je suis prêt</button>
+                    </form>
+                    <small id="diffieHellmanError" class="form-text text-danger fw-bold invisible">Error placeholder</small>
+                    
                 </div>
             </div>
         </div>

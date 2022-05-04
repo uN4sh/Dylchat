@@ -361,45 +361,109 @@ window.addEventListener('DOMContentLoaded', async event => {
 /* -------------------- Menu d'ajout de conversation -------------------- */
 
 function openAddContactPopup(event) {
-  $("#addContactError").addClass("invisible");
-  $('#addContactPopup').modal('show');
+    $("#addContactError").addClass("invisible");
+    $('#addContactPopup').modal('show');
 
-  $("#addContactConfirm").on("click", async function(e) {
-    e.preventDefault();
+    // Bouton confirmer la conversation non chiffrée
+    $("#addContactConfirm").on("click", async function(e) {
+        e.preventDefault();
 
-    // Check si l'utilisateur a entré un pseudo
-    if ($("#addContactInput").val().length == 0) {
-      $("#addContactError").text("Veuillez entrer l'identifiant de l'utilisateur à qui vous souhaitez écrire.");
-      $("#addContactError").removeClass("invisible");
-      return;
-    }
+        // Check si l'utilisateur a entré un pseudo
+        if ($("#addContactInput").val().length == 0) {
+            $("#addContactError").text("Veuillez entrer l'identifiant de l'utilisateur à qui vous souhaitez écrire.");
+            $("#addContactError").removeClass("invisible");
+            return;
+        }
 
-    // POST Request 
-    const body = { username2: $("#addContactInput").val() };
-    $("#addContactInput").val("");
-    const res = await fetch('/api/chats/newConversation', {
-        method: 'POST',
-        body: JSON.stringify(body),
-        headers: { 'Content-Type': 'application/json' }
+        // POST Request 
+        const body = { username2: $("#addContactInput").val() };
+        $("#addContactInput").val("");
+        const res = await fetch('/api/chats/newConversation', {
+            method: 'POST',
+            body: JSON.stringify(body),
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        res.json().then(response => {
+            if (response.status === 200) {
+                socket.emit("newConversation", response.userId1, response.userId2);
+                $('#addContactPopup').modal('hide');
+                $("#addContactConfirm").off('click');
+            } else {
+                $("#addContactError").text(response.error);
+                $("#addContactError").removeClass("invisible");
+            }
+        }).catch(error => console.error('Error:', error))
     });
 
-    res.json().then(response => {
-        if (response.status === 200) {
-            socket.emit("newConversation", response.userId1, response.userId2);
-            $('#addContactPopup').modal('hide');
-            $("#addContactConfirm").off('click');
-        } else {
-            $("#addContactError").text(response.error);
+    // Bouton Conversation chiffrée
+    $('#openEndToEndPopup').on('click', async function(e) {
+        e.preventDefault();
+
+        // Check si l'utilisateur a entré un pseudo
+        if ($("#addContactInput").val().length == 0) {
+            $("#addContactError").text("Veuillez entrer l'identifiant de l'utilisateur à qui vous souhaitez écrire.");
             $("#addContactError").removeClass("invisible");
+            return;
         }
-    }).catch(error => console.error('Error:', error))
-  
-  });
+
+        // POST Request 
+        const body = { username2: $("#addContactInput").val() };
+        // $("#addContactInput").val("");
+        const res = await fetch('/api/chats/isDiffieHellmanable', {
+            method: 'POST',
+            body: JSON.stringify(body),
+            headers: { 'Content-Type': 'application/json' }
+        });
+        
+        res.json().then(response => {
+            if (response.status === 200) {
+                $("#addContactInput").val("");
+                $('#openEndToEndPopup').off('click');
+                $('#addContactPopup').modal('hide');
+                processDiffieHellman(response); 
+            } else {
+                $("#addContactError").text(response.error);
+                $("#addContactError").removeClass("invisible");
+            }
+        }).catch(error => console.error('Error:', error))  
+    });
+
 };
 
 socket.on("newConversation", () => {
     renderConversations();
 });
+
+/* -------------------- Diffie-Hellman -------------------- */
+
+function processDiffieHellman(data) {
+    $('#diffieHellmanPopup').modal({
+        backdrop: 'static',
+        keyboard: false
+    })
+    // ToDo: trouver un moyen de prévenir l'utilisateur que si il quitte, le protocole s'annule (et emit un cancelDiffieHellman)
+    $('#diffieHellmanPopup').modal('show');
+    $('#otherUserDFProgress').text(`En attente de ${data.user2}...`);
+
+    // ToDo: si les clés sont déjà renseignées: les écrire dans publicKeyInput et privateKeyInput 
+
+    // ToDo: Notifier l'utilisateur 2
+    socket.emit("createDiffieHellman", data.userId1, data.userId2);
+
+    $('#cancelDiffieHellman').on('click', function(e) {
+        socket.emit("cancelDiffieHellman", data.userId1, data.userId2); // ToDo: cancelDiffieHellman
+        $('#diffieHellmanPopup').modal('hide');
+        return;
+    });
+
+    $('#readyDiffieHellman').on('click', function(e) {
+        socket.emit("readyDiffieHellman", data.userId1, data.userId2); // ToDo: readyDiffieHellman
+    });
+
+    // ToDo: reste du Diffie Hellman
+}
+
 
 /* -------------------- Menu de déconnexion -------------------- */
 
