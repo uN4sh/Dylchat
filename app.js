@@ -91,7 +91,8 @@ io.on('connection', async (socket) => {
         await Conversation.create({
             userId1: null,
             userId2: null,
-            lastMessageId: null
+            lastMessageId: null,
+            encrypted: false
         });
     }
 

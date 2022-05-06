@@ -275,6 +275,36 @@ body {
   margin: 0 !important;
 }
 
+.sideBar-alert-body {
+  position: relative;
+  padding: 10px !important;
+  margin: 0 !important;
+  
+  background: rgb(4, 41, 58);
+  /* border-bottom: 0.25px solid #565656; */
+}
+
+.sideBar-main-alert {
+  padding: 0 !important;
+}
+
+.sideBar-main-alert .row {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.sideBar-alert {
+  width: 100%;
+  text-align: center;
+  /* padding: 10px !important; */
+}
+
+.alert-meta {
+  font-size: 1.2em;
+  padding: 1% !important;
+  color: white;
+}
+
 .sideBar-name {
   padding: 10px !important;
   
@@ -764,7 +794,7 @@ body {
     padding: 1% !important;
     text-align: left;
     color: #888888;
-    
+
   }
 
 

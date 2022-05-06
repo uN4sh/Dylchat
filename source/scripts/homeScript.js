@@ -62,7 +62,8 @@ let myPseudo = "Random";
 let activeConversationId;
 let messagesDict = {};
 let conversations = Array();
-
+let encryptedChats = Array();
+let AESKeys = Array();
 
 /*
 var http = location.href.split(":")[0];
@@ -122,7 +123,8 @@ function convertTimestampToDate(timestamp) {
 
 async function renderConversations() {
     await getConversations().then(async function(res) {
-        conversations = res.conversation;
+        conversations = res.chats;
+        encryptedChats = res.encrypted;
         if (!conversations)
             return;
     
@@ -196,17 +198,29 @@ async function renderConversations() {
                     $(`#contact-message-${i}`).text("Nouvelle conversation");
                     $(`#contact-hour-${i}`).text("-")
                 }
-                
-                // Tronquer le message si trop long pour affichage
-                // if ($(`#contact-message-${i}`).text().length > 25){
-                //     $(`#contact-message-${i}`).text($(`#contact-message-${i}`).text().substring(0, 25));
-                //     $(`#contact-message-${i}`).text($(`#contact-message-${i}`).text().concat("..."));
-                // }
             }
-    
+
             // Ajout des évènements au clic sur contact
             for (let i = 0; i < conversations.length; i++) {
                 $(`#contact-${i}`).on("click", selectContact);
+            }
+
+            // ToDo: remplacer le check pour savoir si il reste encore des conversations non déchiffrées
+            if (encryptedChats && !AESKeys.length) { // ToDo: à remplacer par if(encryptedChats.length
+                $("#contact-list").append(`
+                <div class="row sideBar-alert-body">
+                    <div class="sideBar-main-alert">
+                        <div class="row">
+                            <div class="col-sm-8 col-xs-8 sideBar-alert">
+                                <span class="alert-meta"> 🔒 Vous avez ${encryptedChats.length} conversation(s) chiffrée(s) </span>
+                            </div>
+                            <div class="col-sm-8 col-xs-8 sideBar-alert">
+                                <span class="alert-meta text-link-blue" onclick="AESKeysPopup()"> Cliquer ici pour les déverrouiller </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                `);
             }
         })
     });
@@ -452,21 +466,44 @@ function processDiffieHellman(data) {
     socket.emit("createDiffieHellman", data.userId1, data.userId2);
 
     $('#cancelDiffieHellman').on('click', function(e) {
+        e.preventDefault();
         socket.emit("cancelDiffieHellman", data.userId1, data.userId2); // ToDo: cancelDiffieHellman
         $('#diffieHellmanPopup').modal('hide');
         return;
     });
 
     $('#readyDiffieHellman').on('click', function(e) {
+        e.preventDefault();
         socket.emit("readyDiffieHellman", data.userId1, data.userId2); // ToDo: readyDiffieHellman
     });
 
     // ToDo: reste du Diffie Hellman
 }
 
+/* -------------------- AES -------------------- */
+
+// ToDo: popup pour entrer les clés AES
+function AESKeysPopup() {
+    $("#AESKeysError").addClass("invisible");
+    $('#AESKeysPopup').modal('show');
+
+    $('#AESKeysConfirm').on('click', function (e) {
+        e.preventDefault();
+
+        if (!$('#AESKeysInput').val().length) {
+            $("#AESKeysError").text("Veuillez saisir au minimum une clé AES pour valider.");
+            $("#AESKeysError").removeClass("invisible");
+        }
+
+        // ToDo: parser les IDs conv / clés AES 
+        // ToDo: vérifier que l'ID de conv existe 
+        // ToDo: getConversations() avec les encrypted
+        $('#AESKeysInput').val("");
+    })
+}
+
 
 /* -------------------- Menu de déconnexion -------------------- */
-
 
 async function deconnexion() {
     try {

@@ -32,7 +32,9 @@
 </head>
 
 <body>
-    <!-- Pop-ups -->    
+    <!-- Pop-ups -->
+
+    <!-- Logout -->
     <div class="modal fade" id="logoutPopup" role="dialog">
         <div class="modal-dialog modal-sm">
             <div class="modal-content">
@@ -47,6 +49,7 @@
         </div>
     </div>
 
+    <!-- Ajouter un contact -->
     <div class="modal fade" id="addContactPopup" data-keyboard="true" role="dialog">
         <div class="modal-dialog ">
             <div class="modal-content">
@@ -77,7 +80,7 @@
         </div>
     </div>
 
-
+    <!-- Diffie-Hellman -->
     <div class="modal fade" id="diffieHellmanPopup" role="dialog">
         <div class="modal-dialog ">
             <div class="modal-content">
@@ -110,6 +113,38 @@
         </div>
     </div>
 
+    <!-- Clés AES -->
+    <div class="modal fade" id="AESKeysPopup" data-keyboard="true" role="dialog">
+        <div class="modal-dialog ">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title fw-bold">🔓 Déverrouillage des conversations privées<h4>
+                </div>
+                
+                <div class="modal-body">
+                    <form>
+                        
+                        <div class="form-group">
+                            <label for="AESKeysInput" class="control-label">
+                                Les clés AES doivent être saisies sous la forme :<br>
+                                <code class="gray">"IDConv1": "Clé AES1", "IDConv2": "Clé AES2"</code>
+                            </label>
+                            <textarea id="AESKeysInput" class="form-control"></textarea>
+                        </div>
+                        
+                        <p class="gray">Vous pouvez modifier vos clés à tout moment depuis votre <span class="text-link-blue" onclick="">profil</span>.</p>
+
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                        <button id="AESKeysConfirm" type="submit" class="btn btn-primary">Déchiffrer les conversations</button>
+
+                    </form>
+                    <small id="AESKeysError" class="form-text text-danger fw-bold invisible">Error placeholder</small>
+
+                </div> <!-- Fin modal body -->
+            </div>
+        </div>
+    </div>
     
     <!-- Fin pop-ups -->
 

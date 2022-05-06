@@ -9,18 +9,39 @@ exports.getConversations = async (req, res, next) => {
 		if (!user)
 			return res.status(409).json({ error: "User not found. Please logout and re-login.", username: "Undefined" });
 
-		const conversations = await Conversation.find({ $or: [{ userId1: user._id }, { userId2: user._id }, { userId1: null }] })
+		const conversations = await Conversation.find({
+			$and: [
+					{ $or: [{encrypted: null}, {encrypted: false}]}, 
+					{ $or: [{ userId1: user._id }, { userId2: user._id }, { userId1: null }] }
+				  ]
+			})
+				.populate("lastMessageId", "author content time")
+				.populate("userId1", "username")
+				.populate("userId2", "username")
+
+		const encryptedChats = await Conversation.find({
+			$and: [
+					{encrypted: true}, 
+					{ $or: [{ userId1: user._id }, { userId2: user._id }] }
+				  ] 
+			})
 				.populate("lastMessageId", "author content time")
 				.populate("userId1", "username")
 				.populate("userId2", "username")
 
 		// Tri des conversations par timestamp du dernier message
+		// ToDo: classer en premier une conversation qui n'a pas de dernier message
 		conversations.sort(function (a, b) {
 			if (a.lastMessageId && b.lastMessageId) 
 				return b.lastMessageId.time - a.lastMessageId.time
 		});
+		// Tri des conversations par timestamp du dernier message
+		encryptedChats.sort(function (a, b) {
+			if (a.lastMessageId && b.lastMessageId) 
+				return b.lastMessageId.time - a.lastMessageId.time
+		});
 
-		res.status(200).json({ conversation: conversations });
+		res.status(200).json({ chats: conversations, encrypted: encryptedChats });
 
 	} catch (err) {
 		res.status(401).json({ message: "Not successful", error: err.message })
@@ -57,7 +78,8 @@ exports.newConversation = async (req, res, next) => {
 		await Conversation.create({
 			userId1: user.id,
 			userId2: user2.id,
-			lastMessageId: null
+			lastMessageId: null,
+			encrypted: false
 		});
 
 		return res.status(200).send({status:200, userId1: user.id, userId2: user2.id});
@@ -90,7 +112,7 @@ exports.isDiffieHellmanable = async (req, res, next) => {
 				]
 			}
 		)
-		if (already) // ToDo: renvoyer l'ID de la conversation pour l'ouvrir (agira comme recherche)
+		if (already)
 			return res.status(411).json({ error: "Cette conversation existe déjà !", convId: already._id });
 		
 		if (!user2.status)
