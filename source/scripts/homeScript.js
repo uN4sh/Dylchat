@@ -57,6 +57,21 @@ async function getOnlineUsers() {
     }
 }
 
+// Square and Multiply
+function expmod(base, exponent, modulus) {
+    if (modulus === 1) return 0;
+    let result = 1;
+    base = base % modulus;
+    while (exponent > 0) {
+        if (exponent % 2 === 1)
+            result = (result * base) % modulus;
+        exponent = exponent >> 1;
+        base = (base * base) % modulus;
+    }
+    return result;
+}
+
+let key;
 
 let myPseudo = "Random";
 let activeConversationId;
@@ -78,9 +93,18 @@ socket.on("connected", (metadata) => {
     console.log("We are connected,", metadata.username);
 });
 
+socket.on('Diffie-Hellman', (p, g, publicServeur) => {
+    let secret = Math.floor(Math.random() * (p - 2)) + 2;
+    let publicClient = expmod(g, secret, p);
+    socket.emit('Diffie-Hellman', publicClient);
+    key = expmod(publicServeur, secret, p);
+});
 
 // Que faire quand le client reçoit un message du serveur
 socket.on("newMessage", (message) => {
+    message.content = CryptoJS.AES.decrypt(message.content, key.toString());
+    message.content = message.content.toString(CryptoJS.enc.Utf8);
+
     // Stockage des messages dans le dictionnaire messagesDict selon les chats :
     //      "chatid": [message, message, message]
     //      "chatid": [message, message, message]
@@ -99,6 +123,8 @@ socket.on("newMessage", (message) => {
 
 socket.on("allMessages", (msgs) => {
     msgs.forEach(message => {
+        // message.content = CryptoJS.AES.decrypt(message.content, key.toString());
+        // message.content = message.content.toString(CryptoJS.enc.Utf8);
         if (!(message.idchat in messagesDict))
             messagesDict[message.idchat] = Array()
         messagesDict[message.idchat].push(message);
@@ -127,7 +153,7 @@ async function renderConversations() {
         encryptedChats = res.encrypted;
         if (!conversations)
             return;
-    
+
         // Récupération des utilisateurs en ligne
         await getOnlineUsers().then(function(onlineUsers) {
             $("#contact-list").empty();
@@ -170,14 +196,13 @@ async function renderConversations() {
                         $(`#contact-title-${i}`).text("🟢 " + conversations[i].userId2.username);
                     else
                         $(`#contact-title-${i}`).text(conversations[i].userId2.username);
-                }
-                else {
+                } else {
                     if (onlineUsers.includes(conversations[i].userId1.username))
                         $(`#contact-title-${i}`).text("🟢 " + conversations[i].userId1.username);
                     else
                         $(`#contact-title-${i}`).text(conversations[i].userId1.username);
                 }
-                
+
                 // Contenu du dernier message
                 if (conversations[i].lastMessageId) {
 
@@ -185,15 +210,15 @@ async function renderConversations() {
                         $(`#contact-message-${i}`).text(conversations[i].lastMessageId.content);
                     else
                         $(`#contact-message-${i}`).text(conversations[i].lastMessageId.author + ": " + conversations[i].lastMessageId.content);
-                    
+
                     // Timestamp du dernier message (affichée en date si message ancien)
                     let messageDate = new Date(parseInt(conversations[i].lastMessageId.time)).getDate();
                     if (messageDate == new Date().getDate())
                         $(`#contact-hour-${i}`).text(convertTimestampToTime(conversations[i].lastMessageId.time));
                     else
                         $(`#contact-hour-${i}`).text(convertTimestampToDate(conversations[i].lastMessageId.time));
-                    
-                } else { 
+
+                } else {
                     // Nouvelle conversation
                     $(`#contact-message-${i}`).text("Nouvelle conversation");
                     $(`#contact-hour-${i}`).text("-")
@@ -227,12 +252,12 @@ async function renderConversations() {
 }
 
 function selectContact(e) {
-  conversations.forEach(conv => {
-    if ("contact-" + conv.idcontact == e.currentTarget.id) {
-      openChat(conv);
-      return;
-    }
-  });
+    conversations.forEach(conv => {
+        if ("contact-" + conv.idcontact == e.currentTarget.id) {
+            openChat(conv);
+            return;
+        }
+    });
 };
 
 async function sendMessage() {
@@ -241,7 +266,8 @@ async function sendMessage() {
         return;
     }
 
-    let message = new Message(activeConversationId, myPseudo, $("#chat-box").val(), new Date().getTime());
+    let encrypted = CryptoJS.AES.encrypt($("#chat-box").val(), key.toString());
+    let message = new Message(activeConversationId, myPseudo, encrypted.toString(), new Date().getTime());
 
     socket.emit("newMessage", message);
     $("#chat-box").val("");
@@ -286,7 +312,7 @@ function renderMessages() {
 
         // Message envoyé 
         if (myPseudo == author) {
-          $("#messages-chat").append(`
+            $("#messages-chat").append(`
               <div class="row message-body">
                   <div class="col-sm-12 message-main-sender">
                       <div class="row sender-nick">
@@ -306,7 +332,7 @@ function renderMessages() {
         }
         // Message reçu
         else {
-          $("#messages-chat").append(`
+            $("#messages-chat").append(`
               <div class="row message-body">
                   <div class="col-sm-12 message-main-receiver">
                       <div class="row receiver-nick">
@@ -329,10 +355,9 @@ function renderMessages() {
         $(`#chat-time-${i}`).text(convertTimestampToTime(messagesArray[i].time));
 
         // Check si premier message pour ajouter le nom
-        if (i == 0 || 
-          (i > 0 && messagesArray[i - 1].author != author) || 
-          (i > 0 && messagesArray[i - 1].author == author && messageDate != new Date(parseInt(messagesArray[i - 1].time)).getDate())) 
-        {
+        if (i == 0 ||
+            (i > 0 && messagesArray[i - 1].author != author) ||
+            (i > 0 && messagesArray[i - 1].author == author && messageDate != new Date(parseInt(messagesArray[i - 1].time)).getDate())) {
             $(`#chat-username-${i}`).text(author);
         }
 
@@ -360,13 +385,13 @@ window.addEventListener('DOMContentLoaded', async event => {
 
     // Link des boutons à leurs fonctions
     $("#back-button").click(function() {
-      $("#partie-gauche").slideToggle("fast");
+        $("#partie-gauche").slideToggle("fast");
     });
 
-    $("#logout-button").on("click", function (event) {
-      $('#logoutPopup').modal('show'); 
+    $("#logout-button").on("click", function(event) {
+        $('#logoutPopup').modal('show');
     });
-    
+
     $("#add-contact-button").on("click", openAddContactPopup);
 
 });
@@ -429,18 +454,18 @@ function openAddContactPopup(event) {
             body: JSON.stringify(body),
             headers: { 'Content-Type': 'application/json' }
         });
-        
+
         res.json().then(response => {
             if (response.status === 200) {
                 $("#addContactInput").val("");
                 $('#openEndToEndPopup').off('click');
                 $('#addContactPopup').modal('hide');
-                processDiffieHellman(response); 
+                processDiffieHellman(response);
             } else {
                 $("#addContactError").text(response.error);
                 $("#addContactError").removeClass("invisible");
             }
-        }).catch(error => console.error('Error:', error))  
+        }).catch(error => console.error('Error:', error))
     });
 
 };
@@ -453,10 +478,10 @@ socket.on("newConversation", () => {
 
 function processDiffieHellman(data) {
     $('#diffieHellmanPopup').modal({
-        backdrop: 'static',
-        keyboard: false
-    })
-    // ToDo: trouver un moyen de prévenir l'utilisateur que si il quitte, le protocole s'annule (et emit un cancelDiffieHellman)
+            backdrop: 'static',
+            keyboard: false
+        })
+        // ToDo: trouver un moyen de prévenir l'utilisateur que si il quitte, le protocole s'annule (et emit un cancelDiffieHellman)
     $('#diffieHellmanPopup').modal('show');
     $('#otherUserDFProgress').text(`En attente de ${data.user2}...`);
 
@@ -487,7 +512,7 @@ function AESKeysPopup() {
     $("#AESKeysError").addClass("invisible");
     $('#AESKeysPopup').modal('show');
 
-    $('#AESKeysConfirm').on('click', function (e) {
+    $('#AESKeysConfirm').on('click', function(e) {
         e.preventDefault();
 
         if (!$('#AESKeysInput').val().length) {
@@ -512,23 +537,23 @@ async function deconnexion() {
             headers: { 'Content-Type': 'application/json' }
         })
         const data = await res.json()
-        
+
         if (data.status === 200) {
             window.location = data.redirect;
-        } 
+        }
     } catch (err) {
         console.log(err.message)
     }
 }
 
-function accueilpage(){
+function accueilpage() {
     $("#menu_ajouter_conv").css("display", "none");
     $("#menu_deco").css("display", "none");
-	
+
     $("#accueil").removeClass("hidden");
     $("#footer").removeClass("hidden");
     $("#chat").addClass("hidden");
-    
+
     for (let i = 0; i < conversations.length; i++) {
         $(`contact-${i}`).removeClass("selected");
     }
@@ -536,48 +561,48 @@ function accueilpage(){
 
 
 function openChat(chat) {
-  for (let i = 0; i < conversations.length; i++) {
-    $(`#contact-${i}`).removeClass("selected");
-  }
-  $(`#contact-${chat.idcontact}`).addClass("selected");
+    for (let i = 0; i < conversations.length; i++) {
+        $(`#contact-${i}`).removeClass("selected");
+    }
+    $(`#contact-${chat.idcontact}`).addClass("selected");
 
-  // Affichage de la discussion sur la partie droite en cachant l'accueil
-  $("#accueil").addClass("hidden");
-  $("#footer").addClass("hidden");
+    // Affichage de la discussion sur la partie droite en cachant l'accueil
+    $("#accueil").addClass("hidden");
+    $("#footer").addClass("hidden");
 
-  $("#header-chat").removeClass("hidden");
-  $("#messages-chat").removeClass("hidden");
-  $("#reply-chat").removeClass("hidden");
+    $("#header-chat").removeClass("hidden");
+    $("#messages-chat").removeClass("hidden");
+    $("#reply-chat").removeClass("hidden");
 
-  // Si écran XS : retirer la partie gauche au clic sur un contact
-  if ($(window).width() < 768) {
-    // $("#partie-gauche").addClass("hidden");
-    $("#partie-gauche").slideToggle("fast"); // ToDo: faire un slide left/right (cf. jquery-ui easing)
-  };
+    // Si écran XS : retirer la partie gauche au clic sur un contact
+    if ($(window).width() < 768) {
+        // $("#partie-gauche").addClass("hidden");
+        $("#partie-gauche").slideToggle("fast"); // ToDo: faire un slide left/right (cf. jquery-ui easing)
+    };
 
-  // Afficher le nom du destinaire
-  activeConversationId = chat._id; // Set active conv ID
-  if (chat.userId1 == null)
-      $("#chat-name").text("[Discussions] – Canal général");
-  else if (chat.userId1.username == myPseudo)
-      $("#chat-name").text(chat.userId2.username);
-  else
-      $("#chat-name").text(chat.userId1.username);
-  
-  // Afficher les messages
-  renderMessages();
+    // Afficher le nom du destinaire
+    activeConversationId = chat._id; // Set active conv ID
+    if (chat.userId1 == null)
+        $("#chat-name").text("[Discussions] – Canal général");
+    else if (chat.userId1.username == myPseudo)
+        $("#chat-name").text(chat.userId2.username);
+    else
+        $("#chat-name").text(chat.userId1.username);
+
+    // Afficher les messages
+    renderMessages();
 }
 
 
 function openGeneralChat() {
-  for (let i = 0; i < conversations.length; i++) {
-    $(`#contact-${i}`).removeClass("selected");
-  }
+    for (let i = 0; i < conversations.length; i++) {
+        $(`#contact-${i}`).removeClass("selected");
+    }
 
-  conversations.forEach(conv => {
-    if (!("userId1" in conv)) {
-      openChat(conv);
-      return;
-    } 
-  });
+    conversations.forEach(conv => {
+        if (!("userId1" in conv)) {
+            openChat(conv);
+            return;
+        }
+    });
 }

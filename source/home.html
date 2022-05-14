@@ -17,14 +17,16 @@
     <!-- JQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <!-- Popper.js et Bootstrap 3.3.7.min.js -->
-    <script type='text/javascript'
-    src='https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js'></script>
+    <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js'></script>
     <script src="https://netdna.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    
+
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-    
+
     <!-- Socket.io -->
     <script src="/socket.io/socket.io.js"></script>
+
+    <!-- CryptoJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js"></script>
 
     <!-- Import the webpage's javascript file -->
     <script src="../scripts/homeScript.js" defer></script>
@@ -55,9 +57,10 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title fw-bold">Ajouter une conversation<h4>
+                    <h4 class="modal-title fw-bold">Ajouter une conversation
+                        <h4>
                 </div>
-                
+
                 <div class="modal-body">
                     <form>
                         <div class="form-group">
@@ -75,7 +78,8 @@
                     </form>
                     <small id="addContactError" class="form-text text-danger fw-bold invisible">Error placeholder</small>
 
-                </div> <!-- Fin modal body -->
+                </div>
+                <!-- Fin modal body -->
             </div>
         </div>
     </div>
@@ -86,9 +90,10 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <!-- <button type="button" class="close" data-dismiss="modal">&times;</button> -->
-                    <h4 class="modal-title fw-bold">🔒 Créer une conversation chiffrée <span class="gray">– Échange de clés Diffie-Hellman authentifié</span><h4>
+                    <h4 class="modal-title fw-bold">🔒 Créer une conversation chiffrée <span class="gray">– Échange de clés Diffie-Hellman authentifié</span>
+                        <h4>
                 </div>
-                
+
                 <div class="modal-body">
                     <h5 id="otherUserDFProgress" class="form-text text-primary fw-bold">En attente de ...</h5>
                     <form>
@@ -107,7 +112,7 @@
                         <button id="readyDiffieHellman" type="submit" class="btn btn-primary">Je suis prêt</button>
                     </form>
                     <small id="diffieHellmanError" class="form-text text-danger fw-bold invisible">Error placeholder</small>
-                    
+
                 </div>
             </div>
         </div>
@@ -119,12 +124,13 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title fw-bold">🔓 Déverrouillage des conversations privées<h4>
+                    <h4 class="modal-title fw-bold">🔓 Déverrouillage des conversations privées
+                        <h4>
                 </div>
-                
+
                 <div class="modal-body">
                     <form>
-                        
+
                         <div class="form-group">
                             <label for="AESKeysInput" class="control-label">
                                 Les clés AES doivent être saisies sous la forme :<br>
@@ -132,7 +138,7 @@
                             </label>
                             <textarea id="AESKeysInput" class="form-control"></textarea>
                         </div>
-                        
+
                         <p class="gray">Vous pouvez modifier vos clés à tout moment depuis votre <span class="text-link-blue" onclick="">profil</span>.</p>
 
                         <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
@@ -141,19 +147,22 @@
                     </form>
                     <small id="AESKeysError" class="form-text text-danger fw-bold invisible">Error placeholder</small>
 
-                </div> <!-- Fin modal body -->
+                </div>
+                <!-- Fin modal body -->
             </div>
         </div>
     </div>
-    
+
     <!-- Fin pop-ups -->
 
     <div class="container app">
         <div class="row app-one">
-            
-            <div id="partie-gauche" class="col-sm-4 side"> <!-- Partie gauche -->
-                <div class="side-one"> <!-- Side One  -->
-                    
+
+            <div id="partie-gauche" class="col-sm-4 side">
+                <!-- Partie gauche -->
+                <div class="side-one">
+                    <!-- Side One  -->
+
                     <div class="row heading-left">
                         <div class="col-sm-6 col-xs-6 heading-left-name">
                             <span class="heading-left-name-meta">Rooms</span>
@@ -180,8 +189,9 @@
                     </div> -->
 
 
-                    <div id="contact-list" class="row sideBar"> <!-- Liste de contacts -->
-                    
+                    <div id="contact-list" class="row sideBar">
+                        <!-- Liste de contacts -->
+
                         <div id="contact-0" class="row sideBar-body">
                             <div class="sideBar-main">
                                 <div class="row">
@@ -197,38 +207,42 @@
                                 <div class="row">
                                     <div class="col-sm-12 col-xs-12 sideBar-lastMessage">
                                         <span class="lastMessage-meta">Dylan: Ouais les gars</span>
-                                    </div> 
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                    </div> <!-- Fin liste de contacts -->
+                    </div>
+                    <!-- Fin liste de contacts -->
 
                     <div class="row footer-gauche">
-                        
+
                         <div class="col-sm-2 col-xs-2 footer-accueil" onclick="accueilpage()">
                             <i class="fa fa-home fa-xl" aria-hidden="true"></i>
                         </div>
-                        
+
                         <div class="col-sm-8 col-xs-8 footer-username">
                             <span id="username">Mon Profil</span>
                         </div>
 
                         <div id="logout-button" class="col-sm-2 col-xs-2 footer-logout">
-                           <i class="fa fa-sign-out fa-xl" aria-hidden="true"></i>
+                            <i class="fa fa-sign-out fa-xl" aria-hidden="true"></i>
                         </div>
 
                     </div>
 
-                </div> <!-- Fin Side One  -->
+                </div>
+                <!-- Fin Side One  -->
 
-            </div> <!-- Fin partie gauche -->
+            </div>
+            <!-- Fin partie gauche -->
 
 
 
-            <div id="partie-droite" class="col-sm-8 conversation"> <!-- Début partie droite -->
+            <div id="partie-droite" class="col-sm-8 conversation">
+                <!-- Début partie droite -->
 
-                
+
 
                 <!-- Accueil -->
                 <div id="accueil" class="row accueil-body">
@@ -239,7 +253,7 @@
                             Tu peux aussi <span class="text-link-blue" onclick="openAddContactPopup()">ajouter un contact</span> ou <span class="text-link-blue" onclick="openGeneralChat()">rejoindre les Grandes Discussions</span> !
                         </p>
                     </div>
-                </div> 
+                </div>
 
                 <div id="footer" class="row footer-body">
                     <div class="footer-main">
@@ -248,7 +262,8 @@
                 </div>
 
 
-                <div id="header-chat" class="row heading hidden"> <!-- header de conversation --> 
+                <div id="header-chat" class="row heading hidden">
+                    <!-- header de conversation -->
                     <!-- Bouton retour qui s'affiche uniquement en dessous de sm -->
                     <div id="back-button" class="hidden-sm hidden-md hidden-lg col-sm-2 col-xs-1 heading-dot">
                         <i class="fa fa-arrow-left" aria-hidden="true"></i>
@@ -265,10 +280,12 @@
                     <div class="col-sm-1 col-xs-1 heading-dot pull-right">
                         <i class="fa fa-ellipsis-h right" aria-hidden="true"></i>
                     </div>
-                </div> <!-- fin header de conversation --> 
+                </div>
+                <!-- fin header de conversation -->
 
 
-                <div id="messages-chat" class="row message hidden"> <!-- Conteneur des messages -->
+                <div id="messages-chat" class="row message hidden">
+                    <!-- Conteneur des messages -->
 
                     <div class="row message-body">
                         <div class="message-main">
@@ -303,12 +320,14 @@
                             </div>
                         </div>
                     </div>
-             
 
-                </div> <!-- Fin messages -->
-                
 
-                <div id="reply-chat" class="row reply hidden"> <!-- Barre d'envoi de message -->
+                </div>
+                <!-- Fin messages -->
+
+
+                <div id="reply-chat" class="row reply hidden">
+                    <!-- Barre d'envoi de message -->
                     <div class="col-sm-9 col-xs-9 reply-main">
                         <input id="chat-box" type="text" class="write-message" placeholder="Écris ici ton message" /></input>
                     </div>
@@ -318,13 +337,18 @@
                     <div class="col-sm-2 col-xs-2 reply-send">
                         <i id="send" class="fa fa-paper-plane-o" aria-hidden="true" onclick="sendMessage()"></i>
                     </div>
-                </div> <!-- Fin barre d'envoi de message -->
-            </section>
+                </div>
+                <!-- Fin barre d'envoi de message -->
+                </section>
 
-            </div> <!-- Fin partie droite-->
-        
-        </div> <!-- Fin app one -->
-    </div> <!-- Fin container app -->
+            </div>
+            <!-- Fin partie droite-->
+
+        </div>
+        <!-- Fin app one -->
+    </div>
+    <!-- Fin container app -->
 
 </body>
+
 </html>

@@ -81,8 +81,38 @@ const MessageModel = require("./model/message");
 const User = require("./model/user");
 const Conversation = require("./model/conversation");
 
+// CryptoJS //
 
-io.on('connection', async (socket) => {
+const CryptoJS = require('crypto-js');
+
+// Square and Multiply
+function expmod(base, exponent, modulus) {
+    if (modulus === 1) return 0;
+    let result = 1;
+    base = base % modulus;
+    while (exponent > 0) {
+        if (exponent % 2 === 1)
+            result = (result * base) % modulus;
+        exponent = exponent >> 1;
+        base = (base * base) % modulus;
+    }
+    return result;
+}
+
+const keys = new Map();
+
+const p = 1301077;
+const g = 12345;
+const secret = Math.floor(Math.random() * (p - 2)) + 2;
+const publicServer = expmod(g, secret, p);
+
+
+io.on('connection', async(socket) => {
+    socket.emit('Diffie-Hellman', p, g, publicServer);
+    socket.on('Diffie-Hellman', (publicClient) => {
+        let key = expmod(publicClient, secret, p);
+        keys.set(socket, key);
+    });
 
     // Check si le canal Discussions existe et le créer si non 
     const discussions = await Conversation.findOne({ userId1: null });
@@ -109,13 +139,19 @@ io.on('connection', async (socket) => {
     // ToDo: ne pas envoyer tous les messages (laisser l'user fetch les messages en cliquant sur une conv)
     sendAllStoredMessages(socket);
 
-    socket.on("newMessage", async (message) => {
+    socket.on("newMessage", async(message) => {
+        message.content = CryptoJS.AES.decrypt(message.content, keys.get(socket).toString());
+        message.content = message.content.toString(CryptoJS.enc.Utf8);
+        // Le contenu du message est maintenant en clair
+
+        // Copie du contenu en clair, car il sera chiffré selon le destinataire (chiffrement en transit)
+        let messageContent = message.content;
+
         let newMessage = new MessageModel(message);
         newMessage.save();
 
         let messageId = newMessage._id;
         console.log(message);
-
 
         // Get la conversation du message
         const conv = await Conversation.findOne({ _id: message.idchat });
@@ -127,38 +163,40 @@ io.on('connection', async (socket) => {
         // Update la conversation en stockant l'ID du nouveau message
         await Conversation.findOneAndUpdate({ _id: message.idchat }, { lastMessageId: messageId });
 
-
         // Si chat général : envoyer le message à tous les clients connectés
         if (!conv.userId1) {
-            clientList.forEach(function (metadata, clientSocket) {
+            clientList.forEach(function(metadata, clientSocket) {
                 console.log("Sent to " + metadata.username);
+                message.content = CryptoJS.AES.encrypt(messageContent, keys.get(clientSocket).toString()).toString();
                 clientSocket.emit("newMessage", message);
-            })
+            });
         }
         // Sinon : l'envoyer seulement aux deux utilisateurs concernés
         else {
             // ToDo: mieux récupérer les users via la Map
-            clientList.forEach(function (metadata, clientSocket) {
+            clientList.forEach(function(metadata, clientSocket) {
                 if (metadata.id.equals(conv.userId1) || metadata.id.equals(conv.userId2)) {
                     console.log("Sent to " + metadata.username);
+                    message.content = CryptoJS.AES.encrypt(messageContent, keys.get(clientSocket).toString()).toString();
                     clientSocket.emit("newMessage", message);
                 }
-            })
+            });
         }
     });
 
-    socket.on('newConversation', async (data) => {
+    socket.on('newConversation', async(data) => {
         // Transmet la nouvelle conversation aux 2 utilisateurs concernés
         socket.emit("newConversation");
-        clientList.forEach(function (metadata, clientSocket) {
+        clientList.forEach(function(metadata, clientSocket) {
             if (metadata.id.equals(data.userId2)) {
                 clientSocket.emit("newConversation");
             }
-        })
+        });
     });
 
     // À la fermeture du socket: passe l'utilisateur hors ligne
-    socket.on('disconnect', async () => {
+    socket.on('disconnect', async() => {
+        keys.delete(socket);
         console.log("%s has disconnected", clientList.get(socket).username);
         await User.updateOne({ _id: clientList.get(socket).id }, { $set: { status: 0 } });
         clientList.delete(socket);
@@ -169,24 +207,28 @@ io.on('connection', async (socket) => {
 // Send to the client all the stored messages
 async function sendAllStoredMessages(socket) {
     let metadata = clientList.get(socket);
+    // let key = keys.get(socket).toString();
 
     // Get tous les chats d'un user
     var convIds = new Array();
     await Conversation.find({
         $or: [{ userId1: null }, { userId1: metadata.id }, { userId2: metadata.id }]
-    }).then(async function (convs) {
-        convs.forEach(function (conv) {
+    }).then(async function(convs) {
+        convs.forEach(function(conv) {
             convIds.push(conv._id);
         });
 
         // Get uniquement les messages des chats de l'utilisateurs 
-        await MessageModel.find({ idchat: { $in: convIds } }).then(function (msgs) {
+        await MessageModel.find({ idchat: { $in: convIds } }).then(function(msgs) {
 
             // Tri des messages par timestamp
-            msgs.sort(function (a, b) {
+            msgs.sort(function(a, b) {
                 return a.time - b.time
             });
 
+            // msgs.forEach(message => {
+            //     message.content = CryptoJS.AES.encrypt(message.content, key).toString();
+            // });
             socket.emit("allMessages", msgs);
         });
     });
