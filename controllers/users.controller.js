@@ -208,7 +208,7 @@ exports.getUsername = async(req, res, next) => {
         const user = await User.findOne({ token: req.cookies.jwt });
         if (!user)
             return res.status(409).json({ error: "User not found. Please logout and re-login.", username: "Undefined" });
-        return res.status(200).json({ username: user.username });
+        return res.status(200).json({ username: user.username, id: user._id });
     } catch (err) {
         res.status(401).json({ message: "Not successful", error: err.message })
     }

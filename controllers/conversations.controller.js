@@ -117,10 +117,33 @@ exports.isDiffieHellmanable = async (req, res, next) => {
 		
 		if (!user2.status)
 			return res.status(411).json({ error: "L'utilisateur doit être connecté pour engager un échange Diffie-Hellman et créer une conversation chiffrée de bout en bout." });
-
+		
+		const p = 1301077; // ToDo : générer un nombre aléatoire
+		const g = 12345;
 		return res.status(200).send({status:200, 
 									 user1: user.username, user2: user2.username, 
-									 userId1: user.id, userId2: user2.id});
+									 userId1: user.id, userId2: user2.id,
+									 p: p, g: g	});
+	} catch (err) {
+		res.status(401).json({ message: "Not successful", error: err.message })
+	}
+};
+
+
+exports.newEncryptedConversation = async (req, res, next) => {
+	try {
+		const { username2 } = req.body;
+		const user = await User.findOne({ token: req.cookies.jwt });
+		const user2 = await User.findOne({ usernamelowercase: username2.toLowerCase() });
+		
+		const conv = await Conversation.create({
+			userId1: user.id,
+			userId2: user2.id,
+			lastMessageId: null,
+			encrypted: true
+		});
+
+		return res.status(200).send({status:200, userId1: user.id, userId2: user2.id, idChat: conv._id});
 	} catch (err) {
 		res.status(401).json({ message: "Not successful", error: err.message })
 	}

@@ -75,6 +75,7 @@ const socketIO = require('socket.io');
 const io = socketIO(server);
 
 const clientList = new Map();
+// const diffieHellmanProtocol = new Array();
 console.log("\nServer is open !\n")
 
 const MessageModel = require("./model/message");
@@ -101,12 +102,13 @@ function expmod(base, exponent, modulus) {
 
 const keys = new Map();
 
-const p = 1301077;
+const p = 1301077; // ToDo : générer un nombre aléatoire
 const g = 12345;
-const secret = Math.floor(Math.random() * (p - 2)) + 2;
+const secret = Math.floor(Math.random() * (p - 2)) + 2; // ToDo: ceci est pour générer le petit a, c'est à faire coté client avec window.crypto
 const publicServer = expmod(g, secret, p);
 
-
+// ToDo: supprimer le DH en transit une fois le E2E OK
+// ToDo: supprimer l'AES en transit une fois le E2E OK
 io.on('connection', async(socket) => {
     socket.emit('Diffie-Hellman', p, g, publicServer);
     socket.on('Diffie-Hellman', (publicClient) => {
@@ -192,6 +194,32 @@ io.on('connection', async(socket) => {
                 clientSocket.emit("newConversation");
             }
         });
+    });
+
+    // L'utilisateur 1 souhaite engager un DH avec l'utilisateur 2
+    socket.on('engageDiffieHellman', async (data) => {
+        // diffieHellmanProtocol.push({userId1: data.userId1, userId2: data.userId2});
+        // Envoi de la notification à user2
+        clientList.forEach(function(metadata, clientSocket) {
+            if (metadata.id.equals(data.userId2)) {
+                clientSocket.emit("notifDiffieHellman", data);
+                console.log("DH notif sent to " + metadata.username);
+            }
+        });
+    });
+
+    // L'utilisateur 2 a accepté le DH, il renvoie sa valeur de B à l'utilisateur A
+    socket.on('acceptedDiffieHellman', async (data) => {
+        // Envoi de l'acceptation à user1
+        clientList.forEach(function(metadata, clientSocket) {
+            if (metadata.id.equals(data.userId1)) {
+                clientSocket.emit("acceptedDiffieHellman", data);
+            }
+        });
+    });
+
+    socket.on('cancelDiffieHellman', async (userId1, userId2) => {
+        // ToDo: cancelDiffieHellman supprime le couple dans le tableau diffieHellmanProtocol
     });
 
     // À la fermeture du socket: passe l'utilisateur hors ligne

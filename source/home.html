@@ -98,6 +98,8 @@
                     <h5 id="otherUserDFProgress" class="form-text text-primary fw-bold">En attente de ...</h5>
                     <form>
                         <div class="form-group">
+                            <!-- ToDo : passer en DH authentifié -->
+                            <!--
                             <div class="input-group">
                                 <div class="input-group-addon">#</div>
                                 <input type="text" class="form-control" id="publicKeyInput" placeholder="Clé publique">
@@ -106,13 +108,34 @@
                                 <div class="input-group-addon">#</div>
                                 <input type="text" class="form-control" id="privateKeyInput" placeholder="Clé privée">
                             </div>
+                            -->
+                            <!-- <div class="input-group"> -->
+                                <!-- <div class="input-group-addon">AES</div> -->
+                                <input type="text" class="form-control" id="generatedSymKey" placeholder="En attente du protocole..." disabled>
+                            <!-- </div> -->
                         </div>
                         <!-- ToDo: ajouter les champs nécessaires au Diffie-Hellman -->
                         <button id="cancelDiffieHellman" type="submit" class="btn btn-default">Annuler le protocole</button>
                         <button id="readyDiffieHellman" type="submit" class="btn btn-primary">Je suis prêt</button>
+                        <button id="terminateDiffieHellman" class="btn btn-danger" data-dismiss="modal" hidden="hidden">Fermer la fenêtre</button>
                     </form>
                     <small id="diffieHellmanError" class="form-text text-danger fw-bold invisible">Error placeholder</small>
 
+                </div>
+            </div>
+        </div>
+    </div>
+
+     <!-- Notif Diffie-Hellman -->
+     <div class="modal fade" id="notifDHPopup" role="dialog">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <p id="notifDHText">Un tel souhaite engager une conversation privée avec vous.</p>
+                </div>
+                <div class="modal-footer">
+                    <button id="rejectDiffieHellman" type="button" class="btn btn-default">Refuser</button>
+                    <button id="acceptDiffieHellman" type="button" class="btn btn-primary">Accepter</button>
                 </div>
             </div>
         </div>

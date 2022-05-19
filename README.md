@@ -1,6 +1,6 @@
 # Dylchat
 
-Projet M1 AWS : Web app de messagerie temps réel chiffrée de bout en bout disponible sur 🔗 [dylchat.elyn.cf](https://dylchat.elyn.cf).
+Projet M1 AWS : Web app de messagerie temps réel chiffrée de bout en bout disponible sur 🔗 [dylchat.fr](https://dylchat.fr).
 
 ## 🚧 Suivi de projet
 
@@ -27,7 +27,7 @@ Projet M1 AWS : Web app de messagerie temps réel chiffrée de bout en bout disp
 - [x] Générer un token JWT (cookie) pour rendre la connexion persistante
 - [ ] Actualiser le Token au bout de 5h / déconnecter l'utilisateur si Token invalide
 - [ ] Ajouter un check pour déconnecter l'utilisateur si le cookie n'existe plus (en cas de connexion ailleurs)
-- [ ] Gérer le statut `En ligne` / `Hors ligne` des utilisateurs (?)
+- [x] Gérer le statut `En ligne` / `Hors ligne` des utilisateurs
 - [x] Faire en sorte que le `GET /` d'une personne connectée mène au `/home`
 
 ### Phase 2 : API Rest
@@ -48,9 +48,9 @@ Projet M1 AWS : Web app de messagerie temps réel chiffrée de bout en bout disp
 ### Phase 2 : Base de données MongoDB (Users, Conversations, Messages)
 
 - [x] Users (usernamelowercase, username, email, password, token)
-- [ ] Conversations (user.username, user.username, idchat)
+- [x] Conversations (user.username, user.username, idchat)
   - [x] Un utilisateur peut créer un nouveau chat en entrant un pseudo
-    - [ ] Passer cette action par WebSocket pour que le chat soit automatiquement ajouté chez les 2 users
+    - [x] Passer cette action par WebSocket pour que le chat soit automatiquement ajouté chez les 2 users
   - [x] Une row se crée dans la table avec un nouveau ID de chat
   - [x] Quand un user se connecte, une routine `renderConversations()` affiche toutes les conversations liées au contact
   - [x] Gérer tous les cas d'erreurs à l'ajout de contact (utilisateur introuvable, conversation déjà existante, etc.)
@@ -87,6 +87,7 @@ Projet M1 AWS : Web app de messagerie temps réel chiffrée de bout en bout disp
   - [ ] `selectContact()`: clear le tableau `messagesArray` et appeler `getMessages(idchat)` pour le re-remplir
   - [x] Ajout d'une barre "Profil" permettant l'accès aux options (retour à l'accueil, déconnexion)
   - [x] Améliorer l'affichage du dernier message (afficher le pseudo ou "vous:" ou autre idée), et couper le message au bout de x caractères
+  - [ ] Icône pour le statut `En ligne` des contacts et les conversations chiffrées
 - [ ] **Partie droite**
   - [x] `renderMessages()`: Afficher l'heure après 10 minutes entre deux messages d'une même personne (en test)
   - [x] `renderMessages()`: Afficher la date quelque part (fixe en haut ou à chaque message en timestamp ou à chaque nouveau jour)
@@ -111,7 +112,7 @@ Projet M1 AWS : Web app de messagerie temps réel chiffrée de bout en bout disp
 
 - À la racine du projet :
   - `npm init -y`
-  - `npm install cors mongoose express jsonwebtoken dotenv bcryptjs cookie-parser ws`
+  - `npm install cors mongoose express jsonwebtoken dotenv bcryptjs cookie-parser ws socket.io crypto-js`
   - `npm install nodemon -D`
   - Modifier les scripts du fichier `package.json` comme suit :
 

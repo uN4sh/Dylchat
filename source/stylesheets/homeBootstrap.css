@@ -561,13 +561,13 @@ body {
 
 .message-main-receiver {
   /*padding: 10px 20px;*/
-  max-width: 60%;
+  max-width: 90%;
 }
 
 .message-main-sender {
   padding: 3px 20px !important;
-  margin-left: 40% !important;
-  max-width: 60%;
+  margin-left: 10% !important;
+  max-width: 90%;
 }
 
 .message-date {
@@ -610,6 +610,7 @@ body {
 
 .receiver {
   width: auto !important;
+  max-width: 100%;
   padding: 4px 10px 7px !important;
   border-radius: 10px 10px 10px 0;
   background: #f6f6f6;
@@ -621,6 +622,7 @@ body {
 .sender {
   float: right;
   width: auto !important;
+  max-width: 100%;
   background: #e3effd;
   border-radius: 10px 10px 0 10px;
   padding: 4px 10px 7px !important;
@@ -811,11 +813,11 @@ body {
     height: calc(100% - 160px);
   }
   .message-main-receiver {
-    max-width: 80%;
+    max-width: 95%;
   }
   .message-main-sender {
-    margin-left: 20% !important;
-    max-width: 80%;
+    margin-left: 5% !important;
+    max-width: 95%;
   }
   .reply {
     height: 80px;
