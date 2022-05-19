@@ -1,5 +1,6 @@
 const User = require("../model/user");
 const Conversation = require("../model/conversation");
+const crypto = require('crypto');
 
 exports.getConversations = async (req, res, next) => {
 	if (!req.cookies.jwt)
@@ -118,7 +119,11 @@ exports.isDiffieHellmanable = async (req, res, next) => {
 		if (!user2.status)
 			return res.status(411).json({ error: "L'utilisateur doit être connecté pour engager un échange Diffie-Hellman et créer une conversation chiffrée de bout en bout." });
 		
-		const p = 1301077; // ToDo : générer un nombre aléatoire
+		// const p = 1301077; // ToDo : générer un nombre aléatoire
+		let DH = crypto.createDiffieHellman(16); // bit length // todo : pourquoi ça marche pas avec + de bits ?
+		const p = parseInt(DH.getPrime('hex'), 16);
+		console.log("p:",p);
+
 		const g = 12345;
 		return res.status(200).send({status:200, 
 									 user1: user.username, user2: user2.username, 

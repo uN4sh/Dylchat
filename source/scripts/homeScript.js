@@ -245,8 +245,8 @@ async function renderConversations() {
                 $(`#contact-${i}`).on("click", selectContact);
             }
 
-            // ToDo: remplacer le check pour savoir si il reste encore des conversations non déchiffrées
-            if (encryptedChats && !AESKeys.length) { // ToDo: à remplacer par if(encryptedChats.length une fois que tout est ok
+            // ToDo: à remplacer par if(encryptedChats.length une fois que tout est ok
+            if (encryptedChats && !AESKeys.length) {
                 $("#contact-list").append(`
                 <div class="row sideBar-alert-body">
                     <div class="sideBar-main-alert">
@@ -541,7 +541,7 @@ socket.on("acceptedDiffieHellman", async (data) => {
     $('#terminateDiffieHellman').show();
 
     $('#otherUserDFProgress').text(`La conversation chiffrée avec ${data.user2} a été créée.`);
-    $('#diffieHellmanError').text("Veillez à enregistrer la clé symétrique en local avant de fermer de cette fenêtre.");
+    $('#diffieHellmanError').text("Veillez à enregistrer la clé symétrique dans un fichier local de clés avant de fermer de cette fenêtre.");
     $('#diffieHellmanError').removeClass("invisible");
     let secretKey = expmod(data.publicB, senderSecret, data.p);
 
@@ -555,7 +555,7 @@ socket.on("acceptedDiffieHellman", async (data) => {
     
     res.json().then(response => {
         // Affichage de l'ID de conversation et de la clé symétrique 
-        $('#generatedSymKey').val(`idChat: ${response.idChat} | Key: ${secretKey.toString(16)}`);
+        $('#generatedSymKey').val(`"${response.idChat}":  "${secretKey.toString(16)}", `);
         // Stockage de la paire en Map
         AESKeys.set(response.idChat, secretKey);
         // Envoi de la nouvelle conversation aux deux parties
@@ -596,14 +596,14 @@ function finishDiffieHellman(data, receiverSecret) {
     
     // ToDo : retrouver l'ID du chat
     let idChat = null;       
-    while (!idChat) {
-        encryptedChats.forEach(conv => {
-            if ((conv.userId1._id == data.userId1 && conv.userId2._id == data.userId2)
-                || (conv.userId1._id == data.userId2 && conv.userId2._id == data.userId1)) {
-                    idChat = conv._id;
-            }
-        });
-    }
+
+    encryptedChats.forEach(conv => {
+        if ((conv.userId1._id == data.userId1 && conv.userId2._id == data.userId2)
+            || (conv.userId1._id == data.userId2 && conv.userId2._id == data.userId1)) {
+                idChat = conv._id;
+        }
+    });
+    
 
     $('#diffieHellmanPopup').modal({
         backdrop: 'static',
@@ -618,12 +618,12 @@ function finishDiffieHellman(data, receiverSecret) {
     $('#diffieHellmanPopup').modal('show');
     $('#otherUserDFProgress').text(`La conversation chiffrée avec ${data.user1} a été créée.`);
     // Affichage de l'ID de conversation et de la clé symétrique 
-    $('#generatedSymKey').val(`idChat: ${idChat} | Key: ${secretKey.toString(16)}`);
+    $('#generatedSymKey').val(`"${idChat}":  "${secretKey.toString(16)}", `);
     // Stockage de la paire en Map
     AESKeys.set(idChat, secretKey);
-    $('#diffieHellmanError').text("Veillez à enregistrer la clé symétrique en local avant de fermer de cette fenêtre.");
+    $('#diffieHellmanError').text("Veillez à enregistrer la clé symétrique dans un fichier local de clés avant de fermer de cette fenêtre.");
     $('#diffieHellmanError').removeClass("invisible");
-    
+    renderConversations();
 }
 
 socket.on("cancelDiffieHellman", () => {
@@ -640,6 +640,7 @@ function AESKeysPopup() {
     $('#AESKeysPopup').modal('show');
 
     $('#AESKeysConfirm').on('click', function(e) {
+        $("#AESKeysError").addClass("invisible");
         e.preventDefault();
 
         if (!$('#AESKeysInput').val().length) {
@@ -647,10 +648,28 @@ function AESKeysPopup() {
             $("#AESKeysError").removeClass("invisible");
         }
 
-        // ToDo: parser les IDs conv / clés AES 
-        // ToDo: vérifier que l'ID de conv existe 
-        // ToDo: getConversations() avec les encrypted
-        $('#AESKeysInput').val("");
+        // Parsing des IDs conv / clés AES
+        const jsonRegExp = new RegExp('\".+\"\ *\:\ *\".+\"'); // Regex "dfdf":"dsfsd"
+        const parsed = ($('#AESKeysInput').val().match(jsonRegExp))[0];
+        console.log(parsed);
+        
+        if (parsed.length) {
+            // Retirer les espaces
+            let string = parsed.replace(/ /g, "").replace(/"/g, "");
+            console.log(string);
+            const keys = string.split(",");
+            console.log(keys);
+            for (const key of keys) {
+                AESKeys.set(key.split(":")[0], key.split(":")[1]);
+            }
+            renderConversations();
+            $('#AESKeysInput').val("");
+            $('#AESKeysPopup').modal('hide');
+        }
+        else {
+            $("#AESKeysError").text("Le format est invalide.");
+            $("#AESKeysError").removeClass("invisible");
+        }
     })
 }
 
