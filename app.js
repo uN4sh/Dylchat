@@ -102,8 +102,23 @@ function expmod(base, exponent, modulus) {
 
 const keys = new Map();
 
-const p = 1301077; // ToDo : générer un nombre aléatoire
-const g = 12345;
+// Cribe d'Eratosthène
+function getPrime(min, max) {
+    let liste = Array(max + 1).fill(0).map((_, i) => i);
+
+    for (let i = 2; i < Math.sqrt(max + 1); i++) {
+        for (let j = i * 2; j < max + 1; j += i)
+            delete liste[j];
+    }
+
+    liste = Object.values(liste = liste.slice(min));
+    let index = Math.floor(Math.random() * liste.length);
+
+    return liste[index];
+}
+
+const p = getPrime(2 ** 19, (2 ** 21) - 1);
+const g = Math.floor(Math.random() * (p - 2)) + 2;
 const secret = Math.floor(Math.random() * (p - 2)) + 2; // ToDo: ceci est pour générer le petit a, c'est à faire coté client avec window.crypto
 const publicServer = expmod(g, secret, p);
 
@@ -197,7 +212,7 @@ io.on('connection', async(socket) => {
     });
 
     // L'utilisateur 1 souhaite engager un DH avec l'utilisateur 2
-    socket.on('engageDiffieHellman', async (data) => {
+    socket.on('engageDiffieHellman', async(data) => {
         // diffieHellmanProtocol.push({userId1: data.userId1, userId2: data.userId2});
         // Envoi de la notification à user2
         clientList.forEach(function(metadata, clientSocket) {
@@ -209,7 +224,7 @@ io.on('connection', async(socket) => {
     });
 
     // L'utilisateur 2 a accepté le DH, il renvoie sa valeur de B à l'utilisateur A
-    socket.on('acceptedDiffieHellman', async (data) => {
+    socket.on('acceptedDiffieHellman', async(data) => {
         // Envoi de l'acceptation à user1
         clientList.forEach(function(metadata, clientSocket) {
             if (metadata.id.equals(data.userId1)) {
@@ -218,7 +233,7 @@ io.on('connection', async(socket) => {
         });
     });
 
-    socket.on('cancelDiffieHellman', async (userId1, userId2) => {
+    socket.on('cancelDiffieHellman', async(userId1, userId2) => {
         // ToDo: cancelDiffieHellman supprime le couple dans le tableau diffieHellmanProtocol
     });
 
