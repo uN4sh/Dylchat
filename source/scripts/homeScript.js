@@ -102,9 +102,9 @@ socket.on('Diffie-Hellman', (p, g, publicServeur) => {
 // Que faire quand le client reçoit un message du serveur
 socket.on("newMessage", (message) => {
     // ToDo: si le message est dans un chat chiffré
-        // Si l'user a déjà rempli la clé : le déchiffrer
-        // Sinon : rien faire
-    
+    // Si l'user a déjà rempli la clé : le déchiffrer
+    // Sinon : rien faire
+
     message.content = CryptoJS.AES.decrypt(message.content, key.toString());
     message.content = message.content.toString(CryptoJS.enc.Utf8);
 
@@ -126,8 +126,8 @@ socket.on("newMessage", (message) => {
 
 socket.on("allMessages", (msgs) => {
     msgs.forEach(message => {
-        // message.content = CryptoJS.AES.decrypt(message.content, key.toString());
-        // message.content = message.content.toString(CryptoJS.enc.Utf8);
+        message.content = CryptoJS.AES.decrypt(message.content, key.toString());
+        message.content = message.content.toString(CryptoJS.enc.Utf8);
         if (!(message.idchat in messagesDict))
             messagesDict[message.idchat] = Array()
         messagesDict[message.idchat].push(message);
@@ -201,7 +201,7 @@ async function renderConversations() {
                 // Titre de la conversation
                 let contactTitle = "";
                 if (conversations[i].userId1 == null)
-                    contactTitle ="[Discussions]";
+                    contactTitle = "[Discussions]";
                 else {
                     if (conversations[i].encrypted)
                         contactTitle += "🔒 ";
@@ -445,7 +445,7 @@ function openAddContactPopup(event) {
 
         res.json().then(response => {
             if (response.status === 200) {
-                socket.emit("newConversation", {userId1: response.userId1, userId2: response.userId2});
+                socket.emit("newConversation", { userId1: response.userId1, userId2: response.userId2 });
                 $('#addContactPopup').modal('hide');
                 $("#addContactConfirm").off('click');
             } else {
@@ -490,20 +490,21 @@ function openAddContactPopup(event) {
 
 };
 
-socket.on("newConversation", async () => {
+socket.on("newConversation", async() => {
     await renderConversations();
 });
 
 /* -------------------- Diffie-Hellman -------------------- */
 
 let senderSecret;
+
 function processDiffieHellman(data) {
     $('#diffieHellmanPopup').modal({
             backdrop: 'static',
             keyboard: false
         })
-    // ToDo: trouver un moyen de prévenir l'utilisateur que si il quitte, le protocole s'annule (et emit un cancelDiffieHellman)
-    
+        // ToDo: trouver un moyen de prévenir l'utilisateur que si il quitte, le protocole s'annule (et emit un cancelDiffieHellman)
+
     // Boutons de pop-up et placeholder de clé résultat
     $('#diffieHellmanError').addClass("invisible");
     $('#readyDiffieHellman').show();
@@ -518,7 +519,7 @@ function processDiffieHellman(data) {
 
     $('#cancelDiffieHellman').on('click', function(e) {
         e.preventDefault();
-        socket.emit("cancelDiffieHellman", data.userId1, data.userId2); 
+        socket.emit("cancelDiffieHellman", data.userId1, data.userId2);
         $('#diffieHellmanPopup').modal('hide');
         return;
     });
@@ -534,7 +535,7 @@ function processDiffieHellman(data) {
     });
 }
 
-socket.on("acceptedDiffieHellman", async (data) => {
+socket.on("acceptedDiffieHellman", async(data) => {
     // Retrait des deux boutons
     $('#readyDiffieHellman').hide();
     $('#cancelDiffieHellman').hide();
@@ -552,14 +553,14 @@ socket.on("acceptedDiffieHellman", async (data) => {
         body: JSON.stringify(body),
         headers: { 'Content-Type': 'application/json' }
     })
-    
+
     res.json().then(response => {
         // Affichage de l'ID de conversation et de la clé symétrique 
         $('#generatedSymKey').val(`"${response.idChat}":  "${secretKey.toString(16)}", `);
         // Stockage de la paire en Map
         AESKeys.set(response.idChat, secretKey);
         // Envoi de la nouvelle conversation aux deux parties
-        socket.emit("newConversation", {userId1: response.userId1, userId2: response.userId2});
+        socket.emit("newConversation", { userId1: response.userId1, userId2: response.userId2 });
     }).catch(error => console.error('Error:', error))
 });
 
@@ -581,7 +582,7 @@ socket.on("notifDiffieHellman", (data) => {
         let receiverSecret = Math.floor(Math.random() * (data.p - 2)) + 2; // ToDo: Remplacer math.random par window.crypto
         data.publicB = expmod(data.g, receiverSecret, data.p);
         socket.emit("acceptedDiffieHellman", data);
-        
+
         $('#acceptDiffieHellman').off('click');
         await new Promise(r => setTimeout(r, 1000));
         $('#notifDHPopup').modal("hide");
@@ -593,27 +594,27 @@ socket.on("notifDiffieHellman", (data) => {
 
 function finishDiffieHellman(data, receiverSecret) {
     let secretKey = expmod(data.publicA, receiverSecret, data.p);
-    
+
     // ToDo : retrouver l'ID du chat
-    let idChat = null;       
+    let idChat = null;
 
     encryptedChats.forEach(conv => {
-        if ((conv.userId1._id == data.userId1 && conv.userId2._id == data.userId2)
-            || (conv.userId1._id == data.userId2 && conv.userId2._id == data.userId1)) {
-                idChat = conv._id;
+        if ((conv.userId1._id == data.userId1 && conv.userId2._id == data.userId2) ||
+            (conv.userId1._id == data.userId2 && conv.userId2._id == data.userId1)) {
+            idChat = conv._id;
         }
     });
-    
+
 
     $('#diffieHellmanPopup').modal({
-        backdrop: 'static',
-        keyboard: false
-    })
-    // Boutons de popup
+            backdrop: 'static',
+            keyboard: false
+        })
+        // Boutons de popup
     $('#readyDiffieHellman').hide();
     $('#cancelDiffieHellman').hide();
     $('#terminateDiffieHellman').show();
-    
+
     // ToDo: trouver un moyen de prévenir l'utilisateur que si il quitte, le protocole s'annule (et emit un cancelDiffieHellman)
     $('#diffieHellmanPopup').modal('show');
     $('#otherUserDFProgress').text(`La conversation chiffrée avec ${data.user1} a été créée.`);
@@ -652,7 +653,7 @@ function AESKeysPopup() {
         const jsonRegExp = new RegExp('\".+\"\ *\:\ *\".+\"'); // Regex "dfdf":"dsfsd"
         const parsed = ($('#AESKeysInput').val().match(jsonRegExp))[0];
         console.log(parsed);
-        
+
         if (parsed.length) {
             // Retirer les espaces
             let string = parsed.replace(/ /g, "").replace(/"/g, "");
@@ -665,8 +666,7 @@ function AESKeysPopup() {
             renderConversations();
             $('#AESKeysInput').val("");
             $('#AESKeysPopup').modal('hide');
-        }
-        else {
+        } else {
             $("#AESKeysError").text("Le format est invalide.");
             $("#AESKeysError").removeClass("invisible");
         }

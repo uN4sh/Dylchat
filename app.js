@@ -250,7 +250,7 @@ io.on('connection', async(socket) => {
 // Send to the client all the stored messages
 async function sendAllStoredMessages(socket) {
     let metadata = clientList.get(socket);
-    // let key = keys.get(socket).toString();
+    let key = keys.get(socket).toString();
 
     // Get tous les chats d'un user
     var convIds = new Array();
@@ -269,9 +269,9 @@ async function sendAllStoredMessages(socket) {
                 return a.time - b.time
             });
 
-            // msgs.forEach(message => {
-            //     message.content = CryptoJS.AES.encrypt(message.content, key).toString();
-            // });
+            msgs.forEach(message => {
+                message.content = CryptoJS.AES.encrypt(message.content, key).toString();
+            });
             socket.emit("allMessages", msgs);
         });
     });
