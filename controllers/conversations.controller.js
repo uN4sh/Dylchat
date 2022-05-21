@@ -1,6 +1,6 @@
 const User = require("../model/user");
 const Conversation = require("../model/conversation");
-const crypto = require('crypto');
+const Crypto = require("./crypto.controller");
 
 exports.getConversations = async (req, res, next) => {
 	if (!req.cookies.jwt)
@@ -12,19 +12,8 @@ exports.getConversations = async (req, res, next) => {
 
 		const conversations = await Conversation.find({
 			$and: [
-					{ $or: [{encrypted: null}, {encrypted: false}]}, 
 					{ $or: [{ userId1: user._id }, { userId2: user._id }, { userId1: null }] }
 				  ]
-			})
-				.populate("lastMessageId", "author content time")
-				.populate("userId1", "username")
-				.populate("userId2", "username")
-
-		const encryptedChats = await Conversation.find({
-			$and: [
-					{encrypted: true}, 
-					{ $or: [{ userId1: user._id }, { userId2: user._id }] }
-				  ] 
 			})
 				.populate("lastMessageId", "author content time")
 				.populate("userId1", "username")
@@ -36,14 +25,8 @@ exports.getConversations = async (req, res, next) => {
 			if (a.lastMessageId && b.lastMessageId) 
 				return b.lastMessageId.time - a.lastMessageId.time
 		});
-		// Tri des conversations par timestamp du dernier message
-		encryptedChats.sort(function (a, b) {
-			if (a.lastMessageId && b.lastMessageId) 
-				return b.lastMessageId.time - a.lastMessageId.time
-		});
 
-		res.status(200).json({ chats: conversations, encrypted: encryptedChats });
-
+		res.status(200).json({ chats: conversations });
 	} catch (err) {
 		res.status(401).json({ message: "Not successful", error: err.message })
 	}
@@ -119,16 +102,11 @@ exports.isDiffieHellmanable = async (req, res, next) => {
 		if (!user2.status)
 			return res.status(411).json({ error: "L'utilisateur doit être connecté pour engager un échange Diffie-Hellman et créer une conversation chiffrée de bout en bout." });
 		
-		// const p = 1301077; // ToDo : générer un nombre aléatoire
-		let DH = crypto.createDiffieHellman(16); // bit length // todo : pourquoi ça marche pas avec + de bits ?
-		const p = parseInt(DH.getPrime('hex'), 16);
-		console.log("p:",p);
 
-		const g = 12345;
-		return res.status(200).send({status:200, 
-									 user1: user.username, user2: user2.username, 
-									 userId1: user.id, userId2: user2.id,
-									 p: p, g: g	});
+		return res.status(200).send({ status:200, 
+									  user1: user.username, user2: user2.username, 
+									  userId1: user.id, userId2: user2.id,
+									  p: Crypto.p, g: Crypto.g });
 	} catch (err) {
 		res.status(401).json({ message: "Not successful", error: err.message })
 	}

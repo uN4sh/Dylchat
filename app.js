@@ -86,50 +86,7 @@ const Conversation = require("./model/conversation");
 
 const CryptoJS = require('crypto-js');
 
-// Square and Multiply
-function expmod(base, exponent, modulus) {
-    if (modulus === 1) return 0;
-    let result = 1;
-    base = base % modulus;
-    while (exponent > 0) {
-        if (exponent % 2 === 1)
-            result = (result * base) % modulus;
-        exponent = exponent >> 1;
-        base = (base * base) % modulus;
-    }
-    return result;
-}
-
-const keys = new Map();
-
-// Cribe d'Eratosthène
-function getPrime(min, max) {
-    let liste = Array(max + 1).fill(0).map((_, i) => i);
-
-    for (let i = 2; i < Math.sqrt(max + 1); i++) {
-        for (let j = i * 2; j < max + 1; j += i)
-            delete liste[j];
-    }
-
-    liste = Object.values(liste = liste.slice(min));
-    let index = Math.floor(Math.random() * liste.length);
-
-    return liste[index];
-}
-
-const p = getPrime(2 ** 19, (2 ** 21) - 1);
-const g = Math.floor(Math.random() * (p - 2)) + 2;
-const secret = Math.floor(Math.random() * (p - 2)) + 2; // ToDo: ceci est pour générer le petit a, c'est à faire coté client avec window.crypto
-const publicServer = expmod(g, secret, p);
-
-// ToDo: supprimer le DH en transit une fois le E2E OK
-// ToDo: supprimer l'AES en transit une fois le E2E OK
-io.on('connection', async(socket) => {
-    socket.emit('Diffie-Hellman', p, g, publicServer);
-    socket.on('Diffie-Hellman', (publicClient) => {
-        let key = expmod(publicClient, secret, p);
-        keys.set(socket, key);
-    });
+io.on('connection', async(socket) => { 
 
     // Check si le canal Discussions existe et le créer si non 
     const discussions = await Conversation.findOne({ userId1: null });
@@ -151,19 +108,10 @@ io.on('connection', async(socket) => {
     await User.updateOne({ token: cookies.jwt }, { $set: { status: 1 } });
     socket.emit("connected", metadata);
 
-    // ToDo: check si il y a un utilisateur avec token invalide et le déconnecter
-
     // ToDo: ne pas envoyer tous les messages (laisser l'user fetch les messages en cliquant sur une conv)
     sendAllStoredMessages(socket);
 
     socket.on("newMessage", async(message) => {
-        message.content = CryptoJS.AES.decrypt(message.content, keys.get(socket).toString());
-        message.content = message.content.toString(CryptoJS.enc.Utf8);
-        // Le contenu du message est maintenant en clair
-
-        // Copie du contenu en clair, car il sera chiffré selon le destinataire (chiffrement en transit)
-        let messageContent = message.content;
-
         let newMessage = new MessageModel(message);
         newMessage.save();
 
@@ -184,7 +132,6 @@ io.on('connection', async(socket) => {
         if (!conv.userId1) {
             clientList.forEach(function(metadata, clientSocket) {
                 console.log("Sent to " + metadata.username);
-                message.content = CryptoJS.AES.encrypt(messageContent, keys.get(clientSocket).toString()).toString();
                 clientSocket.emit("newMessage", message);
             });
         }
@@ -194,7 +141,6 @@ io.on('connection', async(socket) => {
             clientList.forEach(function(metadata, clientSocket) {
                 if (metadata.id.equals(conv.userId1) || metadata.id.equals(conv.userId2)) {
                     console.log("Sent to " + metadata.username);
-                    message.content = CryptoJS.AES.encrypt(messageContent, keys.get(clientSocket).toString()).toString();
                     clientSocket.emit("newMessage", message);
                 }
             });
@@ -239,7 +185,6 @@ io.on('connection', async(socket) => {
 
     // À la fermeture du socket: passe l'utilisateur hors ligne
     socket.on('disconnect', async() => {
-        keys.delete(socket);
         console.log("%s has disconnected", clientList.get(socket).username);
         await User.updateOne({ _id: clientList.get(socket).id }, { $set: { status: 0 } });
         clientList.delete(socket);
@@ -250,8 +195,6 @@ io.on('connection', async(socket) => {
 // Send to the client all the stored messages
 async function sendAllStoredMessages(socket) {
     let metadata = clientList.get(socket);
-    let key = keys.get(socket).toString();
-
     // Get tous les chats d'un user
     var convIds = new Array();
     await Conversation.find({
@@ -269,9 +212,6 @@ async function sendAllStoredMessages(socket) {
                 return a.time - b.time
             });
 
-            msgs.forEach(message => {
-                message.content = CryptoJS.AES.encrypt(message.content, key).toString();
-            });
             socket.emit("allMessages", msgs);
         });
     });

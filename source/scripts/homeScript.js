@@ -71,14 +71,11 @@ function expmod(base, exponent, modulus) {
     return result;
 }
 
-let key;
-
 let myPseudo = "Random";
 let myId = "";
 let activeConversationId;
 let messagesDict = {};
 let conversations = Array();
-let encryptedChats = Array();
 let AESKeys = new Map();
 
 /*
@@ -92,21 +89,13 @@ socket.on("connected", (metadata) => {
     console.log("We are connected,", metadata.username);
 });
 
-socket.on('Diffie-Hellman', (p, g, publicServeur) => {
-    let secret = Math.floor(Math.random() * (p - 2)) + 2; // ToDo: Remplacer math.random par window.crypto
-    let publicClient = expmod(g, secret, p);
-    socket.emit('Diffie-Hellman', publicClient);
-    key = expmod(publicServeur, secret, p);
-});
-
 // Que faire quand le client reçoit un message du serveur
 socket.on("newMessage", (message) => {
-    // ToDo: si le message est dans un chat chiffré
-    // Si l'user a déjà rempli la clé : le déchiffrer
-    // Sinon : rien faire
-
-    message.content = CryptoJS.AES.decrypt(message.content, key.toString());
-    message.content = message.content.toString(CryptoJS.enc.Utf8);
+    // Si le message est dans un chat chiffré déverrouillé : le déchiffrer
+    if (AESKeys.has(message.idchat)) {
+        message.content = CryptoJS.AES.decrypt(message.content, AESKeys.get(message.idchat));
+        message.content = message.content.toString(CryptoJS.enc.Utf8);
+    }
 
     // Stockage des messages dans le dictionnaire messagesDict selon les chats :
     //      "chatid": [message, message, message]
@@ -126,8 +115,6 @@ socket.on("newMessage", (message) => {
 
 socket.on("allMessages", (msgs) => {
     msgs.forEach(message => {
-        message.content = CryptoJS.AES.decrypt(message.content, key.toString());
-        message.content = message.content.toString(CryptoJS.enc.Utf8);
         if (!(message.idchat in messagesDict))
             messagesDict[message.idchat] = Array()
         messagesDict[message.idchat].push(message);
@@ -153,16 +140,21 @@ function convertTimestampToDate(timestamp) {
 async function renderConversations() {
     await getConversations().then(async function(res) {
         conversations = res.chats;
-        encryptedChats = res.encrypted;
+
         if (!conversations)
             return;
 
-        // Ajout des conversations chiffrées dont la clé est saisie dans l'array des conversations        
-        for (let i = encryptedChats.length - 1; i >= 0; --i) {
-            const enc = encryptedChats[i];
-            if (AESKeys.has(enc._id)) {
-                encryptedChats.splice(i, 1);
-                conversations.push(enc);
+        // Filtrage des conversations chiffrées dont la clé a été saisie         
+        let stillEncrypted = 0; // Nombre de conversations non déchiffrées
+        for (let i = conversations.length - 1; i >= 0; --i) {
+            if (conversations[i].encrypted) {
+                if (AESKeys.has(conversations[i]._id)) {
+                    conversations[i].unlocked = true;
+                }
+                else {
+                    conversations[i].unlocked = false;
+                    stillEncrypted++;
+                }
             }
         }
 
@@ -170,6 +162,9 @@ async function renderConversations() {
         await getOnlineUsers().then(function(onlineUsers) {
             $("#contact-list").empty();
             for (let i = 0; i < conversations.length; i++) {
+                // Pas d'affichage des conversations chiffrées non déverrouillées
+                if (conversations[i].encrypted && !conversations[i].unlocked)
+                    continue;
 
                 $("#contact-list").append(`
                     <div id="contact-${i}" class="row sideBar-body">
@@ -245,14 +240,14 @@ async function renderConversations() {
                 $(`#contact-${i}`).on("click", selectContact);
             }
 
-            // ToDo: à remplacer par if(encryptedChats.length une fois que tout est ok
-            if (encryptedChats && !AESKeys.length) {
+            // ToDo: réactiver le if quand tout est ok
+            // if (stillEncrypted) {
                 $("#contact-list").append(`
                 <div class="row sideBar-alert-body">
                     <div class="sideBar-main-alert">
                         <div class="row">
                             <div class="col-sm-8 col-xs-8 sideBar-alert">
-                                <span class="alert-meta"> 🔒 Vous avez ${encryptedChats.length} conversation(s) chiffrée(s) </span>
+                                <span class="alert-meta"> 🔒 Vous avez ${stillEncrypted} conversation(s) chiffrée(s) </span>
                             </div>
                             <div class="col-sm-8 col-xs-8 sideBar-alert">
                                 <span class="alert-meta text-link-blue" onclick="AESKeysPopup()"> Cliquer ici pour les déverrouiller </span>
@@ -261,7 +256,7 @@ async function renderConversations() {
                     </div>
                 </div>
                 `);
-            }
+            // }
         })
     });
 }
@@ -280,14 +275,17 @@ async function sendMessage() {
         console.log("Aucun message à envoyer");
         return;
     }
-
-    // ToDo : si on est dans une conversation chiffrée : chiffrer le message
-    // Sinon : envoyer directement
-    // ToDo : ajouter un event newEncryptedMessage pour ajouter l'id du second utilisateur à l'envoi du message
-
-    let encrypted = CryptoJS.AES.encrypt($("#chat-box").val(), key.toString());
-    let message = new Message(activeConversationId, myPseudo, encrypted.toString(), new Date().getTime());
-
+    
+    let message = null;
+    // Si on est dans une conversation chiffrée : chiffrer le message
+    if (AESKeys.has(activeConversationId)) {
+        let encrypted = CryptoJS.AES.encrypt($("#chat-box").val(), AESKeys.get(activeConversationId));
+        message = new Message(activeConversationId, myPseudo, encrypted.toString(), new Date().getTime());
+    } else {
+        // Sinon : envoyer directement
+        message = new Message(activeConversationId, myPseudo, $("#chat-box").val(), new Date().getTime())
+    }
+    
     socket.emit("newMessage", message);
     $("#chat-box").val("");
 }
@@ -558,7 +556,7 @@ socket.on("acceptedDiffieHellman", async(data) => {
         // Affichage de l'ID de conversation et de la clé symétrique 
         $('#generatedSymKey').val(`"${response.idChat}":  "${secretKey.toString(16)}", `);
         // Stockage de la paire en Map
-        AESKeys.set(response.idChat, secretKey);
+        AESKeys.set(response.idChat, secretKey.toString(16));
         // Envoi de la nouvelle conversation aux deux parties
         socket.emit("newConversation", { userId1: response.userId1, userId2: response.userId2 });
     }).catch(error => console.error('Error:', error))
@@ -597,11 +595,12 @@ function finishDiffieHellman(data, receiverSecret) {
 
     // ToDo : retrouver l'ID du chat
     let idChat = null;
-
-    encryptedChats.forEach(conv => {
-        if ((conv.userId1._id == data.userId1 && conv.userId2._id == data.userId2) ||
-            (conv.userId1._id == data.userId2 && conv.userId2._id == data.userId1)) {
-            idChat = conv._id;
+    conversations.forEach(conv => {
+        if (conv.userId1 != null) {
+            if ((conv.userId1._id == data.userId1 && conv.userId2._id == data.userId2) ||
+                (conv.userId1._id == data.userId2 && conv.userId2._id == data.userId1)) {
+                idChat = conv._id;
+            }
         }
     });
 
@@ -610,7 +609,8 @@ function finishDiffieHellman(data, receiverSecret) {
             backdrop: 'static',
             keyboard: false
         })
-        // Boutons de popup
+
+    // Boutons de popup
     $('#readyDiffieHellman').hide();
     $('#cancelDiffieHellman').hide();
     $('#terminateDiffieHellman').show();
@@ -621,7 +621,7 @@ function finishDiffieHellman(data, receiverSecret) {
     // Affichage de l'ID de conversation et de la clé symétrique 
     $('#generatedSymKey').val(`"${idChat}":  "${secretKey.toString(16)}", `);
     // Stockage de la paire en Map
-    AESKeys.set(idChat, secretKey);
+    AESKeys.set(idChat, secretKey.toString(16));
     $('#diffieHellmanError').text("Veillez à enregistrer la clé symétrique dans un fichier local de clés avant de fermer de cette fenêtre.");
     $('#diffieHellmanError').removeClass("invisible");
     renderConversations();
@@ -635,7 +635,18 @@ socket.on("cancelDiffieHellman", () => {
 
 /* -------------------- AES -------------------- */
 
-// ToDo: popup pour entrer les clés AES
+function decryptAllMessages(idChat, key) {
+    if (!(idChat in messagesDict)) // Pas d'ancien messages dans cette conversation 
+        return;
+    
+    let messagesArray = messagesDict[idChat];
+    for (let i = 0; i < messagesArray.length; i++) {
+        messagesArray[i].content = CryptoJS.AES.decrypt(messagesArray[i].content, AESKeys.get(idChat));
+        messagesArray[i].content = messagesArray[i].content.toString(CryptoJS.enc.Utf8);
+    }
+}
+
+// Pop-up pour la saisie des clés AES
 function AESKeysPopup() {
     $("#AESKeysError").addClass("invisible");
     $('#AESKeysPopup').modal('show');
@@ -651,17 +662,18 @@ function AESKeysPopup() {
 
         // Parsing des IDs conv / clés AES
         const jsonRegExp = new RegExp('\".+\"\ *\:\ *\".+\"'); // Regex "dfdf":"dsfsd"
-        const parsed = ($('#AESKeysInput').val().match(jsonRegExp))[0];
+        const parsed = ($('#AESKeysInput').val().match(jsonRegExp))[0]; // ToDo : tester cette méthode
         console.log(parsed);
 
         if (parsed.length) {
             // Retirer les espaces
             let string = parsed.replace(/ /g, "").replace(/"/g, "");
-            console.log(string);
             const keys = string.split(",");
             console.log(keys);
             for (const key of keys) {
                 AESKeys.set(key.split(":")[0], key.split(":")[1]);
+                // Déchiffrer les messages du chat
+                decryptAllMessages(key.split(":")[0], key.split(":")[1]) 
             }
             renderConversations();
             $('#AESKeysInput').val("");
