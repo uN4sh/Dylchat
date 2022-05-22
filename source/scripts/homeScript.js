@@ -57,19 +57,26 @@ async function getOnlineUsers() {
     }
 }
 
-// Square and Multiply
-function expmod(base, exponent, modulus) {
-    if (modulus === 1) return 0;
-    let result = 1;
-    base = base % modulus;
-    while (exponent > 0) {
-        if (exponent % 2 === 1)
-            result = (result * base) % modulus;
-        exponent = exponent >> 1;
-        base = (base * base) % modulus;
+// Square and Multiply from: https://gist.github.com/krzkaczor/0bdba0ee9555659ae5fe
+function expmod(a, b, n) {
+    a = a % n;
+    var result = 1;
+    var x = a;
+
+    while(b > 0){
+    var leastSignificantBit = b % 2;
+    b = Math.floor(b / 2);
+
+    if (leastSignificantBit == 1) {
+        result = result * x;
+        result = result % n;
+    }
+
+    x = x * x;
+    x = x % n;
     }
     return result;
-}
+};
 
 let myPseudo = "Random";
 let myId = "";
@@ -527,7 +534,9 @@ function processDiffieHellman(data) {
         $('#readyDiffieHellman').off('click');
         $('#otherUserDFProgress').text(`En attente de ${data.user2}...`);
         // Calcul de la valeur publique A du DH
-        senderSecret = Math.floor(Math.random() * (data.p - 2)) + 2; // ToDo: Remplacer math.random par window.crypto
+        let array = new Uint32Array(10);
+        window.crypto.getRandomValues(array);
+        senderSecret = array[0] % data.p;
         data.publicA = expmod(data.g, senderSecret, data.p);
         // Envoi des données au serveur pour transfert à user2
         socket.emit("engageDiffieHellman", data);
@@ -578,7 +587,9 @@ socket.on("notifDiffieHellman", (data) => {
     $('#acceptDiffieHellman').on('click', async function(e) {
         e.preventDefault();
         // Calcul de la valeur publique B du DH
-        let receiverSecret = Math.floor(Math.random() * (data.p - 2)) + 2; // ToDo: Remplacer math.random par window.crypto
+        let array = new Uint32Array(1);
+        window.crypto.getRandomValues(array);
+        let receiverSecret = array[0] % data.p;
         data.publicB = expmod(data.g, receiverSecret, data.p);
         socket.emit("acceptedDiffieHellman", data);
 
@@ -594,7 +605,6 @@ socket.on("notifDiffieHellman", (data) => {
 function finishDiffieHellman(data, receiverSecret) {
     let secretKey = expmod(data.publicA, receiverSecret, data.p);
 
-    // ToDo : retrouver l'ID du chat
     let idChat = null;
     conversations.forEach(conv => {
         if (conv.userId1 != null) {
