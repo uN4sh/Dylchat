@@ -524,6 +524,7 @@ function processDiffieHellman(data) {
 
     $('#readyDiffieHellman').on('click', function(e) {
         e.preventDefault();
+        $('#readyDiffieHellman').off('click');
         $('#otherUserDFProgress').text(`En attente de ${data.user2}...`);
         // Calcul de la valeur publique A du DH
         senderSecret = Math.floor(Math.random() * (data.p - 2)) + 2; // ToDo: Remplacer math.random par window.crypto
@@ -758,7 +759,7 @@ function openGeneralChat() {
     }
 
     conversations.forEach(conv => {
-        if (!("userId1" in conv)) {
+        if (conv.userId1 == null) {
             openChat(conv);
             return;
         }

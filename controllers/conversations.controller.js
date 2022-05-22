@@ -51,8 +51,8 @@ exports.newConversation = async (req, res, next) => {
 		const already = await Conversation.findOne(
 			{
 				$or: [
-					{ $and: [{ userId1: user.id }, { userId2: user2.id }] },
-					{ $and: [{ userId2: user.id }, { userId1: user2.id }] }
+					{ $and: [{ userId2: user.id }, { userId1: user2.id }, {encrypted: true}] },
+					{ $and: [{ userId1: user.id }, { userId2: user2.id }, {encrypted: true}] }
 				]
 			}
 		)
@@ -91,8 +91,8 @@ exports.isDiffieHellmanable = async (req, res, next) => {
 		const already = await Conversation.findOne(
 			{
 				$or: [
-					{ $and: [{ userId1: user.id }, { userId2: user2.id }] },
-					{ $and: [{ userId2: user.id }, { userId1: user2.id }] }
+					{ $and: [{ userId1: user.id }, { userId2: user2.id }, {encrypted: true}] },
+					{ $and: [{ userId2: user.id }, { userId1: user2.id }, {encrypted: true}] }
 				]
 			}
 		)
